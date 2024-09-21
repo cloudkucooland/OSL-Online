@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS `member`;
 
 CREATE TABLE `member` (
   `id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
-  `MemberStatus` enum('Annual Vows','Life Vows','Subscriber','Contributor','Removed') NOT NULL,
+  `MemberStatus` enum('Annual Vows','Life Vows','Contributor','Removed') NOT NULL,
   `FirstName` varchar(100) NOT NULL,
   `MiddleName` varchar(100),
   `LastName` varchar(100) NOT NULL,
@@ -75,3 +75,26 @@ CREATE TABLE `member` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+DROP TABLE IF EXISTS `subscriber`;
+
+CREATE TABLE `subscriber` (
+  `id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
+  `Name` varchar(100) NOT NULL,
+  `Attn` varchar(100),
+  `Address` varchar(255),
+  `AddressLine2` varchar(255),
+  `City` varchar(100),
+  `State` varchar(100),
+  `Country` varchar(100),
+  `PostalCode` varchar(20),
+  `PrimaryPhone` char(20),
+  `SecondaryPhone` varchar(20),
+  `PrimaryEmail` varchar(255),
+  `SecondaryEmail` varchar(255),
+  `DateRecordCreated` date NOT NULL,
+  `DatePaid` date NOT NULL,
+  `Doxology` enum('electronic','mailed','none') NOT NULL,
+  `Newsletter` enum('electronic','mailed','none') NOT NULL,
+  `Communication` enum('electronic','mailed','none') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;

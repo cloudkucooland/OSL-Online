@@ -17,7 +17,6 @@ func main() {
 		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
 	}
 
-
 	if err := model.Connect(ctx, dbpath); err != nil {
 		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
 		panic(err)
