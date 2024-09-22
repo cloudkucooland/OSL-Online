@@ -9,6 +9,27 @@ import (
 
 type Subscriber struct {
 	ID                int
+	Name              string
+	Attn              string
+	Address           string
+	AddressLine2      string
+	City              string
+	State             string
+	Country           string
+	PostalCode        string
+	PrimaryPhone      string
+	SecondaryPhone    string
+	PrimaryEmail      string
+	SecondaryEmail    string
+	DateRecordCreated time.Time
+	DatePaid          time.Time
+	Doxology          string
+	Newsletter        string
+	Communication     string
+}
+
+type SubscriberImport struct {
+	ID                int
 	Name              sql.NullString
 	Attn              sql.NullString
 	Address           sql.NullString
@@ -53,7 +74,17 @@ func GetSubscriber(id int) (*Subscriber, error) {
 	return &n, nil
 }
 
-func SetSubscriber(n *Subscriber) error {
+func (n *Subscriber) Store() error {
+	_, err := db.Exec("REPLACE INTO subscriber (ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.Name, n.Attn, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.DateRecordCreated, n.DatePaid, n.Doxology, n.Newsletter, n.Communication)
+
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+func (n *SubscriberImport) Store() error {
 	_, err := db.Exec("REPLACE INTO subscriber (ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.Name, n.Attn, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.DateRecordCreated, n.DatePaid, n.Doxology, n.Newsletter, n.Communication)
 
 	if err != nil {

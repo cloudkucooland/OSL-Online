@@ -65,7 +65,7 @@ func main() {
 }
 
 func doMember(id int, d []string) {
-	var m model.Member
+	var m model.MemberImport
 
 	m.ID = id
 	m.LastName.Valid = d[0] != ""
@@ -293,12 +293,12 @@ func doMember(id int, d []string) {
 	m.PostalCode.Valid = d[184] != ""
 	m.PostalCode.String = d[184]
 
-	model.SetMember(&m)
+	(&m).Store()
 	model.PrintMember(m.ID)
 }
 
 func doOrg(id int, d []string) {
-	var s model.Subscriber
+	var s model.SubscriberImport
 
 	s.ID = id
 	s.Name.Valid = d[0] != ""
@@ -348,7 +348,7 @@ func doOrg(id int, d []string) {
 	s.PostalCode.Valid = d[184] != ""
 	s.PostalCode.String = d[184]
 
-	model.SetSubscriber(&s)
+	(&s).Store()
 	processed, _ := model.GetSubscriber(id)
 
 	fmt.Println(processed)

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type Member struct {
+type MemberImport struct {
 	ID                  int
 	MemberStatus        sql.NullString
 	FirstName           sql.NullString
@@ -51,6 +51,52 @@ type Member struct {
 	Occupation          sql.NullString
 	Employeer           sql.NullString
 	Denomination        sql.NullString
+}
+
+type Member struct {
+	ID                  int
+	MemberStatus        string
+	FirstName           string
+	MiddleName          string
+	LastName            string
+	PreferredName       string
+	Title               string
+	LifevowName         string
+	Suffix              string
+	Address             string
+	AddressLine2        string
+	City                string
+	State               string
+	Country             string
+	PostalCode          string
+	PrimaryPhone        string
+	SecondaryPhone      string
+	PrimaryEmail        string
+	SecondaryEmail      string
+	BirthDate           time.Time
+	DateRecordCreated   time.Time
+	Chapter             string
+	DateFirstVows       time.Time
+	DateReaffirmation   time.Time
+	DateRemoved         time.Time
+	DateFirstProfession time.Time
+	DateDeceased        time.Time
+	DateNovitiate       time.Time
+	Status              string
+	HowJoined           string
+	HowRemoved          string
+	ListInDirectory     bool
+	ListAddress         bool
+	ListPrimaryPhone    bool
+	ListSecondaryPhone  bool
+	ListPrimaryEmail    bool
+	ListSecondaryEmail  bool
+	Doxology            string
+	Newsletter          string
+	Communication       string
+	Occupation          string
+	Employeer           string
+	Denomination        string
 }
 
 func GetMember(id int) (*Member, error) {
@@ -107,7 +153,18 @@ func GetMember(id int) (*Member, error) {
 	return n, nil
 }
 
-func SetMember(n *Member) error {
+func (n *Member) Store() error {
+	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
+
+	if err != nil {
+		fmt.Printf("%+v\n", n)
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+func (n *MemberImport) Store() error {
 	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
 	if err != nil {
@@ -123,8 +180,8 @@ func PrintMember(id int) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Name: %s %s %s %s\n", m.Title.String, m.PreferredName.String, m.LastName.String, m.Suffix.String)
-	fmt.Printf("Member Status: %s\n", m.MemberStatus.String)
+	fmt.Printf("Name: %s %s %s %s\n", m.Title, m.PreferredName, m.LastName, m.Suffix)
+	fmt.Printf("Member Status: %s\n", m.MemberStatus)
 	fmt.Println(" -- ")
 }
 

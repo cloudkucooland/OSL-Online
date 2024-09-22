@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetAuthData(id string) (string, int, error) {
@@ -20,4 +22,17 @@ func GetAuthData(id string) (string, int, error) {
 		return "", 0, err
 	}
 	return pwhash, level, nil
+}
+
+func SetAuthData(id string, pw string, level int) error {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(pw), 14)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("REPLACE INTO auth VALUES (?,?,?)", id, bytes, level)
+	if err != nil {
+		return err
+	}
+	return nil
 }
