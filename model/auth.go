@@ -11,7 +11,7 @@ import (
 func GetAuthData(id string) (string, int, error) {
 	var pwhash string
 	var level int
-	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE ID = ?", id).Scan(&pwhash, &level)
+	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", id).Scan(&pwhash, &level)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("user not found")
 		slog.Error(err.Error(), "id", id)

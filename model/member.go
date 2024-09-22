@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// MemberImport is the format used by the import tool and in the main query since NULLs are possible
 type MemberImport struct {
 	ID                  int
 	MemberStatus        sql.NullString
@@ -53,6 +54,7 @@ type MemberImport struct {
 	Denomination        sql.NullString
 }
 
+// Member is the format sent to the UI
 type Member struct {
 	ID                  int
 	MemberStatus        string
@@ -99,9 +101,9 @@ type Member struct {
 	Denomination        string
 }
 
+// GetMember returns a populated Member struct, NULLs converted to ""
 func GetMember(id int) (*Member, error) {
-	var m Member
-	var n = &m
+	var n MemberImport
 
 	// these will always be set, need NullString?
 	var ynDirectory, ynAddress, ynPrimaryPhone, ynSecondaryPhone, ynPrimaryEmail, ynSecondaryEmail sql.NullString
@@ -150,9 +152,59 @@ func GetMember(id int) (*Member, error) {
 	n.ListPrimaryEmail = yn2b(ynPrimaryEmail)
 	n.ListSecondaryEmail = yn2b(ynSecondaryEmail)
 
-	return n, nil
+	return (&n).toMember(), nil
 }
 
+// TODO - "" any 1800 times
+func (n *MemberImport) toMember() *Member {
+	return &Member{
+		ID:                  n.ID,
+		MemberStatus:        n.MemberStatus.String,
+		FirstName:           n.FirstName.String,
+		MiddleName:          n.MiddleName.String,
+		LastName:            n.LastName.String,
+		PreferredName:       n.PreferredName.String,
+		Title:               n.Title.String,
+		LifevowName:         n.LifevowName.String,
+		Suffix:              n.Suffix.String,
+		Address:             n.Address.String,
+		AddressLine2:        n.AddressLine2.String,
+		City:                n.City.String,
+		State:               n.State.String,
+		Country:             n.Country.String,
+		PostalCode:          n.PostalCode.String,
+		PrimaryPhone:        n.PrimaryPhone.String,
+		SecondaryPhone:      n.SecondaryPhone.String,
+		PrimaryEmail:        n.PrimaryEmail.String,
+		SecondaryEmail:      n.SecondaryEmail.String,
+		BirthDate:           n.BirthDate,
+		DateRecordCreated:   n.DateRecordCreated,
+		Chapter:             n.Chapter.String,
+		DateFirstVows:       n.DateFirstVows,
+		DateReaffirmation:   n.DateReaffirmation,
+		DateRemoved:         n.DateRemoved,
+		DateFirstProfession: n.DateFirstProfession,
+		DateDeceased:        n.DateDeceased,
+		DateNovitiate:       n.DateNovitiate,
+		Status:              n.Status.String,
+		HowJoined:           n.HowJoined.String,
+		HowRemoved:          n.HowRemoved.String,
+		ListInDirectory:     n.ListInDirectory,
+		ListAddress:         n.ListAddress,
+		ListPrimaryPhone:    n.ListPrimaryPhone,
+		ListSecondaryPhone:  n.ListSecondaryPhone,
+		ListPrimaryEmail:    n.ListPrimaryEmail,
+		ListSecondaryEmail:  n.ListSecondaryEmail,
+		Doxology:            n.Doxology.String,
+		Newsletter:          n.Newsletter.String,
+		Communication:       n.Communication.String,
+		Occupation:          n.Occupation.String,
+		Employeer:           n.Employeer.String,
+		Denomination:        n.Denomination.String,
+	}
+}
+
+// probably don't want to use this one since it will write "" over the top of NULLs -- need a Member.toImport()
 func (n *Member) Store() error {
 	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
