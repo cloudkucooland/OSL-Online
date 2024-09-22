@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
+	"github.com/cloudkucooland/OSL-Online/rest"
 )
 
 func main() {
@@ -22,12 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	m, err := model.GetMember(1)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+x", m)
+	go rest.Start(ctx)
+
+	sigch := make(chan os.Signal, 1)
+	signal.Notify(sigch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
+	sig := <-sigch
+	slog.Info("shutdown", "requested by signal", sig)
 
 	shutdown()
-
+	time.Sleep(2)
 }
