@@ -98,3 +98,13 @@ CREATE TABLE `subscriber` (
   `Communication` enum('electronic','mailed','none') NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+DROP TABLE IF EXISTS `auth`;
+
+CREATE TABLE `auth` (
+  `user` varchar(100) NOT NULL,
+  `pwhash` varchar(100) NOT NULL,
+  `level` tinyint(2) NOT NULL,
+  PRIMARY KEY (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
