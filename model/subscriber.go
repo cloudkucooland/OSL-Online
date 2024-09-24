@@ -50,7 +50,7 @@ type SubscriberImport struct {
 }
 
 func GetSubscriber(id int) (*Subscriber, error) {
-	var n Subscriber
+	var n SubscriberImport
 
 	var created, paid sql.NullString
 
@@ -71,7 +71,30 @@ func GetSubscriber(id int) (*Subscriber, error) {
 	if paid.Valid {
 		n.DatePaid, _ = time.Parse("2006-01-02", paid.String)
 	}
-	return &n, nil
+	return (&n).toSubscriber(), nil
+}
+
+func (n *SubscriberImport) toSubscriber() *Subscriber {
+	return &Subscriber{
+		ID:                n.ID,
+		Name:              n.Name.String,
+		Attn:              n.Attn.String,
+		Address:           n.Address.String,
+		AddressLine2:      n.AddressLine2.String,
+		City:              n.City.String,
+		State:             n.State.String,
+		Country:           n.Country.String,
+		PostalCode:        n.PostalCode.String,
+		PrimaryPhone:      n.PrimaryPhone.String,
+		SecondaryPhone:    n.SecondaryPhone.String,
+		PrimaryEmail:      n.PrimaryEmail.String,
+		SecondaryEmail:    n.SecondaryEmail.String,
+		DateRecordCreated: n.DateRecordCreated,
+		DatePaid:          n.DatePaid,
+		Doxology:          n.Doxology.String,
+		Newsletter:        n.Newsletter.String,
+		Communication:     n.Communication.String,
+	}
 }
 
 func (n *Subscriber) Store() error {
@@ -91,5 +114,10 @@ func (n *SubscriberImport) Store() error {
 		slog.Error(err.Error())
 		return err
 	}
+	return nil
+}
+
+func SetSubscriberField(id int, field string, value string) error {
+	slog.Info("updating", "id", id, "field", field, "value", value)
 	return nil
 }

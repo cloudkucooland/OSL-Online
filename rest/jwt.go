@@ -98,6 +98,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	slog.Error("minting jwt", "username", username, "level", level)
 	JWT, err := mintjwt(username, authLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
@@ -105,7 +106,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	slog.Info("login", "username", username, "level", level)
+	slog.Error("login", "username", username, "level", level)
 	headers(res, req)
 	res.Header().Set("content-type", "application/jwt")
 	http.SetCookie(res, &http.Cookie{

@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	// "log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -51,9 +50,9 @@ func main() {
 		// the header will err
 		id, err := strconv.Atoi(d[102])
 		if err != nil {
-			// fmt.Println(err.Error())
 			continue
 		}
+		id = id - 736900424328000
 
 		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" {
 			doOrg(id, d)
@@ -230,16 +229,22 @@ func doMember(id int, d []string) {
 	switch d[119] {
 	case "Clergy", "Deacon", "Chaplain":
 		m.Status.String = "clergy"
+		m.Status.Valid = true
 	case "Lay", "Laity", "", "Military":
 		m.Status.String = "laity"
+		m.Status.Valid = true
 	case "Student":
 		m.Status.String = "student"
+		m.Status.Valid = true
 	case "Retired":
 		m.Status.String = "retired laity"
+		m.Status.Valid = true
 	case "Retired Clergy":
 		m.Status.String = "retired clergy"
+		m.Status.Valid = true
 	default:
-		// fmt.Printf("\nUnknown status: [%s]\n", d[119])
+		fmt.Printf("\nUnknown status: [%s]\n", d[119])
+		m.Status.Valid = false
 	}
 
 	m.PreferredName.Valid = d[120] != ""
@@ -293,8 +298,9 @@ func doMember(id int, d []string) {
 	m.PostalCode.Valid = d[184] != ""
 	m.PostalCode.String = d[184]
 
+	// fmt.Printf("%+v\n%+v\n", d, m)
 	(&m).Store()
-	model.PrintMember(m.ID)
+	// model.PrintMember(m.ID)
 }
 
 func doOrg(id int, d []string) {
@@ -349,7 +355,6 @@ func doOrg(id int, d []string) {
 	s.PostalCode.String = d[184]
 
 	(&s).Store()
-	processed, _ := model.GetSubscriber(id)
-
-	fmt.Println(processed)
+	// processed, _ := model.GetSubscriber(id)
+	// fmt.Println(processed)
 }

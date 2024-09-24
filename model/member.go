@@ -209,7 +209,6 @@ func (n *Member) Store() error {
 	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
 	if err != nil {
-		fmt.Printf("%+v\n", n)
 		slog.Error(err.Error())
 		return err
 	}
@@ -220,7 +219,6 @@ func (n *MemberImport) Store() error {
 	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
 	if err != nil {
-		fmt.Printf("%+v\n", n)
 		slog.Error(err.Error())
 		return err
 	}
@@ -238,7 +236,7 @@ func PrintMember(id int) {
 }
 
 func yn2b(yn sql.NullString) bool {
-	if yn.Valid && yn.String == "YES" {
+	if yn.Valid && (yn.String == "YES") {
 		return true
 	}
 	return false
@@ -252,4 +250,52 @@ func b2yn(b bool) sql.NullString {
 	}
 	s.String = "NO"
 	return s
+}
+
+func SetMemberField(id int, field string, value string) error {
+	slog.Info("updating", "id", id, "field", field, "value", value)
+
+	if field == "id" {
+		err := fmt.Errorf("cannot change ID")
+		slog.Error(err.Error())
+		return err
+	}
+
+	var nn sql.NullString
+
+	switch field {
+	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
+		nn.Valid = true
+		if value == "true" || value == "Yes" {
+			nn.String = "YES"
+		} else {
+			nn.String = "NO"
+		}
+	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateFirstProfession", "DateDeceased", "DateNovitiate":
+		if value == "" || value == "1800-01-01" {
+			nn.String = ""
+			nn.Valid  = false
+		} else {
+			// XXX do sanity checking, parse and reformat
+			nn.String = value
+			nn.Valid = true
+		}
+	default:
+		if value == "" {
+			nn.Valid = false
+			nn.String = ""
+		} else {
+			nn.Valid = true
+			nn.String = value
+		}
+	}
+
+	// XXX don't do this,... 
+	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
+
+	if _, err := db.Exec(q, nn, id); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
 }

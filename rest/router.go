@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strings"
+	// "strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -31,13 +31,18 @@ func getServeMux() *httprouter.Router {
 	m.POST("/api/v1/getJWT", login)
 
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
+	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
 
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
+
+	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
+	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
 
 	return m
 }
 
 func headers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Server", "OSL-Member-Manager")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
@@ -45,13 +50,14 @@ func headers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH")
 	w.Header().Add("Access-Control-Allow-Credentials", "true")
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Accept, If-Modified-Since, If-Match, If-None-Match, Authorization")
-
 	w.Header().Set("Content-Type", jsonType)
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {
+	headers(w, r)
+
 	// default: redirect to webui
-	if r.URL.String() == "" || r.URL.String() == "/" {
+	/* if r.URL.String() == "" || r.URL.String() == "/" {
 		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
 		return
 	}
@@ -70,4 +76,6 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	newLoc := fmt.Sprintf("/static/index.html?u=%s", r.URL)
 	slog.Debug("not found, redirecting", "request", r.URL.String(), "new", newLoc, "method", r.Method)
 	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
+	*/
+	http.Error(w, "Not Found", http.StatusNotFound)
 }
