@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 )
 
@@ -272,8 +273,8 @@ func SetMemberField(id int, field string, value string) error {
 			nn.String = "NO"
 		}
 	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateFirstProfession", "DateDeceased", "DateNovitiate":
-		if value == "" || value == "1800-01-01" {
-			nn.String = ""
+		if value == "" || value < "1900-00-00" {
+			nn.String = "1800-01-01"
 			nn.Valid  = false
 		} else {
 			// XXX do sanity checking, parse and reformat
@@ -281,7 +282,7 @@ func SetMemberField(id int, field string, value string) error {
 			nn.Valid = true
 		}
 	default:
-		if value == "" {
+		if value == "" || strings.TrimSpace(value) == "" {
 			nn.Valid = false
 			nn.String = ""
 		} else {
@@ -292,7 +293,9 @@ func SetMemberField(id int, field string, value string) error {
 
 	// XXX don't do this,... 
 	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
-
+	if nn.Valid {
+		fmt.Println(nn.String)
+	}
 	if _, err := db.Exec(q, nn, id); err != nil {
 		slog.Error(err.Error())
 		return err
