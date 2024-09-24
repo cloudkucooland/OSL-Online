@@ -75,6 +75,6 @@ async function resetSearch(e) {
 
 <div>
 <p>
-<a href="/">Member Search</a>
+<a href="#/">Member Search</a>
 </p>
 </div>
