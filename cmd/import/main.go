@@ -52,9 +52,9 @@ func main() {
 		if err != nil {
 			continue
 		}
-		id = id - 736900424328000
+		id = (id - 736900424328000)
 
-		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" {
+		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" || d[109] == "Copy Editor" || d[109] == "Author" {
 			doOrg(id, d)
 		} else {
 			doMember(id, d)
@@ -150,7 +150,6 @@ func doMember(id int, d []string) {
 
 	m.ListInDirectory = d[101] == "Yes"
 
-	// `MemberStatus` enum('Annual Vows','Life Vows','Contributor','Removed') NOT NULL,
 	m.MemberStatus.Valid = true
 	m.Doxology.Valid = true
 	m.Newsletter.Valid = true
@@ -171,11 +170,6 @@ func doMember(id int, d []string) {
 		m.Newsletter.String = "electronic"
 		m.Communication.String = "mailed"
 		m.MemberStatus.String = "Life Vows"
-	case "Contributor", "Copy Editor", "Author":
-		m.Doxology.String = "none"
-		m.Newsletter.String = "none"
-		m.Communication.String = "none"
-		m.MemberStatus.String = "Contributor"
 	case "Hold Periodicals - Annual Vows":
 		m.Doxology.String = "none"
 		m.Newsletter.String = "electronic"
@@ -186,15 +180,15 @@ func doMember(id int, d []string) {
 		m.Newsletter.String = "none"
 		m.Communication.String = "none"
 		m.MemberStatus.String = "Removed"
-	case "Subscriber_", "Doxology Only_", "Doxology_":
-		m.Doxology.String = "mailed"
+	case "Contributor":
+		m.Doxology.String = "none"
 		m.Newsletter.String = "none"
-		m.Communication.String = "none"
+		m.Communication.String = "mailed"
 		m.MemberStatus.String = "Contributor"
 	default:
 		fmt.Printf("Unknown member status: [%s]\n", d[109])
-		m.Doxology.String = "electronic"
-		m.Newsletter.String = "electronic"
+		m.Doxology.String = "none"
+		m.Newsletter.String = "none"
 		m.Communication.String = "mailed"
 		m.MemberStatus.String = "Contributor"
 	}
