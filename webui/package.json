@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "format": "prettier --write .",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -22,5 +24,6 @@
     "vite": "^5.4.1"
   },
   "dependencies": {
+    "svelte-check": "^4.0.2"
   }
 }
