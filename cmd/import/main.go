@@ -36,7 +36,7 @@ func main() {
 	r.TrimLeadingSpace = true
 	r.ReuseRecord = true
 
-	errTime, _ = time.Parse("1/2/2006", "1/1/1800")
+	errTime, _ = time.Parse("1/2/2006", "1/1/0001")
 
 	for {
 		d, err := r.Read()
@@ -54,7 +54,7 @@ func main() {
 		}
 		id = (id - 736900424328000)
 
-		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" || d[109] == "Copy Editor" || d[109] == "Author" {
+		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" || d[109] == "Copy Editor" || d[109] == "Author" || d[109] == "Contributor" {
 			doOrg(id, d)
 		} else {
 			doMember(id, d)
@@ -75,7 +75,8 @@ func doMember(id int, d []string) {
 	m.PrimaryPhone.String = d[2]
 	m.Address.Valid = d[4] != ""
 	m.Address.String = d[4]
-	m.ListAddress = d[5] != "No" // Unlisted vs. listed
+	m.ListAddress.Valid = true
+	m.ListAddress.Bool = d[5] == "No" // Unlisted vs. listed
 	t, err := time.Parse("1/2/2006", d[20])
 	if err != nil {
 		m.BirthDate = errTime
@@ -84,7 +85,8 @@ func doMember(id int, d []string) {
 	}
 	m.SecondaryPhone.Valid = d[25] != ""
 	m.SecondaryPhone.String = d[25]
-	m.ListSecondaryPhone = d[26] != "No" // Unlisted vs. listed
+	m.ListSecondaryPhone.Valid = true
+	m.ListSecondaryPhone.Bool = d[26] == "No" // Unlisted vs. listed
 	m.City.Valid = d[27] != ""
 	m.City.String = d[27]
 	m.Country.Valid = d[31] != ""
@@ -119,11 +121,13 @@ func doMember(id int, d []string) {
 
 	m.PrimaryEmail.Valid = d[42] != ""
 	m.PrimaryEmail.String = d[42]
-	m.ListPrimaryEmail = d[44] != "No" // Unlisted vs. listed
+	m.ListPrimaryEmail.Valid = true
+	m.ListPrimaryEmail.Bool = d[44] == "No" // Unlisted vs. listed
 
 	m.SecondaryEmail.Valid = d[45] != ""
 	m.SecondaryEmail.String = d[45]
-	m.ListSecondaryEmail = d[46] != "No" // Unlisted vs. listed
+	m.ListSecondaryEmail.Valid = true
+	m.ListSecondaryEmail.Bool = d[46] == "No" // Unlisted vs. listed
 
 	m.Employeer.Valid = d[51] != ""
 	m.Employeer.String = d[51]
@@ -148,7 +152,8 @@ func doMember(id int, d []string) {
 	m.HowRemoved.Valid = d[98] != ""
 	m.HowRemoved.String = d[98]
 
-	m.ListInDirectory = d[101] == "Yes"
+	m.ListInDirectory.Valid = true
+	m.ListInDirectory.Bool = d[101] == "Yes"
 
 	m.MemberStatus.Valid = true
 	m.Doxology.Valid = true
@@ -180,7 +185,7 @@ func doMember(id int, d []string) {
 		m.Newsletter.String = "none"
 		m.Communication.String = "none"
 		m.MemberStatus.String = "Removed"
-	case "Contributor":
+	case "_Contributor":
 		m.Doxology.String = "none"
 		m.Newsletter.String = "none"
 		m.Communication.String = "mailed"
@@ -189,8 +194,8 @@ func doMember(id int, d []string) {
 		fmt.Printf("Unknown member status: [%s]\n", d[109])
 		m.Doxology.String = "none"
 		m.Newsletter.String = "none"
-		m.Communication.String = "mailed"
-		m.MemberStatus.String = "Contributor"
+		m.Communication.String = "none"
+		m.MemberStatus.String = "Removed"
 	}
 	m.MemberStatus.Valid = true
 
@@ -218,7 +223,8 @@ func doMember(id int, d []string) {
 	m.Occupation.Valid = d[113] != ""
 	m.Occupation.String = d[113]
 
-	m.ListPrimaryPhone = d[116] != "No" // Unlisted vs. listed
+	m.ListPrimaryPhone.Valid = true
+	m.ListPrimaryPhone.Bool = d[116] == "No" // Unlisted vs. listed
 
 	switch d[119] {
 	case "Clergy", "Deacon", "Chaplain":
@@ -291,6 +297,25 @@ func doMember(id int, d []string) {
 
 	m.PostalCode.Valid = d[184] != ""
 	m.PostalCode.String = d[184]
+
+	if d[5] == "Yes" {
+		fmt.Printf("ListAddress: [%t] (was unlisted [%s])\n", m.ListAddress, d[5])
+	}
+	if d[26] == "Yes" {
+		fmt.Printf("ListSecondaryPhone: [%t] (was unlisted [%s])\n", m.ListSecondaryPhone, d[26])
+	}
+	if d[44] == "Yes" {
+		fmt.Printf("ListPrimaryEmail: [%t] (was unlisted [%s]) %s %s\n", m.ListPrimaryEmail, d[44], m.FirstName.String, m.LastName.String)
+	}
+	if d[46] == "Yes" {
+		fmt.Printf("ListSecondaryEmail: [%t] (was unlisted [%s]) %s %s\n", m.ListSecondaryEmail, d[46], m.FirstName.String, m.LastName.String)
+	}
+	if d[101] == "No" {
+		fmt.Printf("ListInDirectory: [%t] ([was listed: %s]) %s %s\n", m.ListInDirectory, d[101], m.FirstName.String, m.LastName.String)
+	}
+	if d[116] == "Yes" {
+		fmt.Printf("ListPrimaryPhone: [%t] (was unlisted [%s]) %s %s\n", m.ListPrimaryPhone, d[116], m.FirstName.String, m.LastName.String)
+	}
 
 	// fmt.Printf("%+v\n%+v\n", d, m)
 	(&m).Store()
