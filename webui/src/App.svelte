@@ -6,7 +6,6 @@ import { DarkMode } from 'flowbite-svelte';
 
 import HomePage from "./routes/HomePage.svelte";
 import Login from "./routes/Login.svelte";
-import Downloads from "./routes/Downloads.svelte";
 import Reports from "./routes/Reports.svelte";
 import Member from "./routes/Member.svelte";
 import AddMember from "./routes/AddMember.svelte";
@@ -21,7 +20,6 @@ const routes = {
   "/Search/:query": HomePage,
 
   "/login": Login,
-  "/download": Downloads,
   "/reports": Reports,
 
   "/member/:id": Member,
@@ -39,7 +37,6 @@ const routes = {
   </NavBrand>
   <NavHamburger></NavHamburger>
   <NavUl>
-    <NavLi href="#/download">Mail Merge Lists</NavLi>
     <NavLi href="#/reports">Reports</NavLi>
   </NavUl>
 </Navbar>
