@@ -17,9 +17,9 @@ CREATE TABLE `Retreat` (
 DROP TABLE IF EXISTS `auditlog`;
 
 CREATE TABLE `auditlog` (
-  `Changer` bigint(16) unsigned NOT NULL,
-  `Changee` bigint(16) unsigned NOT NULL,
-  `Field` varchar(16),
+  `Changer` int(9) unsigned NOT NULL,
+  `Changee` int(9) unsigned NOT NULL,
+  `Field` varchar(32),
   `Value` varchar(100),
   `Date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
@@ -31,7 +31,7 @@ CREATE TABLE `auditlog` (
 DROP TABLE IF EXISTS `member`;
 
 CREATE TABLE `member` (
-  `id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(9) unsigned NOT NULL AUTO_INCREMENT,
   `MemberStatus` enum('Annual Vows','Life Vows','Friend','Benefactor','Removed') NOT NULL,
   `FirstName` varchar(50) NOT NULL,
   `MiddleName` varchar(50),
@@ -80,7 +80,7 @@ CREATE TABLE `member` (
 DROP TABLE IF EXISTS `subscriber`;
 
 CREATE TABLE `subscriber` (
-  `id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(9) unsigned NOT NULL AUTO_INCREMENT,
   `Name` varchar(100) NOT NULL,
   `Attn` varchar(100),
   `Address` varchar(100),
