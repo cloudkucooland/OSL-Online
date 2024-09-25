@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"strconv"
 	"time"
 
@@ -37,7 +38,7 @@ func main() {
 	r.ReuseRecord = true
 
 	errTime, _ = time.Parse("1/2/2006", "1/1/0001")
-
+	id := 1000 // starting ID
 	for {
 		d, err := r.Read()
 		if err == io.EOF {
@@ -48,11 +49,12 @@ func main() {
 		}
 
 		// the header will err
-		id, err := strconv.Atoi(d[102])
-		if err != nil {
+		checkID, err := strconv.Atoi(d[102])
+		if err != nil || checkID == 0 {
 			continue
 		}
-		id = (id - 736900424328000)
+		// we don't use the ID because it's crazy huge
+		id = id + 1
 
 		if d[1] == "ORGANIZATION" || d[14] == "ORGANIZATION" || d[109] == "Subscriber" || d[109] == "Doxology" || d[109] == "Doxology Only" || d[109] == "Copy Editor" || d[109] == "Author" || d[109] == "Contributor" {
 			doOrg(id, d)
@@ -265,7 +267,7 @@ func doMember(id int, d []string) {
 
 	if d[138] != "" && d[138] != "OSL" {
 		m.Suffix.Valid = true
-		m.Suffix.String = d[138]
+		m.Suffix.String = strings.TrimSuffix(d[138], ", OSL")
 	} else {
 		m.Suffix.Valid = false
 		m.Suffix.String = ""
@@ -297,25 +299,6 @@ func doMember(id int, d []string) {
 
 	m.PostalCode.Valid = d[184] != ""
 	m.PostalCode.String = d[184]
-
-	if d[5] == "Yes" {
-		fmt.Printf("ListAddress: [%t] (was unlisted [%s])\n", m.ListAddress, d[5])
-	}
-	if d[26] == "Yes" {
-		fmt.Printf("ListSecondaryPhone: [%t] (was unlisted [%s])\n", m.ListSecondaryPhone, d[26])
-	}
-	if d[44] == "Yes" {
-		fmt.Printf("ListPrimaryEmail: [%t] (was unlisted [%s]) %s %s\n", m.ListPrimaryEmail, d[44], m.FirstName.String, m.LastName.String)
-	}
-	if d[46] == "Yes" {
-		fmt.Printf("ListSecondaryEmail: [%t] (was unlisted [%s]) %s %s\n", m.ListSecondaryEmail, d[46], m.FirstName.String, m.LastName.String)
-	}
-	if d[101] == "No" {
-		fmt.Printf("ListInDirectory: [%t] ([was listed: %s]) %s %s\n", m.ListInDirectory, d[101], m.FirstName.String, m.LastName.String)
-	}
-	if d[116] == "Yes" {
-		fmt.Printf("ListPrimaryPhone: [%t] (was unlisted [%s]) %s %s\n", m.ListPrimaryPhone, d[116], m.FirstName.String, m.LastName.String)
-	}
 
 	// fmt.Printf("%+v\n%+v\n", d, m)
 	(&m).Store()
