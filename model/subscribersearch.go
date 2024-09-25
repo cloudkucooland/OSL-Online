@@ -8,7 +8,7 @@ import (
 
 // SearchResult is the format sent to the UI
 type SubSearchResult struct {
-	ID           int
+	ID   int
 	Name string
 	Attn string
 }
