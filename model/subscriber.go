@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 )
 
@@ -119,5 +120,50 @@ func (n *SubscriberImport) Store() error {
 
 func SetSubscriberField(id int, field string, value string) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
+
+	if field == "id" {
+		err := fmt.Errorf("cannot change ID")
+		slog.Error(err.Error())
+		return err
+	}
+	if strings.ContainsAny(field, "`;%") {
+		err := fmt.Errorf("sql injection attempt [%s]", field)
+		slog.Error(err.Error())
+		return err
+	}
+	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
+
+	switch field {
+	case "DatePaid":
+		t, err := time.Parse("2006-01-02", value)
+		if err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+		if _, err := db.Exec(q, t, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	default:
+		var ns sql.NullString
+		if value == "" || strings.TrimSpace(value) == "" {
+			ns.Valid = false
+			ns.String = ""
+		} else {
+			ns.Valid = true
+			ns.String = value
+		}
+		if _, err := db.Exec(q, ns, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	}
+
+	// XXX get ID
+	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
 	return nil
 }
