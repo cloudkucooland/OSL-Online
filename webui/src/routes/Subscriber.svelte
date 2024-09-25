@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getMe, getSubscriber, updateMember } from "../oo";
+import { getMe, getSubscriber, updateSubscriber } from "../oo";
 import { Label, Input, Checkbox, Select } from 'flowbite-svelte';
 import { toast } from '@zerodevx/svelte-toast';
 
@@ -83,7 +83,7 @@ async function changeCheck(e) {
   <Input id="Country" value="{r.Country}" on:change={change} />
 </div>
 <div class="col-span-2">
-  <Label for="ZipCode" class="block">PostalCode</Label>
+  <Label for="PostalCode" class="block">Postal Code</Label>
   <Input id="PostalCode" value="{r.PostalCode}" on:change={change} />
 </div>
 </div>

@@ -150,7 +150,7 @@ async function changeCheck(e) {
   <Input id="Country" value="{r.Country}" on:change={change} />
 </div>
 <div class="col-span-2">
-  <Label for="ZipCode" class="block">PostalCode</Label>
+  <Label for="PostalCode" class="block">Postal Code</Label>
   <Input id="PostalCode" value="{r.PostalCode}" on:change={change} />
 </div>
 </div>
@@ -248,8 +248,8 @@ async function changeCheck(e) {
   <Input id="Occupation" value="{r.Occupation}" on:change={change} />
 </div>
 <div class="col-span-2">
-  <Label for="Employeer" class="block">Employeer</Label>
-  <Input id="Employeer" value="{r.Employeer}" on:change={change} />
+  <Label for="Employer" class="block">Employer</Label>
+  <Input id="Employer" value="{r.Employer}" on:change={change} />
 </div>
 <div class="col-span-2">
   <Label for="Denomination" class="block">Denomination</Label>
