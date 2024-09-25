@@ -230,11 +230,9 @@ func SetMemberField(id int, field string, value string) error {
 		return err
 	}
 	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
-	slog.Info(q)
 
 	switch field {
 	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
-		slog.Info("bool")
 		var nb sql.NullBool
 		nb.Valid = true
 		nb.Bool = value == "true"
@@ -243,7 +241,6 @@ func SetMemberField(id int, field string, value string) error {
 			return err
 		}
 	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateFirstProfession", "DateDeceased", "DateNovitiate":
-		slog.Info("date")
 		t, err := time.Parse("2006-01-02", value)
 		if err != nil {
 			slog.Error(err.Error())
@@ -254,7 +251,6 @@ func SetMemberField(id int, field string, value string) error {
 			return err
 		}
 	default:
-		slog.Info("string")
 		var ns sql.NullString
 		if value == "" || strings.TrimSpace(value) == "" {
 			ns.Valid = false
