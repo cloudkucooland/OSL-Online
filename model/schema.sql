@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS `Retreat`;
 CREATE TABLE `Retreat` (
   `id` int(9) unsigned,
   `Date` date DEFAULT NULL,
-  `Role` varchar(255) NOT NULL
+  `Role` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 #
@@ -17,8 +17,10 @@ CREATE TABLE `Retreat` (
 DROP TABLE IF EXISTS `auditlog`;
 
 CREATE TABLE `auditlog` (
-  `Changer` int(9) NOT NULL,
-  `Changee` int(9) NOT NULL,
+  `Changer` bigint(16) unsigned NOT NULL,
+  `Changee` bigint(16) unsigned NOT NULL,
+  `Field` varchar(16),
+  `Value` varchar(100),
   `Date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
@@ -30,7 +32,7 @@ DROP TABLE IF EXISTS `member`;
 
 CREATE TABLE `member` (
   `id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
-  `MemberStatus` enum('Annual Vows','Life Vows','Contributor','Removed') NOT NULL,
+  `MemberStatus` enum('Annual Vows','Life Vows','Friend','Benefactor','Removed') NOT NULL,
   `FirstName` varchar(50) NOT NULL,
   `MiddleName` varchar(50),
   `LastName` varchar(50) NOT NULL,
@@ -60,12 +62,12 @@ CREATE TABLE `member` (
   `Status` enum('laity','clergy','student','retired laity','retired clergy'),
   `HowJoined` varchar(50),
   `HowRemoved` varchar(50),
-  `ListInDirectory` enum('YES','NO') NOT NULL,
-  `ListAddress` enum('YES','NO') NOT NULL,
-  `ListPrimaryPhone` enum('YES','NO') NOT NULL,
-  `ListSecondaryPhone` enum('YES','NO') NOT NULL,
-  `ListPrimaryEmail` enum('YES','NO') NOT NULL,
-  `ListSecondaryEmail` enum('YES','NO') NOT NULL,
+  `ListInDirectory` tinyint(1) unsigned DEFAULT '0',
+  `ListAddress` tinyint(1) unsigned DEFAULT '0',
+  `ListPrimaryPhone` tinyint(1) unsigned DEFAULT '0',
+  `ListSecondaryPhone` tinyint(1) unsigned DEFAULT '0',
+  `ListPrimaryEmail` tinyint(1) unsigned DEFAULT '0',
+  `ListSecondaryEmail` tinyint(1) unsigned DEFAULT '0',
   `Doxology` enum('electronic','mailed','none') NOT NULL,
   `Newsletter` enum('electronic','mailed','none') NOT NULL,
   `Communication` enum('electronic','mailed','none') NOT NULL,
