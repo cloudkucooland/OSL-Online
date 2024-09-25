@@ -41,12 +41,15 @@ func Start(ctx context.Context) {
 		ReadHeaderTimeout: (2 * time.Second),
 	}
 
+	cert := "/etc/letsencrypt/live/saint-luke.net/fullchain.pem"
+	key := "/etc/letsencrypt/live/saint-luke.net/privkey.pem"
+
 	// creates the keys if needed
 	sk = getJWSigningKeys()
 
 	slog.Info("Starting up REST server", "on", ":8443")
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(cert, key); err != http.ErrServerClosed {
 			slog.Error(err.Error())
 			panic(err.Error())
 		}
