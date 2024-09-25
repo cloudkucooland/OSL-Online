@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
+  "_extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "isolatedModules": true,
     "types": ["vite/client"],

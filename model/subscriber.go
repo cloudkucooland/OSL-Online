@@ -131,7 +131,7 @@ func SetSubscriberField(id int, field string, value string) error {
 		slog.Error(err.Error())
 		return err
 	}
-	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
+	q := fmt.Sprintf("UPDATE `subscriber` SET `%s` = ? WHERE `id` = ?", field)
 
 	switch field {
 	case "DatePaid":

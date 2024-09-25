@@ -18,7 +18,7 @@ const commitems = [
 
 async function change(e) {
    try {
-     await updateMember(params.id, e.target.id, e.target.value);
+     await updateSubscriber(params.id, e.target.id, e.target.value);
      toast.push(`Changed ${e.target.id}`)
      return true;
    } catch (err) {
@@ -29,7 +29,7 @@ async function change(e) {
 
 async function changeCheck(e) {
    try {
-     await updateMember(params.id, e.target.id, e.target.checked);
+     await updateSubscriber(params.id, e.target.id, e.target.checked);
      toast.push(`Changed ${e.target.id}`)
      return true;
    } catch (err) {
