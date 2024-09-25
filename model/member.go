@@ -41,12 +41,12 @@ type MemberImport struct {
 	Status              sql.NullString
 	HowJoined           sql.NullString
 	HowRemoved          sql.NullString
-	ListInDirectory     bool
-	ListAddress         bool
-	ListPrimaryPhone    bool
-	ListSecondaryPhone  bool
-	ListPrimaryEmail    bool
-	ListSecondaryEmail  bool
+	ListInDirectory     sql.NullBool
+	ListAddress         sql.NullBool
+	ListPrimaryPhone    sql.NullBool
+	ListSecondaryPhone  sql.NullBool
+	ListPrimaryEmail    sql.NullBool
+	ListSecondaryEmail  sql.NullBool
 	Doxology            sql.NullString
 	Newsletter          sql.NullString
 	Communication       sql.NullString
@@ -106,11 +106,9 @@ type Member struct {
 func GetMember(id int) (*Member, error) {
 	var n MemberImport
 
-	// these will always be set, need NullString?
-	var ynDirectory, ynAddress, ynPrimaryPhone, ynSecondaryPhone, ynPrimaryEmail, ynSecondaryEmail sql.NullString
 	var bd, rc, fv, ra, dr, fp, dd, dn sql.NullString
 
-	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &bd, &rc, &n.Chapter, &fv, &ra, &dr, &fp, &dd, &dn, &n.Status, &n.HowJoined, &n.HowRemoved, &ynDirectory, &ynAddress, &ynPrimaryPhone, &ynSecondaryPhone, &ynPrimaryEmail, &ynSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employeer, &n.Denomination)
+	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &bd, &rc, &n.Chapter, &fv, &ra, &dr, &fp, &dd, &dn, &n.Status, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employeer, &n.Denomination)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
 		slog.Error(err.Error(), "id", id)
@@ -146,17 +144,9 @@ func GetMember(id int) (*Member, error) {
 		n.DateNovitiate, _ = time.Parse("2006-01-02", dn.String)
 	}
 
-	n.ListInDirectory = yn2b(ynDirectory)
-	n.ListAddress = yn2b(ynAddress)
-	n.ListPrimaryPhone = yn2b(ynPrimaryPhone)
-	n.ListSecondaryPhone = yn2b(ynSecondaryPhone)
-	n.ListPrimaryEmail = yn2b(ynPrimaryEmail)
-	n.ListSecondaryEmail = yn2b(ynSecondaryEmail)
-
 	return (&n).toMember(), nil
 }
 
-// TODO - "" any 1800 times
 func (n *MemberImport) toMember() *Member {
 	return &Member{
 		ID:                  n.ID,
@@ -190,12 +180,12 @@ func (n *MemberImport) toMember() *Member {
 		Status:              n.Status.String,
 		HowJoined:           n.HowJoined.String,
 		HowRemoved:          n.HowRemoved.String,
-		ListInDirectory:     n.ListInDirectory,
-		ListAddress:         n.ListAddress,
-		ListPrimaryPhone:    n.ListPrimaryPhone,
-		ListSecondaryPhone:  n.ListSecondaryPhone,
-		ListPrimaryEmail:    n.ListPrimaryEmail,
-		ListSecondaryEmail:  n.ListSecondaryEmail,
+		ListInDirectory:     n.ListInDirectory.Bool,
+		ListAddress:         n.ListAddress.Bool,
+		ListPrimaryPhone:    n.ListPrimaryPhone.Bool,
+		ListSecondaryPhone:  n.ListSecondaryPhone.Bool,
+		ListPrimaryEmail:    n.ListPrimaryEmail.Bool,
+		ListSecondaryEmail:  n.ListSecondaryEmail.Bool,
 		Doxology:            n.Doxology.String,
 		Newsletter:          n.Newsletter.String,
 		Communication:       n.Communication.String,
@@ -207,7 +197,7 @@ func (n *MemberImport) toMember() *Member {
 
 // probably don't want to use this one since it will write "" over the top of NULLs -- need a Member.toImport()
 func (n *Member) Store() error {
-	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
+	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
 	if err != nil {
 		slog.Error(err.Error())
@@ -217,40 +207,13 @@ func (n *Member) Store() error {
 }
 
 func (n *MemberImport) Store() error {
-	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, b2yn(n.ListInDirectory), b2yn(n.ListAddress), b2yn(n.ListPrimaryPhone), b2yn(n.ListSecondaryPhone), b2yn(n.ListPrimaryEmail), b2yn(n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
+	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateFirstProfession, DateDeceased, DateNovitiate, Status, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employeer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateFirstProfession, n.DateDeceased, n.DateNovitiate, n.Status, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employeer, n.Denomination)
 
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 	return nil
-}
-
-func PrintMember(id int) {
-	m, err := GetMember(id)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Name: %s %s %s %s\n", m.Title, m.PreferredName, m.LastName, m.Suffix)
-	fmt.Printf("Member Status: %s\n", m.MemberStatus)
-	fmt.Println(" -- ")
-}
-
-func yn2b(yn sql.NullString) bool {
-	if yn.Valid && (yn.String == "YES") {
-		return true
-	}
-	return false
-}
-
-func b2yn(b bool) sql.NullString {
-	var s sql.NullString
-	s.Valid = true
-	if b {
-		s.String = "YES"
-	}
-	s.String = "NO"
-	return s
 }
 
 func SetMemberField(id int, field string, value string) error {
@@ -261,44 +224,56 @@ func SetMemberField(id int, field string, value string) error {
 		slog.Error(err.Error())
 		return err
 	}
-
-	var nn sql.NullString
-
-	switch field {
-	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
-		nn.Valid = true
-		if value == "true" || value == "Yes" {
-			nn.String = "YES"
-		} else {
-			nn.String = "NO"
-		}
-	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateFirstProfession", "DateDeceased", "DateNovitiate":
-		if value == "" || value < "1900-00-00" {
-			nn.String = "1800-01-01"
-			nn.Valid  = false
-		} else {
-			// XXX do sanity checking, parse and reformat
-			nn.String = value
-			nn.Valid = true
-		}
-	default:
-		if value == "" || strings.TrimSpace(value) == "" {
-			nn.Valid = false
-			nn.String = ""
-		} else {
-			nn.Valid = true
-			nn.String = value
-		}
-	}
-
-	// XXX don't do this,... 
-	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
-	if nn.Valid {
-		fmt.Println(nn.String)
-	}
-	if _, err := db.Exec(q, nn, id); err != nil {
+	if strings.ContainsAny(field, "`;%") {
+		err := fmt.Errorf("sql injection attempt [%s]", field)
 		slog.Error(err.Error())
 		return err
 	}
+	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
+	slog.Info(q)
+
+	switch field {
+	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
+		slog.Info("bool")
+		var nb sql.NullBool
+		nb.Valid = true
+		nb.Bool = value == "true"
+		if _, err := db.Exec(q, nb, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateFirstProfession", "DateDeceased", "DateNovitiate":
+		slog.Info("date")
+		t, err := time.Parse("2006-01-02", value)
+		if err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+		if _, err := db.Exec(q, t, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	default:
+		slog.Info("string")
+		var ns sql.NullString
+		if value == "" || strings.TrimSpace(value) == "" {
+			ns.Valid = false
+			ns.String = ""
+		} else {
+			ns.Valid = true
+			ns.String = value
+		}
+		if _, err := db.Exec(q, ns, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	}
+
+	// XXX get ID
+	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
 	return nil
 }
