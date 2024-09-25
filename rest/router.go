@@ -1,29 +1,15 @@
 package rest
 
 import (
-	"fmt"
-	"log/slog"
 	"net/http"
-	"os"
-	// "strings"
 
 	"github.com/julienschmidt/httprouter"
 )
-
-const staticDir = "/www/oo/static"
 
 func getServeMux() *httprouter.Router {
 	m := httprouter.New()
 	m.HandleOPTIONS = true
 	m.GlobalOPTIONS = http.HandlerFunc(headers)
-
-	if _, err := os.Stat(staticDir); err != nil {
-		slog.Error(err.Error())
-		panic(err.Error())
-	}
-	m.ServeFiles("/static/*filepath", http.Dir(staticDir))
-	appDir := fmt.Sprintf("%s/_app", staticDir)
-	m.ServeFiles("/_app/*filepath", http.Dir(appDir))
 
 	m.NotFound = http.HandlerFunc(notFound)
 
@@ -38,6 +24,11 @@ func getServeMux() *httprouter.Router {
 	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
 	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
 
+	m.GET("/api/v1/report/notrenewed", authMW(reportNotrenewed, AuthLevelManager))
+	m.GET("/api/v1/report/expired", authMW(reportExpired, AuthLevelManager))
+	m.GET("/api/v1/report/email", authMW(reportEmail, AuthLevelManager))
+	m.GET("/api/v1/report/annual", authMW(reportAnnual, AuthLevelManager))
+	m.GET("/api/v1/report/life", authMW(reportLife, AuthLevelManager))
 	return m
 }
 
@@ -55,27 +46,5 @@ func headers(w http.ResponseWriter, r *http.Request) {
 
 func notFound(w http.ResponseWriter, r *http.Request) {
 	headers(w, r)
-
-	// default: redirect to webui
-	/* if r.URL.String() == "" || r.URL.String() == "/" {
-		http.Redirect(w, r, "/static/index.html", http.StatusMovedPermanently)
-		return
-	}
-
-	// if static, but not found, treat it as extra info on the webui
-	if strings.HasPrefix(r.URL.String(), "/static") {
-		slog.Info("unknown static URL requested", "url", r.URL.String())
-		url := "member"
-		newLoc := fmt.Sprintf("/static/index.html?u=%s", url)
-
-		http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
-		return
-	}
-
-	// something unexpected (not /static or /_app) requested, look under /static for it
-	newLoc := fmt.Sprintf("/static/index.html?u=%s", r.URL)
-	slog.Debug("not found, redirecting", "request", r.URL.String(), "new", newLoc, "method", r.Method)
-	http.Redirect(w, r, newLoc, http.StatusMovedPermanently)
-	*/
 	http.Error(w, "Not Found", http.StatusNotFound)
 }
