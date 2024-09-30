@@ -18,8 +18,11 @@ func getServeMux() *httprouter.Router {
 
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
+	m.POST("/api/v1/member", authMW(createMember, AuthLevelManager))
 
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
+	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelView))
+	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelView))
 
 	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
 	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
