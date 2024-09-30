@@ -35,6 +35,7 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
 	if err := r.ParseMultipartForm(1024 * 64); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -50,12 +51,6 @@ func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	value := r.PostFormValue("value")
-	if value == "" {
-		err := fmt.Errorf("value not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
-		return
-	}
 
 	id, err := strconv.Atoi(ps.ByName("id"))
 	if err != nil {
@@ -70,6 +65,40 @@ func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	headers(w, r)
 	fmt.Fprint(w, jsonStatusOK)
+}
+
+func createMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+	if err := r.ParseMultipartForm(1024 * 64); err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	firstname := r.PostFormValue("firstname")
+	if firstname == "" {
+		err := fmt.Errorf("firstname not set")
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	lastname := r.PostFormValue("lastname")
+	if lastname == "" {
+		err := fmt.Errorf("lastname not set")
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	id, err := model.Create(firstname, lastname)
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	out := fmt.Sprintf(`{"status":"ok", "id": %d}`, id)
+	fmt.Fprint(w, out)
 }

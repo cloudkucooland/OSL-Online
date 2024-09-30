@@ -58,6 +58,7 @@ export async function search(query) {
     console.log("server returned ", response.status);
     throw new Error(payload.error);
   }
+  console.log(payload);
   return payload;
 }
 
@@ -305,4 +306,38 @@ export async function report(reportname) {
       document.body.removeChild(link);
     }
   }
+}
+
+export async function createMember(firstname, lastname) {
+  const jwt = localStorage.getItem("jwt");
+  if (jwt === undefined || jwt === null) {
+    throw new Error("Not Logged in");
+  }
+
+  const dataArray = new FormData();
+  dataArray.append("firstname", firstname);
+  dataArray.append("lastname", lastname);
+
+  const request = {
+    method: "POST",
+    mode: "cors",
+    credentials: "include",
+    redirect: "manual",
+    referrerPolicy: "origin",
+    headers: { Authorization: "Bearer " + jwt },
+    body: dataArray,
+  };
+
+  const response = await fetch(
+    `${server}/api/v1/member`,
+    request
+  );
+  const payload = await response.json();
+  if (response.status != 200) {
+    console.log("server returned ", response.status);
+    throw new Error(payload.error);
+  }
+  console.log(payload);
+
+  return payload.id;
 }

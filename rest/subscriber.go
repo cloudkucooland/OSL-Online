@@ -50,12 +50,12 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	value := r.PostFormValue("value")
-	if value == "" {
+	/* if value == "" {
 		err := fmt.Errorf("value not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
-	}
+	} */
 
 	id, err := strconv.Atoi(ps.ByName("id"))
 	if err != nil {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
@@ -131,8 +131,8 @@ func doMember(id int, d []string) {
 	m.ListSecondaryEmail.Valid = true
 	m.ListSecondaryEmail.Bool = d[46] == "No" // Unlisted vs. listed
 
-	m.Employeer.Valid = d[51] != ""
-	m.Employeer.String = d[51]
+	m.Employer.Valid = d[51] != ""
+	m.Employer.String = d[51]
 
 	t, err = time.Parse("1/2/2006", d[92])
 	if err != nil {

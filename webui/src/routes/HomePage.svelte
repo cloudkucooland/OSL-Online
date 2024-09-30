@@ -58,13 +58,14 @@ async function resetSearch(e) {
 <Table>
 	<TableBody>
 		<TableBodyRow>
-			<TableBodyCell colspan="3">&nbsp;</TableBodyCell>
+			<TableBodyCell colspan="4">&nbsp;</TableBodyCell>
 			<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
 		</TableBodyRow>
 		{#each result as r, i}
 		<TableBodyRow>
 			<TableBodyCell>{i}</TableBodyCell>
 			<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
+			<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
 			<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
 			<TableBodyCell>{r.MemberStatus}</TableBodyCell>
 		</TableBodyRow>
@@ -77,5 +78,6 @@ async function resetSearch(e) {
 <div>
 <p>
 <a href="#/subsearch">Subscriber Search</a>
+<a href="#/addmember">Add Member</a>
 </p>
 </div>

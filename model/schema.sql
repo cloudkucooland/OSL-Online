@@ -72,7 +72,7 @@ CREATE TABLE `member` (
   `Newsletter` enum('electronic','mailed','none') NOT NULL,
   `Communication` enum('electronic','mailed','none') NOT NULL,
   `Occupation` varchar(50),
-  `Employeer` varchar(50),
+  `Employer` varchar(50),
   `Denomination` varchar(50),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;

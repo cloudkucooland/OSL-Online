@@ -125,3 +125,25 @@ func ReportLife() ([]*Member, error) {
 	}
 	return members, nil
 }
+
+func ReportSubscriber() ([]*Subscriber, error) {
+	var subscribers []*Subscriber
+	var n SubscriberImport
+
+	rows, err := db.Query("SELECT Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication, DatePaid FROM subscriber ORDER BY Name")
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication, &n.DatePaid)
+		if err != nil {
+			slog.Error(err.Error())
+			return nil, err
+		}
+
+		subscribers = append(subscribers, (&n).toSubscriber())
+	}
+	return subscribers, nil
+}

@@ -135,6 +135,10 @@ func SetSubscriberField(id int, field string, value string) error {
 
 	switch field {
 	case "DatePaid":
+		value = strings.TrimSpace(value)
+		if value == "" {
+			value = "0001-01-01"
+		}
 		t, err := time.Parse("2006-01-02", value)
 		if err != nil {
 			slog.Error(err.Error())
@@ -145,8 +149,9 @@ func SetSubscriberField(id int, field string, value string) error {
 			return err
 		}
 	default:
+		value = strings.TrimSpace(value)
 		var ns sql.NullString
-		if value == "" || strings.TrimSpace(value) == "" {
+		if value == "" {
 			ns.Valid = false
 			ns.String = ""
 		} else {
