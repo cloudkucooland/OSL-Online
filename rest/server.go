@@ -127,3 +127,31 @@ func getUser(r *http.Request) string {
 	username := string(token.Subject())
 	return username
 }
+
+func getLevel(r *http.Request) (authLevel, error) {
+	token, err := jwt.ParseRequest(r,
+		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
+		jwt.WithValidate(true),
+		jwt.WithAudience(sessionName),
+		jwt.WithAcceptableSkew(20*time.Second),
+	)
+
+	if err != nil {
+		slog.Error("token parse/validate failed", "error", err.Error())
+		return AuthLevelView, err
+	}
+
+	claim, ok := token.Get("level")
+	if !ok {
+		err := fmt.Errorf("no level claim in token")
+		return AuthLevelView, err
+	}
+
+	ff, ok := claim.(float64) // why does this come across as float64?
+	if !ok {
+		err := fmt.Errorf("authlevel type assertion failed")
+		return AuthLevelView, err
+	}
+
+	return authLevel(ff), nil
+}

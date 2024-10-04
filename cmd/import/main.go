@@ -141,13 +141,6 @@ func doMember(id int, d []string) {
 		m.DateFirstVows = t
 	}
 
-	t, err = time.Parse("1/2/2006", d[93])
-	if err != nil {
-		m.DateFirstProfession = errTime
-	} else {
-		m.DateFirstProfession = t
-	}
-
 	m.HowJoined.Valid = d[97] != ""
 	m.HowJoined.String = d[97]
 

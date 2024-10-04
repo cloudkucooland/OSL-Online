@@ -28,7 +28,18 @@ func postSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params)
 
 	// XXX min length or other checks?
 
-	result, err := model.Search(query)
+	unlisted := false
+	level, err := getLevel(req)
+	if err != nil {
+		slog.Warn(err.Error())
+		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if level >= AuthLevelManager {
+		unlisted = true
+	}
+
+	result, err := model.Search(query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(res, jsonError(err), http.StatusInternalServerError)

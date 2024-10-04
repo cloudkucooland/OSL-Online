@@ -20,7 +20,18 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	m, err := model.GetMember(id)
+	unlisted := false
+	level, err := getLevel(r)
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if level >= AuthLevelManager {
+		unlisted = true
+	}
+
+	m, err := model.GetMember(id, unlisted)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

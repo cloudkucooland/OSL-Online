@@ -15,14 +15,19 @@ func getServeMux() *httprouter.Router {
 
 	// URL to login, returns the JWT to pass in to authenticated endpoints
 	m.POST("/api/v1/getJWT", login)
+	// takes an email, returns an "OK" on message send
+	m.POST("/api/v1/register", postRegister)
 
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
-	m.POST("/api/v1/member", authMW(createMember, AuthLevelManager))
+	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
+
+	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
+	m.POST("/api/v1/me", authMW(setMe, AuthLevelView))
 
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
-	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelView))
-	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelView))
+	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelAdmin))
+	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
 
 	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
 	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
