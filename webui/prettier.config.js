@@ -1,4 +1,4 @@
 module.exports = {
-  plugins: ["prettier-plugin-svelte"],
-  singleQuote: true,
+	plugins: ['prettier-plugin-svelte'],
+	singleQuote: true
 };
