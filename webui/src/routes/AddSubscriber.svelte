@@ -1,16 +1,16 @@
 <script lang="ts">
-import { push } from "svelte-spa-router";
-import { getMe } from "../oo";
+	import { getContext } from 'svelte';
+	import { push } from 'svelte-spa-router';
+	import { getMe } from '../oo';
 
-const me = getMe();
-if (me === undefined) {
-  push('/Login');
-}
+	const { me } = getContext('oo');
+	if ($me === undefined) {
+		push('/Login');
+	}
 </script>
 
 <svelte:head>
-  <title>OSL Member Manager: Subscriber</title>
+	<title>OSL Member Manager: Subscriber</title>
 </svelte:head>
 
 Subscriber
-

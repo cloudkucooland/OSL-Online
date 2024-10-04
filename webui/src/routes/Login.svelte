@@ -1,30 +1,34 @@
 <script>
-import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
-import { toast } from '@zerodevx/svelte-toast';
-import { push } from "svelte-spa-router";
-import { getJWT } from "../oo";
+	import { getContext } from 'svelte';
+	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
+	import { toast } from '@zerodevx/svelte-toast';
+	import { push } from 'svelte-spa-router';
+	import { getJWT } from '../oo';
 
-const jwt = localStorage.getItem('jwt');
-if (jwt) {
-  toast.push('Logged out');
-  localStorage.removeItem('jwt');
-}
+	const { me } = getContext('oo');
 
-// export let data;
-let username;
-let password;
+	const jwt = localStorage.getItem('jwt');
+	if (jwt) {
+		localStorage.removeItem('jwt');
+		$me = undefined;
+		toast.push('Logged out');
+	}
 
-async function doLogin(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  try {
-    await getJWT(username, password);
-    push('/');
-  } catch (e) {
-    console.log(e);
-    toast.push(e);
-  }
-}
+	let username;
+	let password;
+
+	async function doLogin(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		try {
+			await getJWT(username, password);
+			// push('/');
+			window.location.href = '';
+		} catch (e) {
+			console.log(e);
+			toast.push(e);
+		}
+	}
 </script>
 
 <form on:submit={doLogin}>
@@ -43,6 +47,9 @@ async function doLogin(event) {
 			<TableBodyRow>
 				<TableBodyCell>&nbsp;</TableBodyCell>
 				<TableBodyCell><Button type="submit">Login</Button></TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell colspan="2"><a href="#/register">Register/Lost Password</a></TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
 	</Table>
