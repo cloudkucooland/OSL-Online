@@ -147,3 +147,25 @@ func ReportSubscriber() ([]*Subscriber, error) {
 	}
 	return subscribers, nil
 }
+
+// Returns a slice of IDs
+func ActiveMembers() ([]int, error) {
+	var id int
+	list := make([]int, 0, 1000)
+
+	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed'")
+	if err != nil {
+		slog.Error(err.Error())
+		return list, err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			slog.Error(err.Error())
+			return list, err
+		}
+		list = append(list, id)
+	}
+	return list, nil
+}
