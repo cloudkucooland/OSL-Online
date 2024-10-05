@@ -25,11 +25,12 @@
 	import AddSubscriber from './routes/AddSubscriber.svelte';
 	import Register from './routes/Register.svelte';
 	import Me from './routes/Me.svelte';
+	import Giving from './routes/Giving.svelte';
 	import { getMe } from './oo';
 
-	setContext('oo', { me: writable(getMe()) });
+	const _init = getMe();
+	setContext('oo', { me: writable(_init) });
 	const { me } = getContext('oo');
-	// console.log("from context", me);
 
 	const routes = {
 		'/': HomePage,
@@ -42,6 +43,7 @@
 		'/me': Me,
 		'/member/:id': Member,
 		'/addmember/': AddMember,
+		'/giving/:id': Giving,
 
 		'/subsearch': SubSearch,
 		'/subscriber/:id': Subscriber,
