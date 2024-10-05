@@ -252,6 +252,23 @@ func SetMemberField(id int, field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
+	case "MemberStatus":
+		switch value {
+		case "Removed":
+			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = 'Removed', `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", id); err != nil {
+				slog.Error(err.Error())
+				return err
+			}
+		case "Annual Vow", "Friend", "Life Vows", "Benefactor":
+			if _, err := db.Exec(q, value, id); err != nil {
+				slog.Error(err.Error())
+				return err
+			}
+		default:
+			err := fmt.Errorf("unknown MemberStatus")
+			slog.Error(err.Error())
+			return err
+		}
 	default:
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
