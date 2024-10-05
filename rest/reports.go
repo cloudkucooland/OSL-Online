@@ -115,22 +115,7 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	for _, n := range m {
-		firstname := false
-		postalName := n.Title + " "
-		if n.PreferredName != "" {
-			postalName += n.PreferredName
-			firstname = true
-		}
-		if !firstname && n.FirstName != "" {
-			postalName += n.FirstName
-			firstname = true
-		}
-		postalName += " " + n.LastName
-		if n.Suffix != "" {
-			postalName += " " + n.Suffix
-		}
-		postalName += ", OSL"
-
+		postalName := n.OSLName()
 		member := []string{postalName, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
@@ -160,26 +145,7 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	for _, n := range m {
-		firstname := false
-		postalName := n.Title + " "
-		if n.LifevowName != "" {
-			postalName += n.LifevowName
-			firstname = true
-		}
-		if !firstname && n.PreferredName != "" {
-			postalName += n.PreferredName
-			firstname = true
-		}
-		if !firstname && n.FirstName != "" {
-			postalName += n.FirstName
-			firstname = true
-		}
-		postalName += " " + n.LastName
-		if n.Suffix != "" {
-			postalName += " " + n.Suffix
-		}
-		postalName += ", OSL"
-
+		postalName := n.OSLName()
 		member := []string{postalName, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
