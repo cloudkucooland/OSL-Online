@@ -6,7 +6,7 @@ import (
 	"github.com/matcornic/hermes/v2"
 )
 
-func SendRegister(email string, password string) error {
+func SendRegister(addr string, password string) error {
 	h, err := setup()
 	if err != nil {
 		slog.Error(err.Error())
@@ -15,7 +15,7 @@ func SendRegister(email string, password string) error {
 
 	e := hermes.Email{
 		Body: hermes.Body{
-			Name: email,
+			Name: addr,
 			Intros: []string{
 				"OSL Online Directory Registration. Your password is " + password,
 			},
@@ -34,19 +34,19 @@ func SendRegister(email string, password string) error {
 		},
 	}
 
-	emailBody, err := h.GenerateHTML(e)
+	body, err := h.GenerateHTML(e)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	emailText, err := h.GeneratePlainText(e)
+	text, err := h.GeneratePlainText(e)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	if err := send(email, "OSL Direcgory register / password reset", emailBody, emailText); err != nil {
+	if err := send(addr, "OSL Directory Register / Password Reset requested", body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}
