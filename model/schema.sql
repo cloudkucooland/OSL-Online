@@ -56,7 +56,6 @@ CREATE TABLE `member` (
   `DateFirstVows` date,
   `DateReaffirmation` date,
   `DateRemoved` date,
-  `DateFirstProfession` date,
   `DateDeceased` date,
   `DateNovitiate` date,
   `Status` enum('laity','clergy','student','retired laity','retired clergy'),
@@ -108,5 +107,20 @@ CREATE TABLE `auth` (
   `pwhash` varchar(100) NOT NULL,
   `level` tinyint(2) NOT NULL,
   PRIMARY KEY (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+
+DROP TABLE IF EXISTS `giving`;
+
+CREATE TABLE `giving` (
+  `entryID` int(9) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(9) unsigned NOT NULL,
+  `amount` DECIMAL(13,2) NOT NULL,
+  `check` int(9),
+  `transaction` int(9),
+  `description` varchar(32) NOT NULL,
+  `date` date NOT NULL DEFAULT CURRENT_DATE(),
+  PRIMARY KEY (`entryID`),
+  KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 

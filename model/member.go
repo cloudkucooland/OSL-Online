@@ -357,3 +357,32 @@ func (n *MemberImport) cleanUnlisted() {
 		n.SecondaryEmail.String = ""
 	}
 }
+
+func (n *Member) OSLName() string {
+	var name string
+	firstname := false
+	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
+		name = n.Title + " "
+	}
+	if n.MemberStatus == "Life Vows" && n.LifevowName != "" {
+		name += n.LifevowName
+		firstname = true
+	}
+	if !firstname && n.PreferredName != "" {
+		name += n.PreferredName
+		firstname = true
+	}
+	if !firstname && n.FirstName != "" {
+		name += n.FirstName
+		firstname = true
+	}
+	name += " " + n.LastName
+	if n.Suffix != "" {
+		name += " " + n.Suffix
+	}
+
+	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
+		name += ", OSL"
+	}
+	return name
+}

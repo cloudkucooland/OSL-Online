@@ -10,13 +10,13 @@ import (
 )
 
 type GivingRecord struct {
-        EntryID            int
-	ID                 int
-	Amount             float64
-	Check              int
-	Transaction        int
-	Description        string
-	Date               time.Time
+	EntryID     int
+	ID          int
+	Amount      float64
+	Check       int
+	Transaction int
+	Description string
+	Date        time.Time
 }
 
 func (n GivingRecord) Store() error {
@@ -59,7 +59,7 @@ func (m *Member) GivingRecords() ([]GivingRecord, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		g.Date , _ = time.Parse(format, d)
+		g.Date, _ = time.Parse(format, d)
 
 		gr = append(gr, g)
 	}
