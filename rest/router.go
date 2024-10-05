@@ -15,23 +15,32 @@ func getServeMux() *httprouter.Router {
 
 	// URL to login, returns the JWT to pass in to authenticated endpoints
 	m.POST("/api/v1/getJWT", login)
-	// takes an email, returns an "OK" on message send
+	// takes an email address, returns an "OK" after the password message is sent
 	m.POST("/api/v1/register", postRegister)
 
+	// manage individual members
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
 	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
 
+	// manage giving records
+	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, AuthLevelAdmin))
+	m.POST("/api/v1/giving/:id", authMW(postMemberGiving, AuthLevelAdmin))
+
+	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
 	m.POST("/api/v1/me", authMW(setMe, AuthLevelView))
 
+	// for instituions and individuals who subscribe to Doxology but aren't vowed
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
 	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelAdmin))
 	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
 
+	// search lists
 	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
 	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
 
+	// reports - ad-hoc, but works
 	m.GET("/api/v1/report/notrenewed", authMW(reportNotrenewed, AuthLevelManager))
 	m.GET("/api/v1/report/expired", authMW(reportExpired, AuthLevelManager))
 	m.GET("/api/v1/report/email", authMW(reportEmail, AuthLevelManager))
