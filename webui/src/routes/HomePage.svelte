@@ -7,8 +7,9 @@
 
 	export let params = {};
 	const { me } = getContext('oo');
+	// console.log('in HomePage', $me);
 	if ($me === undefined) {
-		push('/Login');
+		replace('/Login');
 	}
 
 	let query;
@@ -89,7 +90,7 @@
 	</form>
 {/if}
 
-{#if $me.level > 1}
+{#if $me && $me.level > 1}
 	<div>
 		<p>
 			<a href="#/subsearch">Subscriber Search</a> | <a href="#/addmember">Add Member</a>

@@ -87,15 +87,24 @@
 {#await getMember(params.id)}
 	<h3>... loading ...</h3>
 {:then r}
-	{#if $me.level > 0}
-		<div>
-			{r.Title}
-			{r.FirstName}
-			{r.LastName} ( {r.MemberStatus} )
-			<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}
-				>List in Directory</Checkbox
-			>
-		</div>
+	{#if $me && $me.level > 0}
+		<section>
+			<div class="grid grid-cols-2 gap-4 px-4 py-2">
+				<div class="col-span-2">
+					{r.Title}
+					{r.FirstName}
+					{r.LastName} ( {r.MemberStatus} )
+				</div>
+				<div class="col-span-1">
+					<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}
+						>List in Directory</Checkbox
+					>
+				</div>
+				<div class="col-span-1">
+					<a href="#/giving/{r.ID}">Giving</a>
+				</div>
+			</div>
+		</section>
 
 		<form>
 			<section>
