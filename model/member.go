@@ -376,6 +376,20 @@ func (n *MemberImport) cleanUnlisted() {
 }
 
 func (n *Member) OSLName() string {
+	name := n.OSLShortName()
+
+	name += " " + n.LastName
+	if n.Suffix != "" {
+		name += " " + n.Suffix
+	}
+
+	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
+		name += ", OSL"
+	}
+	return name
+}
+
+func (n *Member) OSLShortName() string {
 	var name string
 	firstname := false
 	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
@@ -391,15 +405,6 @@ func (n *Member) OSLName() string {
 	}
 	if !firstname && n.FirstName != "" {
 		name += n.FirstName
-		firstname = true
-	}
-	name += " " + n.LastName
-	if n.Suffix != "" {
-		name += " " + n.Suffix
-	}
-
-	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
-		name += ", OSL"
 	}
 	return name
 }

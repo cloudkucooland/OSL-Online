@@ -74,7 +74,7 @@ func reportExpired(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
-		{"MemberStatus", "FirstName", "LastName", "PreferredName", "Title", "LifevowName", "Suffix", "PrimaryEmail", "SecondaryEmail", "ListPrimaryEmail", "ListSecondaryEmail", "Doxology", "Newsletter", "Communication"},
+		{"OSLName", "MemberStatus", "FirstName", "LastName", "PreferredName", "Title", "LifevowName", "Suffix", "PrimaryEmail", "SecondaryEmail", "ListPrimaryEmail", "ListSecondaryEmail", "Doxology", "Newsletter", "Communication"},
 	}
 	headers(w, r)
 
@@ -86,7 +86,8 @@ func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	for _, n := range m {
-		member := []string{n.MemberStatus, n.FirstName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.PrimaryEmail, n.SecondaryEmail, fmt.Sprintf("%t", n.ListPrimaryEmail), fmt.Sprintf("%t", n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication}
+		oslName := n.OSLName()
+		member := []string{oslName, n.MemberStatus, n.FirstName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.PrimaryEmail, n.SecondaryEmail, fmt.Sprintf("%t", n.ListPrimaryEmail), fmt.Sprintf("%t", n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
 
@@ -103,7 +104,7 @@ func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
-		{"PostalName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
+		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
 	}
 	headers(w, r)
 
@@ -115,8 +116,7 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	for _, n := range m {
-		postalName := n.OSLName()
-		member := []string{postalName, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
+		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
 
@@ -133,7 +133,7 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
-		{"PostalName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
+		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
 	}
 	headers(w, r)
 
@@ -145,8 +145,7 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	for _, n := range m {
-		postalName := n.OSLName()
-		member := []string{postalName, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
+		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
 

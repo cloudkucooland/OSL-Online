@@ -86,14 +86,14 @@ func ReportAnnual() ([]*Member, error) {
 	var members []*Member
 	var n MemberImport
 
-	rows, err := db.Query("SELECT FirstName, LastName, PreferredName, Title, Suffix, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, Suffix, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
+		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
 		if err != nil {
 			slog.Error(err.Error())
 			return nil, err
@@ -108,14 +108,14 @@ func ReportLife() ([]*Member, error) {
 	var members []*Member
 	var n MemberImport
 
-	rows, err := db.Query("SELECT FirstName, LastName, PreferredName, Title, Suffix, LifevowName, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, Suffix, LifevowName, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.LifevowName, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
+		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.LifevowName, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
 		if err != nil {
 			slog.Error(err.Error())
 			return nil, err
