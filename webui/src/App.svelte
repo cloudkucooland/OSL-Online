@@ -26,6 +26,7 @@
 	import Register from './routes/Register.svelte';
 	import Me from './routes/Me.svelte';
 	import Giving from './routes/Giving.svelte';
+	import Changelog from './routes/Changelog.svelte';
 	import { getMe } from './oo';
 
 	const _init = getMe();
@@ -44,6 +45,7 @@
 		'/member/:id': Member,
 		'/addmember/': AddMember,
 		'/giving/:id': Giving,
+		'/changelog/:id': Changelog,
 
 		'/subsearch': SubSearch,
 		'/subscriber/:id': Subscriber,
