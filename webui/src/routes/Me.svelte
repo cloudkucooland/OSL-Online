@@ -10,6 +10,8 @@
 		push('/Login');
 	}
 
+	const cannotedit = true; // placeholder for fields we are considering enabling
+
 	const commitems = [
 		{ value: 'none', name: 'None' },
 		{ value: 'mailed', name: 'Mailed' },
@@ -57,7 +59,7 @@
 
 	async function change(e) {
 		try {
-			await updateMe(me.id, e.target.id, e.target.value);
+			await updateMe(e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
@@ -68,7 +70,7 @@
 
 	async function changeCheck(e) {
 		try {
-			await updateMe(me.id, e.target.id, e.target.checked);
+			await updateMe(e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
@@ -99,23 +101,23 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
 					<Label for="FirstName" class="block">First Name</Label>
-					<Input id="FirstName" value={r.FirstName} on:change={change} />
+					<Input id="FirstName" value={r.FirstName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
 					<Label for="MiddleName" class="block">Middle Name</Label>
-					<Input id="MiddleName" value={r.MiddleName} on:change={change} />
+					<Input id="MiddleName" value={r.MiddleName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-3">
 					<Label for="LastName" class="block">Last Name</Label>
-					<Input id="LastName" value={r.LastName} on:change={change} />
+					<Input id="LastName" value={r.LastName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
 					<Label for="Suffix" class="block">Suffix</Label>
-					<Input id="Suffix" value={r.Suffix} on:change={change} />
+					<Input id="Suffix" value={r.Suffix} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="LifeVowName" class="block">Life Vow Name</Label>
-					<Input id="LifeVowName" value={r.LifeVowName} on:change={change} />
+					<Input id="LifeVowName" value={r.LifeVowName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="PreferedName" class="block">Preferred Name</Label>
@@ -141,7 +143,7 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-7">
 					<Label for="Address" class="block">Address</Label>
-					<Input id="Address" value={r.Address} on:change={change} />
+					<Input id="Address" value={r.Address} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListAddress" checked={r.ListAddress} on:change={changeCheck}
@@ -149,23 +151,28 @@
 					>
 				</div>
 				<div class="col-span-8">
-					<Input id="AddressLine2" value={r.AddressLine2} on:change={change} />
+					<Input
+						id="AddressLine2"
+						value={r.AddressLine2}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-2">
 					<Label for="City" class="block">City</Label>
-					<Input id="City" value={r.City} on:change={change} />
+					<Input id="City" value={r.City} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="State" class="block">State/Locality</Label>
-					<Input id="State" value={r.State} on:change={change} />
+					<Input id="State" value={r.State} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Country" class="block">Country</Label>
-					<Input id="Country" value={r.Country} on:change={change} />
+					<Input id="Country" value={r.Country} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="PostalCode" class="block">Postal Code</Label>
-					<Input id="PostalCode" value={r.PostalCode} on:change={change} />
+					<Input id="PostalCode" value={r.PostalCode} on:change={change} disabled={cannotedit} />
 				</div>
 			</div>
 		</section>
@@ -175,7 +182,12 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
 					<Label for="PrimaryPhone" class="block">Primary Phone</Label>
-					<Input id="PrimaryPhone" value={r.PrimaryPhone} on:change={change} />
+					<Input
+						id="PrimaryPhone"
+						value={r.PrimaryPhone}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListPrimaryPhone" checked={r.ListPrimaryPhone} on:change={changeCheck}
@@ -184,7 +196,12 @@
 				</div>
 				<div class="col-span-3">
 					<Label for="SecondaryPhone" class="block">Secondary Phone</Label>
-					<Input id="SecondaryPhone" value={r.SecondaryPhone} on:change={change} />
+					<Input
+						id="SecondaryPhone"
+						value={r.SecondaryPhone}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListSecondaryPhone" checked={r.ListSecondaryPhone} on:change={changeCheck}
@@ -193,7 +210,12 @@
 				</div>
 				<div class="col-span-3">
 					<Label for="PrimaryEmail" class="block">Primary Email</Label>
-					<Input id="PrimaryEmail" value={r.PrimaryEmail} on:change={change} />
+					<Input
+						id="PrimaryEmail"
+						value={r.PrimaryEmail}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListPrimaryEmail" checked={r.ListPrimaryEmail} on:change={changeCheck}
@@ -202,7 +224,12 @@
 				</div>
 				<div class="col-span-3">
 					<Label for="SecondaryEmail" class="block">Secondary Email</Label>
-					<Input id="SecondaryEmail" value={r.SecondaryEmail} on:change={change} />
+					<Input
+						id="SecondaryEmail"
+						value={r.SecondaryEmail}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListSecondaryEmail" checked={r.ListSecondaryEmail} on:change={changeCheck}
@@ -225,7 +252,7 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="BirthDate" class="block">Birth Day</Label>
-					<Input id="BirthDate" value={r.BirthDate} on:change={change} />
+					<Input id="BirthDate" value={r.BirthDate} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateDeceased" class="block">Deceased</Label>
@@ -259,7 +286,13 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="Status" class="block">Status</Label>
-					<Select id="Status" items={stati} value={r.Status} on:change={change} />
+					<Select
+						id="Status"
+						items={stati}
+						value={r.Status}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-2">
 					<Label for="Leadership" class="block">Leadership</Label>
@@ -289,15 +322,33 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-1">
 					<Label for="Newsletter" class="block">Newsletter</Label>
-					<Select id="Newsletter" items={commitems} value={r.Newsletter} on:change={change} />
+					<Select
+						id="Newsletter"
+						items={commitems}
+						value={r.Newsletter}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Label for="Doxology" class="block">Doxology</Label>
-					<Select id="Doxology" items={commitems} value={r.Doxology} on:change={change} />
+					<Select
+						id="Doxology"
+						items={commitems}
+						value={r.Doxology}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 				<div class="col-span-1">
 					<Label for="Communication" class="block">Communication</Label>
-					<Select id="Communication" items={commitems} value={r.Communication} on:change={change} />
+					<Select
+						id="Communication"
+						items={commitems}
+						value={r.Communication}
+						on:change={change}
+						disabled={cannotedit}
+					/>
 				</div>
 			</div>
 		</section>

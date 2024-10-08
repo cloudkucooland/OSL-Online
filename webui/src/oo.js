@@ -436,8 +436,32 @@ export async function getMeFromServer() {
 	return payload;
 }
 
-export async function updateMe() {
-	throw new Error('editing your own data is not yet available');
+export async function updateMe(FieldName, Value) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const dataArray = new FormData();
+	dataArray.append('field', FieldName);
+	dataArray.append('value', Value);
+
+	const request = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		body: dataArray,
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/me`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
 }
 
 export async function getGiving(id) {
@@ -500,4 +524,34 @@ export async function postGiving(id, date, amount, description, check, transacti
 		console.log('server returned ', response.status);
 		throw new Error(payload.error);
 	}
+}
+
+export async function getChangelog(id) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/changelog/${id}`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+
+	payload.forEach((cr) => {
+		let sp = cr.Date.split('T');
+		cr.Date = sp[0];
+	});
+
+	return payload;
 }

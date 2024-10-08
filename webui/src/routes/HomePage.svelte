@@ -56,9 +56,18 @@
 		<Table>
 			<TableBody>
 				<TableBodyRow>
+					<TableBodyCell colspan={2}>
+					This searches first, last, and preferred name.<br />
+					Do <b>not</b> type full names (e.g. "Bob Smith").<br />
+					Use <b>one</b> name or a partial name to search.<br />
+					Case is ignored.<br />
+					e.g. <b>"smi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob <b>Smi</b>th".<br />
+					</TableBodyCell>
+				</TableBodyRow>
+				<TableBodyRow>
 					<TableBodyCell>Member Search:</TableBodyCell>
 					<TableBodyCell>
-						<Input type="text" name="query" bind:value={query} on:change={query} />
+						<Input type="text" name="query" bind:value={query} />
 					</TableBodyCell>
 				</TableBodyRow>
 				<TableBodyRow>
@@ -72,10 +81,6 @@
 	<form on:submit={resetSearch}>
 		<Table>
 			<TableBody>
-				<TableBodyRow>
-					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
-				</TableBodyRow>
 				{#each result as r, i}
 					<TableBodyRow>
 						<TableBodyCell>{i}</TableBodyCell>
@@ -85,6 +90,10 @@
 						<TableBodyCell>{r.MemberStatus}</TableBodyCell>
 					</TableBodyRow>
 				{/each}
+				<TableBodyRow>
+					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
+					<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
+				</TableBodyRow>
 			</TableBody>
 		</Table>
 	</form>
