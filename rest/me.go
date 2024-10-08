@@ -20,7 +20,7 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	m, err := model.GetMember(id, false)
+	m, err := model.GetMember(id, true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

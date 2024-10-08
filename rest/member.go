@@ -47,6 +47,13 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
+	changer, err := strconv.Atoi(ps.ByName("id"))
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
 	if err := r.ParseMultipartForm(1024 * 64); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -70,7 +77,7 @@ func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	if err := model.SetMemberField(id, field, value); err != nil {
+	if err := model.SetMemberField(id, field, value, changer); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

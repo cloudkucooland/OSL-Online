@@ -26,7 +26,7 @@ import (
 )
 
 const jwtSignerFilename = "signer.jwk"
-const stateStore = "/var/run/oo"
+const stateStore = "/var/oo"
 
 func mintjwt(username string, level authLevel) (string, error) {
 	hostname, err := os.Hostname()
@@ -98,7 +98,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	slog.Error("minting jwt", "username", username, "level", level)
+	// slog.Info("minting jwt", "username", username, "level", level)
 	JWT, err := mintjwt(username, authLevel(level))
 	if err != nil {
 		slog.Error(err.Error())

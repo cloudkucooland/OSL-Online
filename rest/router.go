@@ -26,6 +26,7 @@ func getServeMux() *httprouter.Router {
 	// manage giving records
 	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, AuthLevelAdmin))
 	m.POST("/api/v1/giving/:id", authMW(postMemberGiving, AuthLevelAdmin))
+	m.GET("/api/v1/changelog/:id", authMW(getMemberChangelog, AuthLevelAdmin))
 
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))

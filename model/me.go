@@ -57,10 +57,7 @@ import (
 } */
 
 func SetMeField(id int, field string, value string) error {
-
 	slog.Info("self-updating", "id", id, "field", field, "value", value)
-	// XXX disable for now, need to restrict which fields people can change
-	return nil
 
 	if field == "id" {
 		err := fmt.Errorf("cannot change ID")
@@ -75,6 +72,7 @@ func SetMeField(id int, field string, value string) error {
 	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
 
 	switch field {
+	// These are allowed
 	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
 		var nb sql.NullBool
 		nb.Valid = true
@@ -83,7 +81,8 @@ func SetMeField(id int, field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
-	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateDeceased", "DateNovitiate", "DateLifeVows":
+	// These are allowed
+	case "BirthDate":
 		value = strings.TrimSpace(value)
 		if value == "" {
 			value = "0001-01-01"
@@ -97,7 +96,8 @@ func SetMeField(id int, field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
-	default:
+	// These are allowed
+	case "PreferredName", "Title", "Chapter", "Occupation", "Employer", "Denomination":
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
 		if value == "" {
@@ -111,10 +111,13 @@ func SetMeField(id int, field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
+	default:
+		err := fmt.Errorf("cannot edit that field")
+		slog.Error(err.Error(), "id", id, "field", field, "value", value)
+		return err
 	}
 
-	// XXX get ID
-	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
+	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", id, id, field, value); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

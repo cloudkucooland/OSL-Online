@@ -88,17 +88,7 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		}
 	}
 
-	s = r.PostFormValue("transaction")
-	transaction := 0
-	if s != "" {
-		transaction, err = strconv.Atoi(s)
-		if err != nil {
-			slog.Error(err.Error())
-			http.Error(w, jsonError(err), http.StatusNotAcceptable)
-			return
-		}
-	}
-
+	transaction := r.PostFormValue("transaction")
 	description := r.PostFormValue("description")
 
 	d := r.PostFormValue("date")

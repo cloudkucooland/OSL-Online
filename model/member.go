@@ -214,7 +214,7 @@ func (n *MemberImport) Store() error {
 	return nil
 }
 
-func SetMemberField(id int, field string, value string) error {
+func SetMemberField(id int, field string, value string, changer int) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -285,8 +285,7 @@ func SetMemberField(id int, field string, value string) error {
 		}
 	}
 
-	// XXX get ID
-	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
+	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", changer, id, field, value); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

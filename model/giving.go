@@ -14,7 +14,7 @@ type GivingRecord struct {
 	ID          int
 	Amount      float64
 	Check       int
-	Transaction int
+	Transaction string
 	Description string
 	Date        time.Time
 }
@@ -26,15 +26,17 @@ func (n GivingRecord) Store() error {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,curdate())", n.ID, n.Amount, n.Check, n.Transaction, n.Description)
+	_, err = db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,curdate())", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	if err := email.SendGiving(member.PrimaryEmail, member.OSLName(), fmt.Sprintf("%.2f", n.Amount), n.Description); err != nil {
-		slog.Error(err.Error())
-		return err
+	if member.PrimaryEmail != "" {
+		if err := email.SendGiving(member.PrimaryEmail, member.OSLName(), fmt.Sprintf("%.2f", n.Amount), n.Description); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
 	}
 	return nil
 }
