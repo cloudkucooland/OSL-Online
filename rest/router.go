@@ -20,8 +20,11 @@ func getServeMux() *httprouter.Router {
 
 	// manage individual members
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
-	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
+	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, AuthLevelView))
+	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager)) // should use PUT
+	m.PUT("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
 	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
+	m.PUT("/api/v1/member/:id/chapters", authMW(setMemberChapters, AuthLevelAdmin))
 
 	// manage giving records
 	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, AuthLevelAdmin))
@@ -30,7 +33,10 @@ func getServeMux() *httprouter.Router {
 
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
-	m.POST("/api/v1/me", authMW(setMe, AuthLevelView))
+	m.GET("/api/v1/me/chapters", authMW(getMeChapters, AuthLevelView))
+	m.POST("/api/v1/me", authMW(setMe, AuthLevelView)) // should use PUT
+	m.PUT("/api/v1/me", authMW(setMe, AuthLevelView))
+	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, AuthLevelView))
 
 	// for instituions and individuals who subscribe to Doxology but aren't vowed
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
@@ -38,15 +44,16 @@ func getServeMux() *httprouter.Router {
 	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
 
 	// search lists
-	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))
-	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))
+	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))       // members
+	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView)) // subscribers
 
-	// reports - ad-hoc, but works
-	m.GET("/api/v1/report/notrenewed", authMW(reportNotrenewed, AuthLevelManager))
-	m.GET("/api/v1/report/expired", authMW(reportExpired, AuthLevelManager))
-	m.GET("/api/v1/report/email", authMW(reportEmail, AuthLevelManager))
-	m.GET("/api/v1/report/annual", authMW(reportAnnual, AuthLevelManager))
-	m.GET("/api/v1/report/life", authMW(reportLife, AuthLevelManager))
+	// reports
+	m.GET("/api/v1/report/:report", authMW(reports, AuthLevelManager))
+
+	// manage chapters
+	m.GET("/api/v1/chapter", getChapters) // completely public
+	m.PUT("/api/v1/chapter/:id", authMW(postChapter, AuthLevelAdmin))
+	m.GET("/api/v1/chapter/:id", authMW(getChapterMembers, AuthLevelView))
 	return m
 }
 

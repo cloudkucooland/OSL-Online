@@ -41,6 +41,10 @@ func SetAuthData(id string, pw string, level int) error {
 }
 
 func Register(addr string) error {
+	if _, err := GetID(addr); err != nil {
+		return err
+	}
+
 	password, err := password.Generate(10, 3, 0, false, true)
 	if err != nil {
 		slog.Error(err.Error())

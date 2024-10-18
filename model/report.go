@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"io"
 	"log/slog"
 	"time"
 )
@@ -168,4 +169,26 @@ func ActiveMembers() ([]int, error) {
 		list = append(list, id)
 	}
 	return list, nil
+}
+
+func ReportAvery(w io.Writer) error {
+	var members []*Member
+	var n MemberImport
+
+	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, LifevowName, Suffix FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' ORDER BY LastName")
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix)
+		if err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+
+		members = append(members, (&n).toMember())
+	}
+	AveryLabels(w, members)
+	return nil
 }

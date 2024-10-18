@@ -70,7 +70,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 	username := req.PostFormValue("username")
 	if username == "" {
-		err := fmt.Errorf("username not set")
+		err := fmt.Errorf("login: username not set")
 		slog.Error(err.Error())
 		http.Error(res, jsonError(err), http.StatusNotAcceptable)
 		return
@@ -78,7 +78,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 	password := req.FormValue("password")
 	if password == "" {
-		err := fmt.Errorf("password not set")
+		err := fmt.Errorf("login: password not set")
 		slog.Error(err.Error())
 		http.Error(res, jsonError(err), http.StatusNotAcceptable)
 		return
@@ -86,7 +86,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 	pwhash, level, err := model.GetAuthData(username)
 	if err != nil || pwhash == "" {
-		err := fmt.Errorf("user not found")
+		err := fmt.Errorf("the email address %s has not yet been registered", username)
 		slog.Error(err.Error())
 		http.Error(res, jsonError(err), http.StatusNotAcceptable)
 		return
@@ -98,7 +98,6 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// slog.Info("minting jwt", "username", username, "level", level)
 	JWT, err := mintjwt(username, authLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
@@ -106,7 +105,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	slog.Error("login", "username", username, "level", level)
+	slog.Info("login", "username", username, "level", level)
 	headers(res, req)
 	res.Header().Set("content-type", "application/jwt")
 	http.SetCookie(res, &http.Cookie{

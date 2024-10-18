@@ -10,11 +10,36 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func reportNotrenewed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	report := ps.ByName("report")
+	if report == "" {
+		err := fmt.Errorf("report request not set")
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	headers(w, r)
+	switch report {
+	case "avery":
+		reportAvery(w, r, ps)
+	case "email":
+		reportEmail(w, r, ps)
+	case "expired":
+		reportExpired(w, r, ps)
+	case "life":
+		reportLife(w, r, ps)
+	case "notrenewed":
+		reportNotRenewed(w, r, ps)
+	default:
+		reportLife(w, r, ps)
+	}
+}
+
+func reportNotRenewed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
 		{"DateReaffirmation", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryEmail"},
 	}
-	headers(w, r)
 
 	m, err := model.ReportNotRenewed()
 	if err != nil {
@@ -45,7 +70,6 @@ func reportExpired(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	out := [][]string{
 		{"DateReaffirmation", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryEmail"},
 	}
-	headers(w, r)
 
 	m, err := model.ReportExpired()
 	if err != nil {
@@ -76,7 +100,6 @@ func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
 		{"OSLName", "MemberStatus", "FirstName", "LastName", "PreferredName", "Title", "LifevowName", "Suffix", "PrimaryEmail", "SecondaryEmail", "ListPrimaryEmail", "ListSecondaryEmail", "Doxology", "Newsletter", "Communication"},
 	}
-	headers(w, r)
 
 	m, err := model.ReportEmail()
 	if err != nil {
@@ -106,7 +129,6 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	out := [][]string{
 		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
 	}
-	headers(w, r)
 
 	m, err := model.ReportAnnual()
 	if err != nil {
@@ -135,7 +157,6 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
 		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
 	}
-	headers(w, r)
 
 	m, err := model.ReportLife()
 	if err != nil {
@@ -156,6 +177,15 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err := report.Error(); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func reportAvery(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "application/pdf")
+	if err := model.ReportAvery(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 }

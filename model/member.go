@@ -407,3 +407,39 @@ func (n *Member) OSLShortName() string {
 	}
 	return name
 }
+
+func (m *Member) SetChapters(chapters ...int) error {
+	if _, err := db.Exec("DELETE FROM `chaptermembers` WHERE `member` = ?", m.ID); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for _, ch := range chapters {
+		_, err := db.Exec("INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID)
+		if err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Member) GetChapters() ([]int, error) {
+	rows, err := db.Query("SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", m.ID)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	chapters := make([]int, 0)
+
+	var ch int
+	for rows.Next() {
+		if err = rows.Scan(&ch); err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		chapters = append(chapters, ch)
+	}
+	return chapters, nil
+}

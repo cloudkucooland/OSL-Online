@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 )
 
 // SearchResult is the format sent to the UI
@@ -21,7 +22,9 @@ func Search(query string, unlisted bool) ([]SearchResult, error) {
 	var res []SearchResult
 	var n SearchResult
 
-	qq := fmt.Sprintf("%%%s%%", query)
+	slog.Info("search", "query", query)
+
+	qq := fmt.Sprintf("%%%s%%", strings.TrimSpace(query))
 	var pn sql.NullString
 
 	rows, err := db.Query("SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
