@@ -8,6 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/jwx/v2 v2.1.1
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/sethvargo/go-password v0.3.1
@@ -30,7 +31,6 @@ require (
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0 // indirect
-	github.com/jung-kurt/gofpdf v1.16.2 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.6 // indirect
