@@ -1,5 +1,25 @@
 export const server = 'https://saint-luke.net:8443';
 
+export function oslname(m) {
+	// should check m.MemberStatus for title/OSL...
+	let name = m.Title + ' ';
+	let firstname = false;
+	if ((m.MemberStatus = 'Life Vows' && m.LifeVowName)) {
+		name = name + m.LifeVowName + ' ';
+		firstname = true;
+	}
+	if (!firstname && m.PreferredName) {
+		name = name + m.PreferredName + ' ';
+		firstname = true;
+	}
+	if (!firstname) {
+		name = name + m.FirstName + ' ';
+		firstname = true;
+	}
+	name = name + m.LastName + ', OSL';
+	return name;
+}
+
 export function getMe() {
 	const jwt = localStorage.getItem('jwt');
 	if (jwt === undefined || jwt === null) {
@@ -7,6 +27,12 @@ export function getMe() {
 	}
 
 	const token = JSON.parse(window.atob(jwt.split('.')[1]).toString());
+	const exp = new Date(token.exp * 1000);
+	if (exp.valueOf() <= Date.now().valueOf()) {
+		console.log('removing expired jwt');
+		localStorage.removeItem('jwt');
+		return undefined;
+	}
 	return token;
 }
 
@@ -58,7 +84,6 @@ export async function search(query) {
 		console.log('server returned ', response.status);
 		throw new Error(payload.error);
 	}
-	// console.log(payload);
 	return payload;
 }
 
@@ -228,7 +253,6 @@ export async function getSubscriber(id) {
 	} else {
 		payload.DatePaid = sp[0];
 	}
-
 	return payload;
 }
 
@@ -348,7 +372,7 @@ export async function postRegister(email) {
 	const response = await fetch(`${server}/api/v1/register`, request);
 	const payload = await response.json();
 	if (response.status != 200) {
-		console.log('server returned ', response.status);
+		console.log('server returned ', response.status, payload.error);
 		throw new Error(payload.error);
 	}
 	return true;
@@ -490,7 +514,6 @@ export async function getGiving(id) {
 		let sp = gr.Date.split('T');
 		gr.Date = sp[0];
 	});
-
 	return payload;
 }
 
@@ -553,5 +576,163 @@ export async function getChangelog(id) {
 		cr.Date = sp[0];
 	});
 
+	return payload;
+}
+
+export async function getChapters() {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/chapter`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+
+	// format for svelte-flowbite MultiSelect
+	payload.forEach((c) => {
+		c.value = c.ID;
+		c.name = c.Name;
+	});
+	return payload;
+}
+
+export async function updateMeChapters(chapters) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const dataArray = new FormData();
+	dataArray.append('chapters', chapters);
+
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		body: dataArray,
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/me/chapters`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
+export async function getMeChapters() {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/me/chapters`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
+export async function getMemberChapters(id) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${id}/chapters`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
+export async function updateMemberChapters(id, chapters) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const dataArray = new FormData();
+	dataArray.append('chapters', chapters);
+
+	const request = {
+		method: 'PUT',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		body: dataArray,
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${id}/chapters`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
+export async function getChapterMembers(chapterID) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/chapter/${chapterID}`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
 	return payload;
 }

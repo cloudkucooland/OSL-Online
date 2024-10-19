@@ -1,7 +1,14 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { getMe, getMeFromServer, updateMe } from '../oo';
-	import { Label, Input, Checkbox, Select } from 'flowbite-svelte';
+	import { getContext, afterUpdate } from 'svelte';
+	import {
+		getMe,
+		getMeFromServer,
+		updateMe,
+		getChapters,
+		updateMeChapters,
+		getMeChapters
+	} from '../oo';
+	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 
@@ -9,6 +16,8 @@
 	if ($me === undefined) {
 		push('/Login');
 	}
+	let chaps = [];
+	let selectedchapters = [];
 
 	const cannotedit = true; // placeholder for fields we are considering enabling
 
@@ -57,13 +66,21 @@
 		{ value: 'elected', name: 'Elected Officer' }
 	];
 
+	async function load() {
+		const m = await getMeFromServer();
+		chaps = await getChapters();
+		selectedchapters = await getMeChapters();
+
+		return m;
+	}
+
 	async function change(e) {
 		try {
 			await updateMe(e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
+			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
 	}
@@ -74,7 +91,18 @@
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
+			toast.push('failed to change: ' + err.message);
+			console.log(err);
+		}
+	}
+
+	async function setchapters() {
+		try {
+			await updateMeChapters(selectedchapters);
+			toast.push(`Updated Chapters`);
+			return true;
+		} catch (err) {
+			toast.push('failed to set chapter: ' + err.message);
 			console.log(err);
 		}
 	}
@@ -84,7 +112,7 @@
 	<title>OSL Member Manager: My Record</title>
 </svelte:head>
 
-{#await getMeFromServer()}
+{#await load()}
 	<h3>... loading ...</h3>
 {:then r}
 	<div>
@@ -299,8 +327,13 @@
 					<Select id="Leadership" items={leadership} value={r.Leadership} disabled="true" />
 				</div>
 				<div class="col-span-2">
-					<Label for="Chapter" class="block">Chapter</Label>
-					<Input id="Chapter" value={r.Chapter} on:change={change} />
+					<Label for="Chapters" class="block">Chapters</Label>
+					<MultiSelect
+						id="Chapters"
+						items={chaps}
+						bind:value={selectedchapters}
+						on:change={setchapters}
+					/>
 				</div>
 				<div class="col-span-2">
 					<Label for="Occupation" class="block">Occupation</Label>

@@ -21,7 +21,7 @@
 			result = await subsearch(query);
 		} catch (e) {
 			console.log(e);
-			toast.push(e);
+			toast.push(e.message);
 		}
 	}
 

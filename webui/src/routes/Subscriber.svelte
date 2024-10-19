@@ -23,7 +23,7 @@
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
+			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
 	}
@@ -34,7 +34,7 @@
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
+			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
 	}

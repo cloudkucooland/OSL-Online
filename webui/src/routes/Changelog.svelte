@@ -24,7 +24,7 @@
 			const c = await getChangelog(id);
 			return { m, c };
 		} catch (err) {
-			toast.push('failed to load: ' + err);
+			toast.push('failed to load: ' + err.message);
 			console.log(err);
 			throw err;
 		}
@@ -39,7 +39,7 @@
 	<h3>... loading ...</h3>
 {:then { m, c }}
 	<div>
-		Giving History for : <a href="#/member/{m.ID}">
+		Change Log for : <a href="#/member/{m.ID}">
 			{m.Title}
 			{m.FirstName}
 			{m.LastName}</a

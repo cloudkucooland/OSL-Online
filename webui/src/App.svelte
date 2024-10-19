@@ -1,6 +1,6 @@
 <script>
-	import { setContext, getContext } from 'svelte';
-	import { writable } from 'svelte/store';
+	import { setContext, getContext, onMount } from 'svelte';
+	import { writable, readable } from 'svelte/store';
 	import Router from 'svelte-spa-router';
 	import {
 		Navbar,
@@ -27,11 +27,12 @@
 	import Me from './routes/Me.svelte';
 	import Giving from './routes/Giving.svelte';
 	import Changelog from './routes/Changelog.svelte';
-	import { getMe } from './oo';
+	import ChapterBrowser from './routes/ChapterBrowser.svelte';
+	import { getMe, getChapters } from './oo';
 
 	const _init = getMe();
-	setContext('oo', { me: writable(_init) });
-	const { me } = getContext('oo');
+	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });
+	const { me, chapters } = getContext('oo');
 
 	const routes = {
 		'/': HomePage,
@@ -50,6 +51,7 @@
 		'/subsearch': SubSearch,
 		'/subscriber/:id': Subscriber,
 		'/addsubscriber/': AddSubscriber,
+		'/chapterbrowser/': ChapterBrowser,
 		'*': HomePage
 	};
 </script>
@@ -63,7 +65,8 @@
 		<NavHamburger></NavHamburger>
 		<NavUl>
 			<NavLi href="#/me">Me</NavLi>
-			{#if $me && $me.level > 1}
+			<NavLi href="#/chapterbrowser">Chapters</NavLi>
+			{#if $me && $me.level >= 1}
 				<NavLi href="#/reports">Reports</NavLi>{/if}
 		</NavUl>
 	</Navbar>

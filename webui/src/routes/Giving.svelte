@@ -26,8 +26,8 @@
 			push(`#/giving/${params.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
 			console.log(err);
+			toast.push('failed to change: ' + err.message);
 		}
 	}
 
@@ -37,7 +37,7 @@
 			const g = await getGiving(id);
 			return { m, g };
 		} catch (err) {
-			toast.push('failed to load: ' + err);
+			toast.push('failed to load: ' + err.message);
 			console.log(err);
 			throw err;
 		}

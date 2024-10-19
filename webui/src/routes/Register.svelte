@@ -10,11 +10,7 @@
 		Label
 	} from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
-	// import { push } from 'svelte-spa-router';
 	import { postRegister } from '../oo';
-
-	// const { me } = getContext('oo');
-	// if ($me !== undefined) { }
 
 	let username;
 	let submitted = false;
@@ -25,8 +21,8 @@
 		try {
 			submitted = await postRegister(username);
 		} catch (e) {
-			console.log(e);
-			toast.push(e);
+			console.log(e.message);
+			toast.push(e.message);
 		}
 	}
 </script>

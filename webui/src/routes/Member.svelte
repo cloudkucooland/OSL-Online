@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { getMe, getMember, updateMember } from '../oo';
-	import { Label, Input, Checkbox, Select } from 'flowbite-svelte';
+	import {
+		getMe,
+		getMember,
+		updateMember,
+		getMemberChapters,
+		getChapters,
+		updateMemberChapters
+	} from '../oo';
+	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 
@@ -9,6 +16,8 @@
 	if ($me === undefined) {
 		push('/Login');
 	}
+	let chaps = [];
+	let selectedchapters = [];
 
 	export let params;
 
@@ -57,14 +66,22 @@
 		{ value: 'elected', name: 'Elected Officer' }
 	];
 
+	async function load(id) {
+		const m = await getMember(id);
+		chaps = await getChapters();
+		selectedchapters = await getMemberChapters(id);
+
+		return m;
+	}
+
 	async function change(e) {
 		try {
 			await updateMember(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
-			console.log(err);
+			toast.push('failed to change: ' + err.message);
+			console.log(err.message);
 		}
 	}
 
@@ -74,7 +91,18 @@
 			toast.push(`Changed ${e.target.id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to change: ' + err);
+			toast.push('failed to change: ' + err.message);
+			console.log(err.message);
+		}
+	}
+
+	async function setchapters() {
+		try {
+			await updateMemberChapters(params.id, selectedchapters);
+			toast.push(`Updated Chapters`);
+			return true;
+		} catch (err) {
+			toast.push('failed to set chapter: ' + err.message);
 			console.log(err);
 		}
 	}
@@ -84,7 +112,7 @@
 	<title>OSL Member Manager: Member</title>
 </svelte:head>
 
-{#await getMember(params.id)}
+{#await load(params.id)}
 	<h3>... loading ...</h3>
 {:then r}
 	{#if $me && $me.level > 0}
@@ -129,8 +157,8 @@
 						<Input id="Suffix" value={r.Suffix} on:change={change} />
 					</div>
 					<div class="col-span-2">
-						<Label for="LifeVowName" class="block">Life Vow Name</Label>
-						<Input id="LifeVowName" value={r.LifeVowName} on:change={change} />
+						<Label for="LifevowName" class="block">Life Vow Name</Label>
+						<Input id="LifevowName" value={r.LifevowName} on:change={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="PreferedName" class="block">Preferred Name</Label>
@@ -286,8 +314,13 @@
 						<Select id="Leadership" items={leadership} value={r.Leadership} on:change={change} />
 					</div>
 					<div class="col-span-2">
-						<Label for="Chapter" class="block">Chapter</Label>
-						<Input id="Chapter" value={r.Chapter} on:change={change} />
+						<Label for="Chapters" class="block">Chapter</Label>
+						<MultiSelect
+							id="Chapters"
+							items={chaps}
+							bind:value={selectedchapters}
+							on:change={setchapters}
+						/>
 					</div>
 					<div class="col-span-2">
 						<Label for="Occupation" class="block">Occupation</Label>
@@ -329,19 +362,24 @@
 		</form>
 	{:else}
 		<section>
-			<div class="grid grid-cols-4 gap-1 px-4 py-2">
-				<div class="col-span-1">Name</div>
-				<div class="col-span-3">{r.Title} {r.FirstName} {r.MiddleName} {r.LastName} {r.Suffix}</div>
+			<div class="grid grid-cols-4 gap-1 px-6 py-6">
+				<div class="col-span-1 justify-self-start">Name</div>
+				<div class="col-span-3">
+					{r.Title}
+					{r.FirstName}
+					{r.MiddleName}
+					{r.LastName}, {r.Suffix}
+				</div>
 				{#if r.PreferredName}
-					<div class="col-span-1">Preferred Name</div>
-					<div class="col-span-3">Preferred Name: {r.Title} {r.PreferredName}</div>
+					<div class="col-span-1 justify-self-start">Preferred Name</div>
+					<div class="col-span-3">{r.Title} {r.PreferredName}</div>
 				{/if}
 				{#if r.LifevowName}
-					<div class="col-span-1">Lifevow Name</div>
+					<div class="col-span-1 justify-self-start">Lifevow Name</div>
 					<div class="col-span-3">{r.Title} {r.LifevowName}</div>
 				{/if}
 				{#if r.ListAddress}
-					<div class="col-span-1">Address</div>
+					<div class="col-span-1 justify-self-start">Address</div>
 					<div class="col-span-3">
 						{r.Address}<br />
 						{#if r.AddressLine2}{r.AddressLine2}<br />{/if}
@@ -350,15 +388,23 @@
 						{r.Country}<br />
 					</div>
 				{/if}
-				{#if r.ListPrimaryPhone && r.PrimaryPhone}<div class="col-span-1">Primary Phone</div>
+				{#if r.ListPrimaryPhone && r.PrimaryPhone}<div class="col-span-1 justify-self-start">
+						Primary Phone
+					</div>
 					<div class="col-span-3">{r.PrimaryPhone}</div>{/if}
-				{#if r.ListSecondaryPhone && r.SecondaryPhone}<div class="col-span-1">Secondary Phone</div>
+				{#if r.ListSecondaryPhone && r.SecondaryPhone}<div class="col-span-1 justify-self-start">
+						Secondary Phone
+					</div>
 					<div class="col-span-3">{r.SecondaryPhone}</div>{/if}
-				{#if r.ListPrimaryEmail && r.PrimaryEmail}<div class="col-span-1">Primary Email</div>
+				{#if r.ListPrimaryEmail && r.PrimaryEmail}<div class="col-span-1 justify-self-start">
+						Primary Email
+					</div>
 					<div class="col-span-3">{r.PrimaryEmail}</div>{/if}
-				{#if r.ListSecondaryPhone && r.SecondaryEmail}<div class="col-span-1">Secondary Email</div>
+				{#if r.ListSecondaryPhone && r.SecondaryEmail}<div class="col-span-1 justify-self-start">
+						Secondary Email
+					</div>
 					<div class="col-span-3">{r.SecondaryEmail}</div>{/if}
-				{#if r.Chapter}<div class="col-span-1">Chapter</div>
+				{#if r.Chapter}<div class="col-span-1 justify-self-start">Chapter</div>
 					<div class="col-span-3">{r.Chapter}</div>{/if}
 			</div>
 		</section>

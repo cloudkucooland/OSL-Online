@@ -34,7 +34,7 @@
 			window.location.href = '';
 		} catch (e) {
 			console.log(e);
-			toast.push(e);
+			toast.push(e.message);
 		}
 	}
 </script>

@@ -20,8 +20,8 @@
 			push(`/member/${id}`);
 			return true;
 		} catch (err) {
-			toast.push('failed to create: ' + err);
 			console.log(err);
+			toast.push('failed to create: ' + err.message);
 		}
 	}
 </script>
