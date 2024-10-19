@@ -28,6 +28,7 @@
 	import Giving from './routes/Giving.svelte';
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
+	import Leadership from './routes/Leadership.svelte';
 	import { getMe, getChapters } from './oo';
 
 	const _init = getMe();
@@ -52,6 +53,7 @@
 		'/subscriber/:id': Subscriber,
 		'/addsubscriber/': AddSubscriber,
 		'/chapterbrowser/': ChapterBrowser,
+		'/leadership/': Leadership,
 		'*': HomePage
 	};
 </script>
@@ -66,6 +68,7 @@
 		<NavUl>
 			<NavLi href="#/me">Me</NavLi>
 			<NavLi href="#/chapterbrowser">Chapters</NavLi>
+			<NavLi href="#/leadership">Leadership</NavLi>
 			{#if $me && $me.level >= 1}
 				<NavLi href="#/reports">Reports</NavLi>{/if}
 		</NavUl>

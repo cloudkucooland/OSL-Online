@@ -736,3 +736,27 @@ export async function getChapterMembers(chapterID) {
 	}
 	return payload;
 }
+
+export async function getLeaders(category) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/leaders/${category}`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
