@@ -56,7 +56,7 @@ func Chapters() ([]Chapter, error) {
 func (c *Chapter) Members() ([]Member, error) {
 	members := make([]Member, 0)
 
-	rows, err := db.Query("SELECT m.ID, m.MemberStatus, m.FirstName, m.MiddleName, m.LastName, m.PreferredName, m.Title, m.LifevowName, m.Suffix, m.Address, m.AddressLine2, m.City, m.State, m.Country, m.PostalCode, m.PrimaryPhone, m.PrimaryEmail, m.Leadership, m.ListInDirectory, m.ListAddress, m.ListPrimaryPhone, m.ListPrimaryEmail FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member", c.ID)
+	rows, err := db.Query("SELECT m.ID, m.MemberStatus, m.FirstName, m.MiddleName, m.LastName, m.PreferredName, m.Title, m.LifevowName, m.Suffix, m.Address, m.AddressLine2, m.City, m.State, m.Country, m.PostalCode, m.PrimaryPhone, m.PrimaryEmail, m.Leadership, m.ListInDirectory, m.ListAddress, m.ListPrimaryPhone, m.ListPrimaryEmail FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member ORDER BY m.LastName", c.ID)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -65,10 +65,11 @@ func (c *Chapter) Members() ([]Member, error) {
 		return members, err
 	}
 
-	var n Member
-	var lvn, pn, middle, suffix, line2 sql.NullString
 	for rows.Next() {
-		err := rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &middle, &n.LastName, &pn, &n.Title, &lvn, &suffix, &n.Address, &line2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.PrimaryEmail, &n.Leadership, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListPrimaryEmail)
+		var n Member
+		var lvn, pn, middle, suffix, line2, pphone, pcode, country, city, state sql.NullString
+
+		err := rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &middle, &n.LastName, &pn, &n.Title, &lvn, &suffix, &n.Address, &line2, &city, &state, &country, &pcode, &pphone, &n.PrimaryEmail, &n.Leadership, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListPrimaryEmail)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -92,6 +93,21 @@ func (c *Chapter) Members() ([]Member, error) {
 		}
 		if line2.Valid {
 			n.AddressLine2 = line2.String
+		}
+		if pphone.Valid {
+			n.PrimaryPhone = pphone.String
+		}
+		if pcode.Valid {
+			n.PostalCode = pcode.String
+		}
+		if country.Valid {
+			n.Country = country.String
+		}
+		if city.Valid {
+			n.City = city.String
+		}
+		if state.Valid {
+			n.State = state.String
 		}
 
 		if !n.ListAddress {

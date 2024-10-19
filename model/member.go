@@ -33,7 +33,6 @@ type MemberImport struct {
 	SecondaryEmail     sql.NullString
 	BirthDate          time.Time
 	DateRecordCreated  time.Time
-	Chapter            sql.NullString
 	DateFirstVows      time.Time
 	DateReaffirmation  time.Time
 	DateRemoved        time.Time
@@ -81,7 +80,6 @@ type Member struct {
 	SecondaryEmail     string
 	BirthDate          time.Time
 	DateRecordCreated  time.Time
-	Chapter            string
 	DateFirstVows      time.Time
 	DateReaffirmation  time.Time
 	DateRemoved        time.Time
@@ -112,7 +110,7 @@ func GetMember(id int, unlisted bool) (*Member, error) {
 
 	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
 
-	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &bd, &rc, &n.Chapter, &fv, &ra, &dr, &dd, &dn, &lv, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
+	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &bd, &rc, &fv, &ra, &dr, &dd, &dn, &lv, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
 		slog.Error(err.Error(), "id", id)
@@ -178,7 +176,6 @@ func (n *MemberImport) toMember() *Member {
 		SecondaryEmail:     n.SecondaryEmail.String,
 		BirthDate:          n.BirthDate,
 		DateRecordCreated:  n.DateRecordCreated,
-		Chapter:            n.Chapter.String,
 		DateFirstVows:      n.DateFirstVows,
 		DateReaffirmation:  n.DateReaffirmation,
 		DateRemoved:        n.DateRemoved,
@@ -205,7 +202,7 @@ func (n *MemberImport) toMember() *Member {
 }
 
 func (n *MemberImport) Store() error {
-	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, Chapter, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.Chapter, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
+	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
 
 	if err != nil {
 		slog.Error(err.Error())

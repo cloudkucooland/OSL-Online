@@ -8,54 +8,6 @@ import (
 	"time"
 )
 
-// Member is the format sent to the UI
-/* type Member struct {
-	ID                 int
-	MemberStatus       string
-	FirstName          string
-	MiddleName         string
-	LastName           string
-	PreferredName      string
-	Title              string
-	LifevowName        string
-	Suffix             string
-	Address            string
-	AddressLine2       string
-	City               string
-	State              string
-	Country            string
-	PostalCode         string
-	PrimaryPhone       string
-	SecondaryPhone     string
-	PrimaryEmail       string
-	SecondaryEmail     string
-	BirthDate          time.Time
-	DateRecordCreated  time.Time
-	Chapter            string
-	DateFirstVows      time.Time
-	DateReaffirmation  time.Time
-	DateRemoved        time.Time
-	DateDeceased       time.Time
-	DateNovitiate      time.Time
-	DateLifeVows       time.Time
-	Status             string
-	Leadership         string
-	HowJoined          string
-	HowRemoved         string
-	ListInDirectory    bool
-	ListAddress        bool
-	ListPrimaryPhone   bool
-	ListSecondaryPhone bool
-	ListPrimaryEmail   bool
-	ListSecondaryEmail bool
-	Doxology           string
-	Newsletter         string
-	Communication      string
-	Occupation         string
-	Employer           string
-	Denomination       string
-} */
-
 func SetMeField(id int, field string, value string) error {
 	slog.Info("self-updating", "id", id, "field", field, "value", value)
 
@@ -97,7 +49,7 @@ func SetMeField(id int, field string, value string) error {
 			return err
 		}
 	// These are allowed
-	case "PreferredName", "Title", "Chapter", "Occupation", "Employer", "Denomination":
+	case "PreferredName", "Title", "Occupation", "Employer", "Denomination":
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
 		if value == "" {
