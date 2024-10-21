@@ -15,7 +15,7 @@ func (m *Member) FormatAddress() (string, error) {
 	case "Phillipines", "PHILIPPINES", "Philipines", "Philippines":
 		m.Country = "PH"
 		m.Store()
-		return "", nil // for now
+		return m.formatPH()
 	case "UNITED KINGDOM", "United Kingdom":
 		m.Country = "GB"
 		m.Store()
@@ -31,11 +31,13 @@ func (m *Member) FormatAddress() (string, error) {
 	case "SINGAPORE", "Singapore":
 		m.Country = "SG"
 		m.Store()
-		return "", nil // for now
+		return m.formatSG()
 	case "GB":
 		return m.formatGB()
-	case "PH", "SG":
-		return "", nil // for now
+	case "PH":
+		return m.formatPH()
+	case "SG":
+		return m.formatSG() // for now
 	default: // assume US/CA/HK format
 		return m.formatUS()
 	}
@@ -76,6 +78,56 @@ func (m *Member) formatGB() (string, error) {
 			m.Address,
 			m.AddressLine2,
 		}),
+		address.WithLocality(m.City),
+		address.WithPostCode(m.PostalCode),
+	)
+	if err != nil {
+		slog.Error(err.Error(), "data", m)
+		return "", err
+	}
+
+	postalStringFormatter := address.PostalLabelFormatter{
+		Output:            address.StringOutputter{},
+		OriginCountryCode: "US",
+	}
+
+	formatted := postalStringFormatter.Format(addr, "en")
+	return formatted, nil
+}
+
+func (m *Member) formatSG() (string, error) {
+	addr, err := address.NewValid(
+		address.WithCountry(m.Country),
+		address.WithName(m.OSLName()),
+		address.WithStreetAddress([]string{
+			m.Address,
+			m.AddressLine2,
+		}),
+		address.WithPostCode(m.PostalCode),
+	)
+	if err != nil {
+		slog.Error(err.Error(), "data", m)
+		return "", err
+	}
+
+	postalStringFormatter := address.PostalLabelFormatter{
+		Output:            address.StringOutputter{},
+		OriginCountryCode: "US",
+	}
+
+	formatted := postalStringFormatter.Format(addr, "en")
+	return formatted, nil
+}
+
+func (m *Member) formatPH() (string, error) {
+	addr, err := address.NewValid(
+		address.WithCountry(m.Country),
+		address.WithName(m.OSLName()),
+		address.WithStreetAddress([]string{
+			m.Address,
+			m.AddressLine2,
+		}),
+		address.WithAdministrativeArea(m.State),
 		address.WithLocality(m.City),
 		address.WithPostCode(m.PostalCode),
 	)

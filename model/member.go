@@ -102,9 +102,11 @@ type Member struct {
 	Occupation         string
 	Employer           string
 	Denomination       string
+	FormattedAddr      string
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
+// unlisted means "include unlisted info"
 func GetMember(id int, unlisted bool) (*Member, error) {
 	var n MemberImport
 
@@ -150,7 +152,16 @@ func GetMember(id int, unlisted bool) (*Member, error) {
 		(&n).cleanUnlisted()
 	}
 
-	return (&n).toMember(), nil
+	m := (&n).toMember()
+
+	if unlisted && (&n).ListAddress.Bool {
+		m.FormattedAddr, err = m.FormatAddress()
+		if err != nil {
+			slog.Info(err.Error())
+			// not fatal
+		}
+	}
+	return m, nil
 }
 
 func (n *MemberImport) toMember() *Member {
