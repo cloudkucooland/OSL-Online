@@ -3,6 +3,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -39,6 +40,7 @@ func Start(ctx context.Context) {
 		WriteTimeout:      (30 * time.Second),
 		ReadTimeout:       (30 * time.Second),
 		ReadHeaderTimeout: (2 * time.Second),
+		ErrorLog:          newServerErrorLog(),
 	}
 
 	cert := "/etc/letsencrypt/live/saint-luke.net/fullchain.pem"
@@ -154,4 +156,20 @@ func getLevel(r *http.Request) (authLevel, error) {
 	}
 
 	return authLevel(ff), nil
+}
+
+type serverErrorLogWriter struct{}
+
+func (*serverErrorLogWriter) Write(p []byte) (int, error) {
+	m := string(p)
+	if strings.HasPrefix(m, "http: TLS handshake error") {
+		slog.Debug(m)
+	} else {
+		slog.Error(m)
+	}
+	return len(p), nil
+}
+
+func newServerErrorLog() *log.Logger {
+	return log.New(&serverErrorLogWriter{}, "", 0)
 }

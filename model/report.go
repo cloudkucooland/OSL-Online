@@ -155,6 +155,7 @@ func ActiveMembers() ([]int, error) {
 	list := make([]int, 0, 1000)
 
 	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed'")
+	// rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' ORDER BY LastName")
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -173,21 +174,22 @@ func ActiveMembers() ([]int, error) {
 
 func ReportAvery(w io.Writer) error {
 	var members []*Member
-	var n MemberImport
 
-	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, LifevowName, Suffix FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' ORDER BY LastName")
+	ids, err := ActiveMembers()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
-	for rows.Next() {
-		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix)
+
+	for _, id := range ids {
+		m, err := GetMember(id, true)
 		if err != nil {
 			slog.Error(err.Error())
-			return err
+			continue
+			// return err
 		}
 
-		members = append(members, (&n).toMember())
+		members = append(members, m)
 	}
 	AveryLabels(w, members)
 	return nil

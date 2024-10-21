@@ -23,7 +23,7 @@ func AveryLabels(pdffile io.Writer, members []*Member) {
 	pdf.SetFont("Helvetica", "", 10)
 
 	for _, member := range members {
-		address, err := member.ValidateAddress()
+		address, err := member.FormatAddress()
 		if err != nil {
 			continue
 		}

@@ -62,3 +62,10 @@ func makeNullString(in interface{}) sql.NullString {
 		Valid:  true,
 	}
 }
+
+func makeNullBool(in bool) sql.NullBool {
+	return sql.NullBool{
+		Bool:  in,
+		Valid: true,
+	}
+}

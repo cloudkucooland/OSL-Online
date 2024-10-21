@@ -201,14 +201,67 @@ func (n *MemberImport) toMember() *Member {
 	}
 }
 
+func (n *Member) toMemberImport() *MemberImport {
+	return &MemberImport{
+		ID:                 n.ID,
+		MemberStatus:       makeNullString(n.MemberStatus),
+		FirstName:          makeNullString(n.FirstName),
+		MiddleName:         makeNullString(n.MiddleName),
+		LastName:           makeNullString(n.LastName),
+		PreferredName:      makeNullString(n.PreferredName),
+		Title:              makeNullString(n.Title),
+		LifevowName:        makeNullString(n.LifevowName),
+		Suffix:             makeNullString(n.Suffix),
+		Address:            makeNullString(n.Address),
+		AddressLine2:       makeNullString(n.AddressLine2),
+		City:               makeNullString(n.City),
+		State:              makeNullString(n.State),
+		Country:            makeNullString(n.Country),
+		PostalCode:         makeNullString(n.PostalCode),
+		PrimaryPhone:       makeNullString(n.PrimaryPhone),
+		SecondaryPhone:     makeNullString(n.SecondaryPhone),
+		PrimaryEmail:       makeNullString(n.PrimaryEmail),
+		SecondaryEmail:     makeNullString(n.SecondaryEmail),
+		BirthDate:          n.BirthDate,
+		DateRecordCreated:  n.DateRecordCreated,
+		DateFirstVows:      n.DateFirstVows,
+		DateReaffirmation:  n.DateReaffirmation,
+		DateRemoved:        n.DateRemoved,
+		DateDeceased:       n.DateDeceased,
+		DateNovitiate:      n.DateNovitiate,
+		DateLifeVows:       n.DateLifeVows,
+		Status:             makeNullString(n.Status),
+		Leadership:         makeNullString(n.Leadership),
+		HowJoined:          makeNullString(n.HowJoined),
+		HowRemoved:         makeNullString(n.HowRemoved),
+		ListInDirectory:    makeNullBool(n.ListInDirectory),
+		ListAddress:        makeNullBool(n.ListAddress),
+		ListPrimaryPhone:   makeNullBool(n.ListPrimaryPhone),
+		ListSecondaryPhone: makeNullBool(n.ListSecondaryPhone),
+		ListPrimaryEmail:   makeNullBool(n.ListPrimaryEmail),
+		ListSecondaryEmail: makeNullBool(n.ListSecondaryEmail),
+		Doxology:           makeNullString(n.Doxology),
+		Newsletter:         makeNullString(n.Newsletter),
+		Communication:      makeNullString(n.Communication),
+		Occupation:         makeNullString(n.Occupation),
+		Employer:           makeNullString(n.Employer),
+		Denomination:       makeNullString(n.Denomination),
+	}
+}
+
 func (n *MemberImport) Store() error {
-	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
+	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
 
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 	return nil
+}
+
+func (n *Member) Store() error {
+	nn := n.toMemberImport()
+	return nn.Store()
 }
 
 func SetMemberField(id int, field string, value string, changer int) error {
