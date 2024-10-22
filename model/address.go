@@ -11,7 +11,7 @@ func (m *Member) FormatAddress() (string, error) {
 	case "USA", "United States", "":
 		m.Country = "US"
 		m.Store()
-		return m.formatUS()
+		return m.formatMain()
 	case "Phillipines", "PHILIPPINES", "Philipines", "Philippines":
 		m.Country = "PH"
 		m.Store()
@@ -23,11 +23,11 @@ func (m *Member) FormatAddress() (string, error) {
 	case "CANADA":
 		m.Country = "CA"
 		m.Store()
-		return m.formatUS()
+		return m.formatMain()
 	case "Hong Kong":
 		m.Country = "HK"
 		m.Store()
-		return m.formatUS()
+		return m.formatMain()
 	case "SINGAPORE", "Singapore":
 		m.Country = "SG"
 		m.Store()
@@ -39,12 +39,14 @@ func (m *Member) FormatAddress() (string, error) {
 	case "SG":
 		return m.formatSG() // for now
 	default: // assume US/CA/HK format
-		return m.formatUS()
+		return m.formatMain()
 	}
-	return m.formatUS()
+	// not-reached
+	return m.formatMain()
 }
 
-func (m *Member) formatUS() (string, error) {
+// this does the "RIGHT THING"TM for most countries, even HK which goes MSB vs. US's LSB
+func (m *Member) formatMain() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithName(m.OSLName()),
@@ -70,6 +72,7 @@ func (m *Member) formatUS() (string, error) {
 	return formatted, nil
 }
 
+// no AdministrativeArea
 func (m *Member) formatGB() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
@@ -95,6 +98,7 @@ func (m *Member) formatGB() (string, error) {
 	return formatted, nil
 }
 
+// no AdministrativeArea or Locality
 func (m *Member) formatSG() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
@@ -123,10 +127,7 @@ func (m *Member) formatPH() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithName(m.OSLName()),
-		address.WithStreetAddress([]string{
-			m.Address,
-			m.AddressLine2,
-		}),
+		address.WithStreetAddress([]string{m.Address + ", " + m.AddressLine2}),
 		address.WithAdministrativeArea(m.State),
 		address.WithLocality(m.City),
 		address.WithPostCode(m.PostalCode),

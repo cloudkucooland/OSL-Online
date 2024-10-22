@@ -106,8 +106,7 @@ type Member struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-// unlisted means "include unlisted info"
-func GetMember(id int, unlisted bool) (*Member, error) {
+func GetMember(id int, includeUnlisted bool) (*Member, error) {
 	var n MemberImport
 
 	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
@@ -148,17 +147,18 @@ func GetMember(id int, unlisted bool) (*Member, error) {
 		n.DateLifeVows, _ = time.Parse(format, lv.String)
 	}
 
-	if !unlisted {
+	// if not including unlisted, filter it out
+	if !includeUnlisted {
 		(&n).cleanUnlisted()
 	}
 
 	m := (&n).toMember()
 
-	if unlisted && (&n).ListAddress.Bool {
+	// unlisted information is already filtered
+	if m.ListAddress && m.Address != "" {
 		m.FormattedAddr, err = m.FormatAddress()
 		if err != nil {
-			slog.Info(err.Error())
-			// not fatal
+			slog.Debug(err.Error())
 		}
 	}
 	return m, nil
