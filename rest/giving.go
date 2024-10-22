@@ -20,8 +20,8 @@ func getMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-
-	m, err := model.GetMember(id, false)
+	mid := model.MemberID(id)
+	m, err := mid.Get(false)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -101,7 +101,7 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	gr := model.GivingRecord{
 		EntryID:     0,
-		ID:          id,
+		ID:          model.MemberID(id),
 		Amount:      amount,
 		Check:       check,
 		Transaction: transaction,

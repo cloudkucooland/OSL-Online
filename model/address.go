@@ -6,6 +6,10 @@ import (
 	"github.com/Boostport/address"
 )
 
+type MailReceiver interface {
+	Store()
+}
+
 func (m *Member) FormatAddress() (string, error) {
 	switch m.Country {
 	case "USA", "United States", "":

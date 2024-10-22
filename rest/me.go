@@ -22,7 +22,8 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	m, err := model.GetMember(id, true)
+	mid := model.MemberID(id)
+	m, err := mid.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -46,7 +47,8 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 
-	m, err := model.GetMember(id, true)
+	mid := model.MemberID(id)
+	m, err := mid.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -133,7 +135,8 @@ func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		chapters = append(chapters, c)
 	}
 
-	member, err := model.GetMember(id, true)
+	mid := model.MemberID(id)
+	member, err := mid.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

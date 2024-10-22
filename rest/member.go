@@ -32,7 +32,8 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		unlisted = true
 	}
 
-	m, err := model.GetMember(id, unlisted)
+	mid := model.MemberID(id)
+	m, err := mid.Get(unlisted)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -55,7 +56,8 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		return
 	}
 
-	m, err := model.GetMember(id, true)
+	mid := model.MemberID(id)
+	m, err := mid.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -108,7 +110,7 @@ func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	if err := model.SetMemberField(id, field, value, changer); err != nil {
+	if err := model.SetMemberField(model.MemberID(id), field, value, model.MemberID(changer)); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
@@ -180,7 +182,8 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		chapters = append(chapters, c)
 	}
 
-	member, err := model.GetMember(id, true)
+	mid := model.MemberID(id)
+	member, err := mid.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

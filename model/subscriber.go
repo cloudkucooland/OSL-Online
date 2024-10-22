@@ -8,8 +8,10 @@ import (
 	"time"
 )
 
+type SubscriberID int
+
 type Subscriber struct {
-	ID                int
+	ID                SubscriberID
 	Name              string
 	Attn              string
 	Address           string
@@ -30,7 +32,7 @@ type Subscriber struct {
 }
 
 type SubscriberImport struct {
-	ID                int
+	ID                SubscriberID
 	Name              sql.NullString
 	Attn              sql.NullString
 	Address           sql.NullString
@@ -50,7 +52,7 @@ type SubscriberImport struct {
 	Communication     sql.NullString
 }
 
-func GetSubscriber(id int) (*Subscriber, error) {
+func (id SubscriberID) Get() (*Subscriber, error) {
 	var n SubscriberImport
 
 	var created, paid sql.NullString
@@ -118,7 +120,7 @@ func (n *SubscriberImport) Store() error {
 	return nil
 }
 
-func SetSubscriberField(id int, field string, value string) error {
+func (id SubscriberID) SetField(field string, value string) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {

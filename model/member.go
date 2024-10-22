@@ -10,9 +10,11 @@ import (
 
 const format = "2006-01-02"
 
+type MemberID int
+
 // MemberImport is the format used by the import tool and in the main query since NULLs are possible
 type MemberImport struct {
-	ID                 int
+	ID                 MemberID
 	MemberStatus       sql.NullString
 	FirstName          sql.NullString
 	MiddleName         sql.NullString
@@ -59,7 +61,7 @@ type MemberImport struct {
 
 // Member is the format sent to the UI
 type Member struct {
-	ID                 int
+	ID                 MemberID
 	MemberStatus       string
 	FirstName          string
 	MiddleName         string
@@ -106,7 +108,7 @@ type Member struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-func GetMember(id int, includeUnlisted bool) (*Member, error) {
+func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 	var n MemberImport
 
 	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
@@ -275,7 +277,7 @@ func (n *Member) Store() error {
 	return nn.Store()
 }
 
-func SetMemberField(id int, field string, value string, changer int) error {
+func SetMemberField(id MemberID, field string, value string, changer MemberID) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -354,7 +356,7 @@ func SetMemberField(id int, field string, value string, changer int) error {
 	return nil
 }
 
-func Create(firstname, lastname string) (int64, error) {
+func Create(firstname, lastname string) (MemberID, error) {
 	if firstname == "" || lastname == "" {
 		err := fmt.Errorf("name cannot be null")
 		slog.Error(err.Error())
@@ -379,7 +381,7 @@ func Create(firstname, lastname string) (int64, error) {
 		slog.Error(err.Error())
 		return 0, err
 	}
-	return last, nil
+	return MemberID(last), nil
 }
 
 func (n *MemberImport) cleanUnlisted() {

@@ -34,7 +34,8 @@ func main() {
 		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
 		panic(err)
 	}
-	ids, err := model.ActiveMembers()
+
+	ids, err := model.ActiveMemberIDs()
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
@@ -42,22 +43,18 @@ func main() {
 
 	var a usps.Address
 	for _, i := range ids {
-		m, err := model.GetMember(i, true)
+		m, err := i.Get(true)
 		if err != nil {
 			slog.Error(err.Error())
 			panic(err)
 		}
-		fmt.Printf("%s\n", m.OSLName())
 
-		if m.Country == "United States" || m.Country == "USA" || m.Country == "US" {
-			m.Country = "US"
-		} else {
-			fmt.Printf("Skipping non-us: %s\n", m.Country)
+		if m.Country != "US" {
+			slog.Debug("Skipping non-us: %s\n", m.Country)
 			continue
 		}
+		// slog.Info(m.OSLName())
 
-		// a.Address1 = m.Address
-		// a.Address2 = m.AddressLine2
 		a.Address2 = m.Address + " " + m.AddressLine2
 		a.City = m.City
 		a.State = m.State
@@ -66,12 +63,9 @@ func main() {
 		lookup := u.ZipCodeLookup(a)
 		fmt.Printf("%+v\n", lookup)
 
-		// verify := u.AddressVerification(a)
-		// fmt.Printf("%+v\n", verify)
-
 		newzip := fmt.Sprintf("%s-%s", lookup.Address.Zip5, lookup.Address.Zip4)
 		if lookup.Address.Zip5 != "" && newzip != m.PostalCode {
-			fmt.Printf("Old: %s\tNew: %s", m.PostalCode, newzip)
+			slog.Info("reformatted", "old", m.PostalCode, "new", newzip)
 			// model.SetField(i, "PostalCode", newzip)
 		}
 	}

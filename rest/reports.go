@@ -101,14 +101,20 @@ func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		{"OSLName", "MemberStatus", "FirstName", "LastName", "PreferredName", "Title", "LifevowName", "Suffix", "PrimaryEmail", "SecondaryEmail", "ListPrimaryEmail", "ListSecondaryEmail", "Doxology", "Newsletter", "Communication"},
 	}
 
-	m, err := model.ReportEmail()
+	m, err := model.ActiveMemberIDs()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 
-	for _, n := range m {
+	for _, id := range m {
+		n, err := id.Get(true)
+		if err != nil {
+			slog.Error(err.Error())
+			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			return
+		}
 		oslName := n.OSLName()
 		member := []string{oslName, n.MemberStatus, n.FirstName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.PrimaryEmail, n.SecondaryEmail, fmt.Sprintf("%t", n.ListPrimaryEmail), fmt.Sprintf("%t", n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
@@ -127,7 +133,7 @@ func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
-		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
+		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "FormattedAddress", "Doxology", "Newsletter", "Communication"},
 	}
 
 	m, err := model.ReportAnnual()
@@ -138,7 +144,8 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	for _, n := range m {
-		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
+		addr, _ := n.FormatAddress()
+		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, addr, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
 
@@ -155,7 +162,7 @@ func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
-		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "Doxology", "Newsletter", "Communication"},
+		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "FormattedAddress", "Doxology", "Newsletter", "Communication"},
 	}
 
 	m, err := model.ReportLife()
@@ -166,7 +173,8 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	for _, n := range m {
-		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.Doxology, n.Newsletter, n.Communication}
+		addr, _ := n.FormatAddress()
+		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, addr, n.Doxology, n.Newsletter, n.Communication}
 		out = append(out, member)
 	}
 

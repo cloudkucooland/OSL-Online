@@ -61,28 +61,6 @@ func ReportExpired() ([]*Member, error) {
 	return members, nil
 }
 
-func ReportEmail() ([]*Member, error) {
-	var members []*Member
-	var n MemberImport
-
-	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, LifevowName, Suffix, PrimaryEmail, SecondaryEmail, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.PrimaryEmail, &n.SecondaryEmail, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication)
-		if err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-
-		members = append(members, (&n).toMember())
-	}
-	return members, nil
-}
-
 func ReportAnnual() ([]*Member, error) {
 	var members []*Member
 	var n MemberImport
@@ -150,12 +128,56 @@ func ReportSubscriber() ([]*Subscriber, error) {
 }
 
 // Returns a slice of IDs
-func ActiveMembers() ([]int, error) {
+func ActiveMemberIDs() ([]MemberID, error) {
 	var id int
-	list := make([]int, 0, 1000)
+	list := make([]MemberID, 0, 500)
 
 	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed'")
-	// rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' ORDER BY LastName")
+	if err != nil {
+		slog.Error(err.Error())
+		return list, err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			slog.Error(err.Error())
+			return list, err
+		}
+		list = append(list, MemberID(id))
+	}
+	return list, nil
+}
+
+func ReportAvery(w io.Writer) error {
+	var members []*Member
+
+	ids, err := ActiveMemberIDs()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for _, id := range ids {
+		m, err := id.Get(true)
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+			// return err
+		}
+
+		members = append(members, m)
+	}
+	AveryLabels(w, members)
+	return nil
+}
+
+// Returns a slice of IDs
+func DoxologyPrintedMemberIDs() ([]MemberID, error) {
+	var id MemberID
+	list := make([]MemberID, 0, 100)
+
+	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'mailed'")
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -172,25 +194,24 @@ func ActiveMembers() ([]int, error) {
 	return list, nil
 }
 
-func ReportAvery(w io.Writer) error {
-	var members []*Member
+// Returns a slice of IDs
+func DoxologyPrintedSubscriberIDs() ([]SubscriberID, error) {
+	var id SubscriberID
+	list := make([]SubscriberID, 0, 100)
 
-	ids, err := ActiveMembers()
+	rows, err := db.Query("SELECT id FROM subscriber WHERE PaidDate = '2024-01-01'") // FIXME
 	if err != nil {
 		slog.Error(err.Error())
-		return err
+		return list, err
 	}
 
-	for _, id := range ids {
-		m, err := GetMember(id, true)
+	for rows.Next() {
+		err := rows.Scan(&id)
 		if err != nil {
 			slog.Error(err.Error())
-			continue
-			// return err
+			return list, err
 		}
-
-		members = append(members, m)
+		list = append(list, SubscriberID(id))
 	}
-	AveryLabels(w, members)
-	return nil
+	return list, nil
 }

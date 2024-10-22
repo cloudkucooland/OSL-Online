@@ -11,7 +11,7 @@ import (
 
 type GivingRecord struct {
 	EntryID     int
-	ID          int
+	ID          MemberID
 	Amount      float64
 	Check       int
 	Transaction string
@@ -20,7 +20,7 @@ type GivingRecord struct {
 }
 
 func (n GivingRecord) Store() error {
-	member, err := GetMember(n.ID, true)
+	member, err := n.ID.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

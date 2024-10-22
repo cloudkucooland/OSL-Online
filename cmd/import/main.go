@@ -68,7 +68,7 @@ func main() {
 func doMember(id int, d []string) {
 	var m model.MemberImport
 
-	m.ID = id
+	m.ID = model.MemberID(id)
 	m.LastName.Valid = d[0] != ""
 	m.LastName.String = d[0]
 	m.FirstName.Valid = d[1] != ""
@@ -301,7 +301,7 @@ func doMember(id int, d []string) {
 func doOrg(id int, d []string) {
 	var s model.SubscriberImport
 
-	s.ID = id
+	s.ID = model.SubscriberID(id)
 	s.Name.Valid = d[0] != ""
 	s.Name.String = d[0]
 	s.Attn.Valid = d[1] != "" && d[1] != "ORGANIZATION"

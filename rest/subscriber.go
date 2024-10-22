@@ -19,8 +19,8 @@ func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-
-	m, err := model.GetSubscriber(id)
+	sid := model.SubscriberID(id)
+	m, err := sid.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -50,12 +50,6 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	value := r.PostFormValue("value")
-	/* if value == "" {
-		err := fmt.Errorf("value not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
-		return
-	} */
 
 	id, err := strconv.Atoi(ps.ByName("id"))
 	if err != nil {
@@ -63,8 +57,8 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-
-	if err := model.SetSubscriberField(id, field, value); err != nil {
+	sid := model.SubscriberID(id)
+	if err := sid.SetField(field, value); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

@@ -21,14 +21,16 @@ func main() {
 		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
 		panic(err)
 	}
-	ids, err := model.ActiveMembers()
+
+	// get the IDs of all active members, friends and benefactors
+	ids, err := model.ActiveMemberIDs()
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
 	}
 
 	for _, i := range ids {
-		m, err := model.GetMember(i, true)
+		m, err := i.Get(true)
 		if err != nil {
 			panic(err)
 		}
