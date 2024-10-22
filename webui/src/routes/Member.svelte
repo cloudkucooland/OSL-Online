@@ -6,7 +6,8 @@
 		updateMember,
 		getMemberChapters,
 		getChapters,
-		updateMemberChapters
+		updateMemberChapters,
+		oslname
 	} from '../oo';
 	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -365,27 +366,12 @@
 			<div class="grid grid-cols-4 gap-1 px-6 py-6">
 				<div class="col-span-1 justify-self-start">Name</div>
 				<div class="col-span-3">
-					{r.Title}
-					{r.FirstName}
-					{r.MiddleName}
-					{r.LastName}, {r.Suffix}
+					{oslname(r)}
 				</div>
-				{#if r.PreferredName}
-					<div class="col-span-1 justify-self-start">Preferred Name</div>
-					<div class="col-span-3">{r.Title} {r.PreferredName}</div>
-				{/if}
-				{#if r.LifevowName}
-					<div class="col-span-1 justify-self-start">Lifevow Name</div>
-					<div class="col-span-3">{r.Title} {r.LifevowName}</div>
-				{/if}
 				{#if r.ListAddress}
 					<div class="col-span-1 justify-self-start">Address</div>
 					<div class="col-span-3">
-						{r.Address}<br />
-						{#if r.AddressLine2}{r.AddressLine2}<br />{/if}
-						{r.City}, {r.State}
-						{r.PostalCode}<br />
-						{r.Country}<br />
+						<pre>{r.FormattedAddr}</pre>
 					</div>
 				{/if}
 				{#if r.ListPrimaryPhone && r.PrimaryPhone}<div class="col-span-1 justify-self-start">

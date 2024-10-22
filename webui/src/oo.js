@@ -1,16 +1,14 @@
 export const server = 'https://saint-luke.net:8443';
 
 export function oslname(m) {
-	// should check m.MemberStatus for title/OSL...
 	let name = '';
 	let firstname = false;
-	console.log(m);
 
 	if (m.MemberStatus == 'Life Vows' || m.MemberStatus == 'Annual Vows') {
 		name = m.Title + ' ';
 	}
-	if ((m.MemberStatus = 'Life Vows' && m.LifeVowName)) {
-		name = name + m.LifeVowName + ' ';
+	if (m.MemberStatus == 'Life Vows' && m.LifevowName) {
+		name = name + m.LifevowName + ' ';
 		firstname = true;
 	}
 	if (!firstname && m.PreferredName) {

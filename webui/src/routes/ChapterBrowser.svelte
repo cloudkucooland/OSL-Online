@@ -41,9 +41,6 @@
 			<div class="col-span-8">
 				{#if m.Leadership == 'prior'}Prior{/if}
 				<a href="#/member/{m.ID}">{oslname(m)}</a><br />
-				{#if m.Address}
-					{m.Address}<br />{m.City} {m.State} {m.PostalCode} {m.Country} <br />
-				{/if}
 				{#if m.PrimaryEmail}<a href="mailto:{m.PrimaryEmail}">{m.PrimaryEmail}</a><br />{/if}
 				{#if m.PrimaryPhone}<a href="tel:{m.PrimaryPhone}">{m.PrimaryPhone}</a>{/if}
 			</div>
