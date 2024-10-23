@@ -31,6 +31,8 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		reportLife(w, r, ps)
 	case "notrenewed":
 		reportNotRenewed(w, r, ps)
+	case "doxprint":
+		reportDoxPrinted(w, r, ps)
 	default:
 		reportLife(w, r, ps)
 	}
@@ -192,6 +194,15 @@ func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func reportAvery(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "application/pdf")
 	if err := model.ReportAvery(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func reportDoxPrinted(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.DoxologyPrinted(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

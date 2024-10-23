@@ -2,6 +2,8 @@ package model
 
 import (
 	"database/sql"
+	"encoding/csv"
+
 	"io"
 	"log/slog"
 	"time"
@@ -149,6 +151,28 @@ func ActiveMemberIDs() ([]MemberID, error) {
 	return list, nil
 }
 
+// Returns a slice of IDs
+func ActiveSubscriberIDs() ([]SubscriberID, error) {
+	var id int
+	list := make([]SubscriberID, 0, 50)
+
+	rows, err := db.Query("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY)")
+	if err != nil {
+		slog.Error(err.Error())
+		return list, err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			slog.Error(err.Error())
+			return list, err
+		}
+		list = append(list, SubscriberID(id))
+	}
+	return list, nil
+}
+
 func ReportAvery(w io.Writer) error {
 	var members []*Member
 
@@ -172,12 +196,59 @@ func ReportAvery(w io.Writer) error {
 	return nil
 }
 
+func DoxologyPrinted(w io.Writer) error {
+	r := csv.NewWriter(w)
+	r.Write([]string{"Name", "Address"})
+
+	members, err := doxologyPrintedMemberIDs()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for _, id := range members {
+		m, err := id.Get(true)
+		if err != nil {
+			continue
+		}
+		addr, err := m.FormatAddress()
+		if err != nil {
+			continue
+		}
+		// slog.Info("addr", addr)
+		member := []string{m.OSLName(), addr}
+		r.Write(member)
+	}
+
+	subscribers, err := doxologyPrintedSubscriberIDs()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for _, id := range subscribers {
+		s, err := id.Get()
+		if err != nil {
+			continue
+		}
+		addr, _ := s.FormatAddress()
+		if err != nil {
+			continue
+		}
+		// slog.Info("addr", addr)
+		subscriber := []string{s.Name, addr}
+		r.Write(subscriber)
+	}
+	r.Flush()
+	return nil
+}
+
 // Returns a slice of IDs
-func DoxologyPrintedMemberIDs() ([]MemberID, error) {
+func doxologyPrintedMemberIDs() ([]MemberID, error) {
 	var id MemberID
 	list := make([]MemberID, 0, 100)
 
-	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'mailed'")
+	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed'")
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -195,11 +266,11 @@ func DoxologyPrintedMemberIDs() ([]MemberID, error) {
 }
 
 // Returns a slice of IDs
-func DoxologyPrintedSubscriberIDs() ([]SubscriberID, error) {
+func doxologyPrintedSubscriberIDs() ([]SubscriberID, error) {
 	var id SubscriberID
 	list := make([]SubscriberID, 0, 100)
 
-	rows, err := db.Query("SELECT id FROM subscriber WHERE PaidDate = '2024-01-01'") // FIXME
+	rows, err := db.Query("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed'")
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err

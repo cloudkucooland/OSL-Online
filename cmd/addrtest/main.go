@@ -45,4 +45,27 @@ func main() {
 		}
 		fmt.Printf("%+v\n\n", v)
 	}
+
+	sids, err := model.ActiveSubscriberIDs()
+	if err != nil {
+		slog.Error(err.Error())
+		panic(err)
+	}
+
+	for _, i := range sids {
+		m, err := i.Get()
+		if err != nil {
+			panic(err)
+		}
+
+		/* if m.Address == "" { // a few of these exist
+			continue
+		} */
+
+		v, err := m.FormatAddress()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%+v\n\n", v)
+	}
 }
