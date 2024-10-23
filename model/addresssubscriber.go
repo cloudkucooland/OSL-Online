@@ -8,30 +8,6 @@ import (
 
 func (m *Subscriber) FormatAddress() (string, error) {
 	switch m.Country {
-	case "USA", "United States", "":
-		m.Country = "US"
-		m.Store()
-		return m.formatMain()
-	case "Phillipines", "PHILIPPINES", "Philipines", "Philippines":
-		m.Country = "PH"
-		m.Store()
-		return m.formatPH()
-	case "UNITED KINGDOM", "United Kingdom":
-		m.Country = "GB"
-		m.Store()
-		return m.formatGB()
-	case "CANADA":
-		m.Country = "CA"
-		m.Store()
-		return m.formatMain()
-	case "Hong Kong":
-		m.Country = "HK"
-		m.Store()
-		return m.formatMain()
-	case "SINGAPORE", "Singapore":
-		m.Country = "SG"
-		m.Store()
-		return m.formatSG()
 	case "GB":
 		return m.formatGB()
 	case "PH":
@@ -41,15 +17,14 @@ func (m *Subscriber) FormatAddress() (string, error) {
 	default: // assume US/CA/HK format
 		return m.formatMain()
 	}
-	// not-reached
-	return m.formatMain()
 }
 
 // this does the "RIGHT THING"TM for most countries, even HK which goes MSB vs. US's LSB
 func (m *Subscriber) formatMain() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
-		address.WithName(m.Name),
+		address.WithName(m.Attn),
+		address.WithOrganization(m.Name),
 		address.WithStreetAddress([]string{
 			m.Address,
 			m.AddressLine2,
@@ -76,7 +51,8 @@ func (m *Subscriber) formatMain() (string, error) {
 func (m *Subscriber) formatGB() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
-		address.WithName(m.Name),
+		address.WithName(m.Attn),
+		address.WithOrganization(m.Name),
 		address.WithStreetAddress([]string{
 			m.Address,
 			m.AddressLine2,
@@ -102,7 +78,8 @@ func (m *Subscriber) formatGB() (string, error) {
 func (m *Subscriber) formatSG() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
-		address.WithName(m.Name),
+		address.WithOrganization(m.Name),
+		address.WithName(m.Attn),
 		address.WithStreetAddress([]string{
 			m.Address,
 			m.AddressLine2,
@@ -126,7 +103,8 @@ func (m *Subscriber) formatSG() (string, error) {
 func (m *Subscriber) formatPH() (string, error) {
 	addr, err := address.NewValid(
 		address.WithCountry(m.Country),
-		address.WithName(m.Name),
+		address.WithOrganization(m.Name),
+		address.WithName(m.Attn),
 		address.WithStreetAddress([]string{m.Address + ", " + m.AddressLine2}),
 		address.WithAdministrativeArea(m.State),
 		address.WithLocality(m.City),

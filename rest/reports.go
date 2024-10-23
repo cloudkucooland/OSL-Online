@@ -35,6 +35,8 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		reportDoxPrinted(w, r, ps)
 	case "doxemail":
 		reportDoxEmailed(w, r, ps)
+	case "fontemail":
+		reportFontEmailed(w, r, ps)
 	default:
 		reportLife(w, r, ps)
 	}
@@ -216,6 +218,15 @@ func reportDoxPrinted(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 func reportDoxEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/csv")
 	if err := model.DoxologyEmailed(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func reportFontEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportFontEmailed(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

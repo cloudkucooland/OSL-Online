@@ -322,7 +322,7 @@ func SetMemberField(id MemberID, field string, value string, changer MemberID) e
 				slog.Error(err.Error())
 				return err
 			}
-		case "Annual Vow", "Friend", "Life Vows", "Benefactor":
+		case "Annual Vows", "Friend", "Life Vows", "Benefactor":
 			if _, err := db.Exec(q, value, id); err != nil {
 				slog.Error(err.Error())
 				return err

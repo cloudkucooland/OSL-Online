@@ -209,7 +209,7 @@
 						<Input id="State" value={r.State} on:change={change} />
 					</div>
 					<div class="col-span-2">
-						<Label for="Country" class="block">Country</Label>
+						<Label for="Country" class="block">Country <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">2-letter code</a></Label>
 						<Input id="Country" value={r.Country} on:change={change} />
 					</div>
 					<div class="col-span-2">
@@ -365,14 +365,10 @@
 		<section>
 			<div class="grid grid-cols-4 gap-1 px-6 py-6">
 				<div class="col-span-1 justify-self-start">Name</div>
-				<div class="col-span-3">
-					{oslname(r)}
-				</div>
+				<div class="col-span-3">{oslname(r)}</div>
 				{#if r.ListAddress}
 					<div class="col-span-1 justify-self-start">Address</div>
-					<div class="col-span-3">
-						<pre>{r.FormattedAddr}</pre>
-					</div>
+					<div class="col-span-3"><pre>{r.FormattedAddr}</pre></div>
 				{/if}
 				{#if r.ListPrimaryPhone && r.PrimaryPhone}<div class="col-span-1 justify-self-start">
 						Primary Phone

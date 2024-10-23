@@ -6,47 +6,17 @@ import (
 	"github.com/Boostport/address"
 )
 
-type MailReceiver interface {
-	Store()
-}
-
 func (m *Member) FormatAddress() (string, error) {
 	switch m.Country {
-	case "USA", "United States", "":
-		m.Country = "US"
-		m.Store()
-		return m.formatMain()
-	case "Phillipines", "PHILIPPINES", "Philipines", "Philippines":
-		m.Country = "PH"
-		m.Store()
-		return m.formatPH()
-	case "UNITED KINGDOM", "United Kingdom":
-		m.Country = "GB"
-		m.Store()
-		return m.formatGB()
-	case "CANADA":
-		m.Country = "CA"
-		m.Store()
-		return m.formatMain()
-	case "Hong Kong":
-		m.Country = "HK"
-		m.Store()
-		return m.formatMain()
-	case "SINGAPORE", "Singapore":
-		m.Country = "SG"
-		m.Store()
-		return m.formatSG()
 	case "GB":
 		return m.formatGB()
 	case "PH":
 		return m.formatPH()
 	case "SG":
-		return m.formatSG() // for now
+		return m.formatSG()
 	default: // assume US/CA/HK format
 		return m.formatMain()
 	}
-	// not-reached
-	return m.formatMain()
 }
 
 // this does the "RIGHT THING"TM for most countries, even HK which goes MSB vs. US's LSB

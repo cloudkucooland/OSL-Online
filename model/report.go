@@ -44,6 +44,30 @@ func ReportLife() ([]*Member, error) {
 	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 }
 
+// structured for Google Groups CSV upload
+func ReportFontEmailed(w io.Writer) error {
+	r := csv.NewWriter(w)
+	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
+
+	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND PrimaryEmail IS NOT NULL and Newsletter = 'electronic' ORDER BY LastName, FirstName")
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for rows.Next() {
+		var e string
+		if err := rows.Scan(&e); err != nil {
+			slog.Error(err.Error())
+			// return err
+			continue
+		}
+		r.Write([]string{"font@saint-luke.net", e, "USER", "MEMBER"})
+	}
+	r.Flush()
+	return nil
+}
+
 func ReportSubscriber() ([]*Subscriber, error) {
 	var subscribers []*Subscriber
 
