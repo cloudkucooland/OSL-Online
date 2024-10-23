@@ -34,6 +34,10 @@
 	async function doxprint() {
 		report('doxprint');
 	}
+
+	async function doxemail() {
+		report('doxemail');
+	}
 </script>
 
 <svelte:head>
@@ -48,5 +52,5 @@
 	<li><a href="#/reports" on:click={life}>Life Vows Mail Merge</a></li>
 	<li><a href="#/reports" on:click={avery}>Active member Avery Labels</a> (not working yet)</li>
 	<li><a href="#/reports" on:click={doxprint}>Doxology Mailing List (member + subscriber)</a></li>
-	<li>Doxology Email List (member + subscriber)</li>
+	<li><a href="#/reports" on:click={doxemail}>Doxology Email List (member + subscriber)</a></li>
 </ul>
