@@ -283,7 +283,7 @@ export async function updateSubscriber(id, FieldName, Value) {
 		headers: { Authorization: 'Bearer ' + jwt }
 	};
 
-	const response = await fetch(`${server}/api/v1/member/${id}`, request);
+	const response = await fetch(`${server}/api/v1/subscriber/${id}`, request);
 	const payload = await response.json();
 	if (response.status != 200) {
 		console.log('server returned ', response.status);
