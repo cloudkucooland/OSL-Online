@@ -1,140 +1,81 @@
 package model
 
 import (
-	"database/sql"
 	"encoding/csv"
 
 	"io"
 	"log/slog"
-	"time"
 )
 
-func ReportNotRenewed() ([]*Member, error) {
+func reportMemberQuery(query string) ([]*Member, error) {
 	var members []*Member
-	var n MemberImport
 
-	var ra sql.NullString
-
-	rows, err := db.Query("SELECT FirstName, LastName, PreferredName, Title, Address, AddressLine2, City, State, Country, PostalCode, PrimaryEmail, DateReaffirmation FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY DateReaffirmation")
+	rows, err := db.Query(query)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryEmail, &ra)
-		if err != nil {
+		var id MemberID
+		if err := rows.Scan(&id); err != nil {
 			slog.Error(err.Error())
 			return nil, err
 		}
-
-		if ra.Valid {
-			n.DateReaffirmation, _ = time.Parse("2006-01-02", ra.String)
-		}
-		members = append(members, (&n).toMember())
+		member, _ := id.Get(true)
+		members = append(members, member)
 	}
 	return members, nil
+}
+
+func ReportNotRenewed() ([]*Member, error) {
+	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY DateReaffirmation")
 }
 
 func ReportExpired() ([]*Member, error) {
-	var members []*Member
-	var n MemberImport
-
-	var ra sql.NullString
-
-	rows, err := db.Query("SELECT FirstName, LastName, PreferredName, Title, Address, AddressLine2, City, State, Country, PostalCode, PrimaryEmail, DateReaffirmation FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryEmail, &ra)
-		if err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-
-		if ra.Valid {
-			n.DateReaffirmation, _ = time.Parse("2006-01-02", ra.String)
-		}
-		members = append(members, (&n).toMember())
-	}
-	return members, nil
+	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
 }
 
 func ReportAnnual() ([]*Member, error) {
-	var members []*Member
-	var n MemberImport
-
-	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, Suffix, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
-		if err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-
-		members = append(members, (&n).toMember())
-	}
-	return members, nil
+	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
 }
 
 func ReportLife() ([]*Member, error) {
-	var members []*Member
-	var n MemberImport
-
-	rows, err := db.Query("SELECT MemberStatus, FirstName, LastName, PreferredName, Title, Suffix, LifevowName, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&n.MemberStatus, &n.FirstName, &n.LastName, &n.PreferredName, &n.Title, &n.Suffix, &n.LifevowName, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication)
-		if err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-
-		members = append(members, (&n).toMember())
-	}
-	return members, nil
+	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 }
 
 func ReportSubscriber() ([]*Subscriber, error) {
 	var subscribers []*Subscriber
-	var n SubscriberImport
 
-	rows, err := db.Query("SELECT Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, Doxology, Newsletter, Communication, DatePaid FROM subscriber ORDER BY Name")
+	rows, err := db.Query("SELECT id FROM subscriber ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.Doxology, &n.Newsletter, &n.Communication, &n.DatePaid)
-		if err != nil {
+		var id SubscriberID
+		if err := rows.Scan(&id); err != nil {
 			slog.Error(err.Error())
 			return nil, err
 		}
 
-		subscribers = append(subscribers, (&n).toSubscriber())
+		sub, _ := id.Get()
+		subscribers = append(subscribers, sub)
 	}
 	return subscribers, nil
 }
 
 // Returns a slice of IDs
 func ActiveMemberIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' ORDER BY LastName, FirstName")
+}
+
+func reportMemberIDQuery(query string) ([]MemberID, error) {
 	var id int
 	list := make([]MemberID, 0, 500)
 
-	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed'")
+	rows, err := db.Query(query)
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -153,10 +94,14 @@ func ActiveMemberIDs() ([]MemberID, error) {
 
 // Returns a slice of IDs
 func ActiveSubscriberIDs() ([]SubscriberID, error) {
+	return reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) ORDER BY Name")
+}
+
+func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 	var id int
 	list := make([]SubscriberID, 0, 50)
 
-	rows, err := db.Query("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY)")
+	rows, err := db.Query(query)
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -200,7 +145,7 @@ func DoxologyPrinted(w io.Writer) error {
 	r := csv.NewWriter(w)
 	r.Write([]string{"Name", "Address"})
 
-	members, err := doxologyPrintedMemberIDs()
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -215,12 +160,11 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		// slog.Info("addr", addr)
 		member := []string{m.OSLName(), addr}
 		r.Write(member)
 	}
 
-	subscribers, err := doxologyPrintedSubscriberIDs()
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -235,7 +179,6 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		// slog.Info("addr", addr)
 		subscriber := []string{s.Name, addr}
 		r.Write(subscriber)
 	}
@@ -243,46 +186,39 @@ func DoxologyPrinted(w io.Writer) error {
 	return nil
 }
 
-// Returns a slice of IDs
-func doxologyPrintedMemberIDs() ([]MemberID, error) {
-	var id MemberID
-	list := make([]MemberID, 0, 100)
+func DoxologyEmailed(w io.Writer) error {
+	r := csv.NewWriter(w)
+	r.Write([]string{"Name", "Email"})
 
-	rows, err := db.Query("SELECT id FROM member WHERE MemberStatus != 'Removed' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed'")
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
-		return list, err
+		return err
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&id)
+	for _, id := range members {
+		m, err := id.Get(true)
 		if err != nil {
-			slog.Error(err.Error())
-			return list, err
+			continue
 		}
-		list = append(list, id)
+		member := []string{m.OSLName(), m.PrimaryEmail}
+		r.Write(member)
 	}
-	return list, nil
-}
 
-// Returns a slice of IDs
-func doxologyPrintedSubscriberIDs() ([]SubscriberID, error) {
-	var id SubscriberID
-	list := make([]SubscriberID, 0, 100)
-
-	rows, err := db.Query("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed'")
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
-		return list, err
+		return err
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&id)
+	for _, id := range subscribers {
+		s, err := id.Get()
 		if err != nil {
-			slog.Error(err.Error())
-			return list, err
+			continue
 		}
-		list = append(list, SubscriberID(id))
+		subscriber := []string{s.Name, s.PrimaryEmail}
+		r.Write(subscriber)
 	}
-	return list, nil
+	r.Flush()
+	return nil
 }

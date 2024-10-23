@@ -33,11 +33,14 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		reportNotRenewed(w, r, ps)
 	case "doxprint":
 		reportDoxPrinted(w, r, ps)
+	case "doxemail":
+		reportDoxEmailed(w, r, ps)
 	default:
 		reportLife(w, r, ps)
 	}
 }
 
+// simplify all these to work like the avery/doxology reports below
 func reportNotRenewed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	out := [][]string{
 		{"DateReaffirmation", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryEmail"},
@@ -200,9 +203,19 @@ func reportAvery(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
+// convert older reports to this new way of doing things
 func reportDoxPrinted(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/csv")
 	if err := model.DoxologyPrinted(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func reportDoxEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.DoxologyEmailed(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
