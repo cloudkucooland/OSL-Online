@@ -53,4 +53,5 @@
 	<li><a href="#/reports" on:click={avery}>Active member Avery Labels</a> (not working yet)</li>
 	<li><a href="#/reports" on:click={doxprint}>Doxology Mailing List (member + subscriber)</a></li>
 	<li><a href="#/reports" on:click={doxemail}>Doxology Email List (member + subscriber)</a></li>
+	<li><a href="#/reports" on:click={() => report('fontemail')}>Font Email List (for google groups update)</a></li>
 </ul>
