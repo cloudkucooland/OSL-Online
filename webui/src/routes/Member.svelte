@@ -205,11 +205,17 @@
 						<Input id="City" value={r.City} on:change={change} />
 					</div>
 					<div class="col-span-2">
-						<Label for="State" class="block">State/Locality</Label>
+						<Label for="State" class="block"
+							>State/Locality <a href="https://en.wikipedia.org/wiki/ISO_3166-2">3166-2 code</a
+							></Label
+						>
 						<Input id="State" value={r.State} on:change={change} />
 					</div>
 					<div class="col-span-2">
-						<Label for="Country" class="block">Country <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">2-letter code</a></Label>
+						<Label for="Country" class="block"
+							>Country <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">2-letter code</a
+							></Label
+						>
 						<Input id="Country" value={r.Country} on:change={change} />
 					</div>
 					<div class="col-span-2">
