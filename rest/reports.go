@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/csv"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -29,8 +28,6 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		reportExpired(w, r, ps)
 	case "life":
 		reportLife(w, r, ps)
-	case "notrenewed":
-		reportNotRenewed(w, r, ps)
 	case "doxprint":
 		reportDoxPrinted(w, r, ps)
 	case "doxemail":
@@ -42,156 +39,38 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
-// simplify all these to work like the avery/doxology reports below
-func reportNotRenewed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	out := [][]string{
-		{"DateReaffirmation", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryEmail"},
-	}
-
-	m, err := model.ReportNotRenewed()
-	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-
-	for _, n := range m {
-		y, m, d := n.DateReaffirmation.Date()
-		s := fmt.Sprintf("%04d-%02d-%02d", y, m, d)
-		member := []string{s, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryEmail}
-		out = append(out, member)
-	}
-
-	w.Header().Set("Content-Type", "text/csv")
-	report := csv.NewWriter(w)
-	report.WriteAll(out)
-
-	if err := report.Error(); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
 func reportExpired(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	out := [][]string{
-		{"DateReaffirmation", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryEmail"},
-	}
-
-	m, err := model.ReportExpired()
-	if err != nil {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportExpired(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-
-	for _, n := range m {
-		y, m, d := n.DateReaffirmation.Date()
-		s := fmt.Sprintf("%04d-%02d-%02d", y, m, d)
-		member := []string{s, n.FirstName, n.LastName, n.PreferredName, n.Title, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryEmail}
-		out = append(out, member)
-	}
-
-	w.Header().Set("Content-Type", "text/csv")
-	report := csv.NewWriter(w)
-	report.WriteAll(out)
-
-	if err := report.Error(); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
 func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	out := [][]string{
-		{"OSLName", "MemberStatus", "FirstName", "LastName", "PreferredName", "Title", "LifevowName", "Suffix", "PrimaryEmail", "SecondaryEmail", "ListPrimaryEmail", "ListSecondaryEmail", "Doxology", "Newsletter", "Communication"},
-	}
-
-	m, err := model.ActiveMemberIDs()
-	if err != nil {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportAllEmail(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-
-	for _, id := range m {
-		n, err := id.Get(true)
-		if err != nil {
-			slog.Error(err.Error())
-			http.Error(w, jsonError(err), http.StatusInternalServerError)
-			return
-		}
-		oslName := n.OSLName()
-		member := []string{oslName, n.MemberStatus, n.FirstName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.PrimaryEmail, n.SecondaryEmail, fmt.Sprintf("%t", n.ListPrimaryEmail), fmt.Sprintf("%t", n.ListSecondaryEmail), n.Doxology, n.Newsletter, n.Communication}
-		out = append(out, member)
-	}
-
-	w.Header().Set("Content-Type", "text/csv")
-	report := csv.NewWriter(w)
-	report.WriteAll(out)
-
-	if err := report.Error(); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
 func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	out := [][]string{
-		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "FormattedAddress", "Doxology", "Newsletter", "Communication"},
-	}
-
-	m, err := model.ReportAnnual()
-	if err != nil {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportAnnual(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-
-	for _, n := range m {
-		addr, _ := n.FormatAddress()
-		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, addr, n.Doxology, n.Newsletter, n.Communication}
-		out = append(out, member)
-	}
-
-	w.Header().Set("Content-Type", "text/csv")
-	report := csv.NewWriter(w)
-	report.WriteAll(out)
-
-	if err := report.Error(); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
 func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	out := [][]string{
-		{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Suffix", "LifevowName", "FormattedAddress", "Doxology", "Newsletter", "Communication"},
-	}
-
-	m, err := model.ReportLife()
-	if err != nil {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportLife(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-
-	for _, n := range m {
-		addr, _ := n.FormatAddress()
-		member := []string{n.OSLName(), n.OSLShortName(), n.FirstName, n.LastName, n.PreferredName, n.Title, n.Suffix, n.LifevowName, addr, n.Doxology, n.Newsletter, n.Communication}
-		out = append(out, member)
-	}
-
-	w.Header().Set("Content-Type", "text/csv")
-	report := csv.NewWriter(w)
-	report.WriteAll(out)
-
-	if err := report.Error(); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

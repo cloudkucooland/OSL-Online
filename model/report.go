@@ -2,9 +2,9 @@ package model
 
 import (
 	"encoding/csv"
-
 	"io"
 	"log/slog"
+	"time"
 )
 
 func reportMemberQuery(query string) ([]*Member, error) {
@@ -28,20 +28,74 @@ func reportMemberQuery(query string) ([]*Member, error) {
 	return members, nil
 }
 
-func ReportNotRenewed() ([]*Member, error) {
-	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY DateReaffirmation")
+func ReportExpired(w io.Writer) error {
+	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
+	if err != nil {
+		return err
+	}
+
+	r := csv.NewWriter(w)
+	r.Write([]string{"DateReaffirmation", "OSLName", "FormattedAddr", "PrimaryEmail"})
+
+	for _, m := range members {
+		r.Write([]string{m.DateReaffirmation.Format(time.DateOnly), m.OSLName(), m.FormattedAddr, m.PrimaryEmail})
+	}
+	r.Flush()
+	return nil
 }
 
-func ReportExpired() ([]*Member, error) {
-	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
+func ReportAnnual(w io.Writer) error {
+	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+	if err != nil {
+		return err
+	}
+
+	r := csv.NewWriter(w)
+	r.Write([]string{"OSLName", "OSLShortName", "DateReaffirmation", "FormattedAddress", "PrimaryEmail"})
+
+	for _, m := range members {
+		r.Write([]string{m.OSLName(), m.OSLShortName(), m.DateReaffirmation.Format(time.DateOnly), m.FormattedAddr, m.PrimaryEmail})
+	}
+	r.Flush()
+	return nil
 }
 
-func ReportAnnual() ([]*Member, error) {
-	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+func ReportLife(w io.Writer) error {
+	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+	if err != nil {
+		return err
+	}
+
+	r := csv.NewWriter(w)
+	r.Write([]string{"OSLName", "OSLShortName", "FormattedAddress", "PrimaryEmail"})
+
+	for _, m := range members {
+		r.Write([]string{m.OSLName(), m.OSLShortName(), m.FormattedAddr, m.PrimaryEmail})
+	}
+	r.Flush()
+	return nil
 }
 
-func ReportLife() ([]*Member, error) {
-	return reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+func ReportAllEmail(w io.Writer) error {
+	r := csv.NewWriter(w)
+	r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail"})
+
+	m, err := ActiveMemberIDs()
+	if err != nil {
+		return err
+	}
+
+	for _, id := range m {
+		n, err := id.Get(true)
+		if err != nil {
+			slog.Error(err.Error())
+			err = nil
+			continue
+		}
+		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail})
+	}
+	r.Flush()
+	return nil
 }
 
 // structured for Google Groups CSV upload
@@ -49,7 +103,7 @@ func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
 	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
 
-	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND PrimaryEmail IS NOT NULL and Newsletter = 'electronic' ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND PrimaryEmail IS NOT NULL AND  Newsletter = 'electronic' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
