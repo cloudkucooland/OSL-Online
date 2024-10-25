@@ -234,11 +234,7 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		addr, err := m.FormatAddress()
-		if err != nil {
-			continue
-		}
-		member := []string{m.OSLName(), addr}
+		member := []string{m.OSLName(), m.FormattedAddr}
 		r.Write(member)
 	}
 
@@ -253,20 +249,17 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		addr, _ := s.FormatAddress()
-		if err != nil {
-			continue
-		}
-		subscriber := []string{s.Name, addr}
+		subscriber := []string{s.Name, s.FormattedAddr}
 		r.Write(subscriber)
 	}
 	r.Flush()
 	return nil
 }
 
+// structured for Google Groups CSV upload
 func DoxologyEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"Name", "Email"})
+	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role", "Name"})
 
 	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil {
@@ -279,11 +272,10 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		member := []string{m.OSLName(), m.PrimaryEmail}
-		r.Write(member)
+		r.Write([]string{"doxology-distribution@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
 	}
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -294,8 +286,7 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		subscriber := []string{s.Name, s.PrimaryEmail}
-		r.Write(subscriber)
+		r.Write([]string{"doxology-distribution@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
 	}
 	r.Flush()
 	return nil

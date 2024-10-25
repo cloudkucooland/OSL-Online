@@ -12,8 +12,8 @@ const format = "2006-01-02"
 
 type MemberID int
 
-// MemberImport is the format used by the import tool and in the main query since NULLs are possible
-type MemberImport struct {
+// memberNulls is the format used by the import tool and in the main query since NULLs are possible
+type memberNulls struct {
 	ID                 MemberID
 	MemberStatus       sql.NullString
 	FirstName          sql.NullString
@@ -109,7 +109,7 @@ type Member struct {
 
 // GetMember returns a populated Member struct, NULLs converted to ""
 func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
-	var n MemberImport
+	var n memberNulls
 
 	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
 
@@ -158,7 +158,7 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 
 	// unlisted information is already filtered
 	if m.ListAddress && m.Address != "" {
-		m.FormattedAddr, err = m.FormatAddress()
+		m.FormattedAddr, err = FormatAddress(m)
 		if err != nil {
 			slog.Debug(err.Error())
 		}
@@ -166,7 +166,7 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 	return m, nil
 }
 
-func (n *MemberImport) toMember() *Member {
+func (n *memberNulls) toMember() *Member {
 	return &Member{
 		ID:                 n.ID,
 		MemberStatus:       n.MemberStatus.String,
@@ -214,8 +214,8 @@ func (n *MemberImport) toMember() *Member {
 	}
 }
 
-func (n *Member) toMemberImport() *MemberImport {
-	return &MemberImport{
+func (n *Member) tomemberNulls() *memberNulls {
+	return &memberNulls{
 		ID:                 n.ID,
 		MemberStatus:       makeNullString(n.MemberStatus),
 		FirstName:          makeNullString(n.FirstName),
@@ -262,7 +262,7 @@ func (n *Member) toMemberImport() *MemberImport {
 	}
 }
 
-func (n *MemberImport) Store() error {
+func (n *memberNulls) Store() error {
 	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
 
 	if err != nil {
@@ -273,7 +273,7 @@ func (n *MemberImport) Store() error {
 }
 
 func (n *Member) Store() error {
-	nn := n.toMemberImport()
+	nn := n.tomemberNulls()
 	return nn.Store()
 }
 
@@ -363,7 +363,7 @@ func Create(firstname, lastname string) (MemberID, error) {
 		return 0, err
 	}
 
-	n := MemberImport{
+	n := memberNulls{
 		ID:                0,
 		MemberStatus:      sql.NullString{Valid: true, String: "Friend"},
 		FirstName:         sql.NullString{Valid: true, String: firstname},
@@ -384,7 +384,7 @@ func Create(firstname, lastname string) (MemberID, error) {
 	return MemberID(last), nil
 }
 
-func (n *MemberImport) cleanUnlisted() {
+func (n *memberNulls) cleanUnlisted() {
 	if !n.ListInDirectory.Bool {
 		n.FirstName.String = ""
 		n.LastName.String = ""
@@ -505,4 +505,8 @@ func (m *Member) GetChapters() ([]int, error) {
 		chapters = append(chapters, ch)
 	}
 	return chapters, nil
+}
+
+func (m Member) ISOCountry() string {
+	return m.Country
 }

@@ -34,16 +34,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
-		if m.Address == "" { // a few of these exist
-			continue
-		}
-
-		v, err := m.FormatAddress()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%+v\n\n", v)
+		fmt.Printf("%+v\n\n", m.FormattedAddr)
 	}
 
 	sids, err := model.ActiveSubscriberIDs()
@@ -57,15 +48,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
-		/* if m.Address == "" { // a few of these exist
-			continue
-		} */
-
-		v, err := m.FormatAddress()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%+v\n\n", v)
+		fmt.Printf("%+v\n\n", m.FormattedAddr)
 	}
 }

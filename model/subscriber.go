@@ -29,9 +29,10 @@ type Subscriber struct {
 	Doxology          string
 	Newsletter        string
 	Communication     string
+	FormattedAddr     string
 }
 
-type SubscriberImport struct {
+type subNulls struct {
 	ID                SubscriberID
 	Name              sql.NullString
 	Attn              sql.NullString
@@ -53,7 +54,7 @@ type SubscriberImport struct {
 }
 
 func (id SubscriberID) Get() (*Subscriber, error) {
-	var n SubscriberImport
+	var n subNulls
 
 	var created, paid sql.NullString
 
@@ -74,10 +75,16 @@ func (id SubscriberID) Get() (*Subscriber, error) {
 	if paid.Valid {
 		n.DatePaid, _ = time.Parse("2006-01-02", paid.String)
 	}
-	return (&n).toSubscriber(), nil
+	s := (&n).toSubscriber()
+	s.FormattedAddr, err = FormatAddress(s)
+	if err != nil {
+		slog.Error(err.Error())
+		return s, err
+	}
+	return s, nil
 }
 
-func (n *SubscriberImport) toSubscriber() *Subscriber {
+func (n *subNulls) toSubscriber() *Subscriber {
 	return &Subscriber{
 		ID:                n.ID,
 		Name:              n.Name.String,
@@ -110,7 +117,7 @@ func (n *Subscriber) Store() error {
 	return nil
 }
 
-func (n *SubscriberImport) Store() error {
+func (n *subNulls) Store() error {
 	_, err := db.Exec("REPLACE INTO subscriber (ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.Name, n.Attn, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.DateRecordCreated, n.DatePaid, n.Doxology, n.Newsletter, n.Communication)
 
 	if err != nil {
@@ -173,4 +180,8 @@ func (id SubscriberID) SetField(field string, value string) error {
 	}
 
 	return nil
+}
+
+func (s *Subscriber) ISOCountry() string {
+	return s.Country
 }

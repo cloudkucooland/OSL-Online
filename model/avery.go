@@ -23,10 +23,6 @@ func AveryLabels(pdffile io.Writer, members []*Member) {
 	pdf.SetFont("Helvetica", "B", 12)
 
 	for _, member := range members {
-		address, err := member.FormatAddress()
-		if err != nil {
-			continue
-		}
 		if count == 0 {
 			pdf.AddPage()
 		}
@@ -38,7 +34,7 @@ func AveryLabels(pdffile io.Writer, members []*Member) {
 		pdf.MultiCell(
 			labelw,
 			labelh/5,
-			address,
+			member.FormattedAddr,
 			"",    // no border
 			"LM",  // left justify, middle
 			false) // don't fill
