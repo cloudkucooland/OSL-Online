@@ -7,21 +7,37 @@ import (
 )
 
 func (m *Subscriber) FormatAddress() (string, error) {
+	var addr address.Address
+	var err error
+
 	switch m.Country {
 	case "GB":
-		return m.formatGB()
+		addr, err = m.formatGB()
 	case "PH":
-		return m.formatPH()
+		addr, err = m.formatPH()
 	case "SG":
-		return m.formatSG() // for now
+		addr, err = m.formatSG() // for now
 	default: // assume US/CA/HK format
-		return m.formatMain()
+		addr, err = m.formatMain()
 	}
+
+	if err != nil {
+		slog.Error(err.Error(), m)
+		return "", err
+	}
+
+	postalStringFormatter := address.PostalLabelFormatter{
+		Output:            address.StringOutputter{},
+		OriginCountryCode: "US",
+	}
+
+	formatted := postalStringFormatter.Format(addr, "en")
+	return formatted, nil
 }
 
 // this does the "RIGHT THING"TM for most countries, even HK which goes MSB vs. US's LSB
-func (m *Subscriber) formatMain() (string, error) {
-	addr, err := address.NewValid(
+func (m *Subscriber) formatMain() (address.Address, error) {
+	return address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithName(m.Attn),
 		address.WithOrganization(m.Name),
@@ -33,23 +49,11 @@ func (m *Subscriber) formatMain() (string, error) {
 		address.WithAdministrativeArea(m.State),
 		address.WithPostCode(m.PostalCode),
 	)
-	if err != nil {
-		slog.Error(err.Error(), "data", m)
-		return "", err
-	}
-
-	postalStringFormatter := address.PostalLabelFormatter{
-		Output:            address.StringOutputter{},
-		OriginCountryCode: "US",
-	}
-
-	formatted := postalStringFormatter.Format(addr, "en")
-	return formatted, nil
 }
 
 // no AdministrativeArea
-func (m *Subscriber) formatGB() (string, error) {
-	addr, err := address.NewValid(
+func (m *Subscriber) formatGB() (address.Address, error) {
+	return address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithName(m.Attn),
 		address.WithOrganization(m.Name),
@@ -60,23 +64,11 @@ func (m *Subscriber) formatGB() (string, error) {
 		address.WithLocality(m.City),
 		address.WithPostCode(m.PostalCode),
 	)
-	if err != nil {
-		slog.Error(err.Error(), "data", m)
-		return "", err
-	}
-
-	postalStringFormatter := address.PostalLabelFormatter{
-		Output:            address.StringOutputter{},
-		OriginCountryCode: "US",
-	}
-
-	formatted := postalStringFormatter.Format(addr, "en")
-	return formatted, nil
 }
 
 // no AdministrativeArea or Locality
-func (m *Subscriber) formatSG() (string, error) {
-	addr, err := address.NewValid(
+func (m *Subscriber) formatSG() (address.Address, error) {
+	return address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithOrganization(m.Name),
 		address.WithName(m.Attn),
@@ -86,22 +78,10 @@ func (m *Subscriber) formatSG() (string, error) {
 		}),
 		address.WithPostCode(m.PostalCode),
 	)
-	if err != nil {
-		slog.Error(err.Error(), "data", m)
-		return "", err
-	}
-
-	postalStringFormatter := address.PostalLabelFormatter{
-		Output:            address.StringOutputter{},
-		OriginCountryCode: "US",
-	}
-
-	formatted := postalStringFormatter.Format(addr, "en")
-	return formatted, nil
 }
 
-func (m *Subscriber) formatPH() (string, error) {
-	addr, err := address.NewValid(
+func (m *Subscriber) formatPH() (address.Address, error) {
+	return address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithOrganization(m.Name),
 		address.WithName(m.Attn),
@@ -110,16 +90,4 @@ func (m *Subscriber) formatPH() (string, error) {
 		address.WithLocality(m.City),
 		address.WithPostCode(m.PostalCode),
 	)
-	if err != nil {
-		slog.Error(err.Error(), "data", m)
-		return "", err
-	}
-
-	postalStringFormatter := address.PostalLabelFormatter{
-		Output:            address.StringOutputter{},
-		OriginCountryCode: "US",
-	}
-
-	formatted := postalStringFormatter.Format(addr, "en")
-	return formatted, nil
 }
