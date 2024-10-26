@@ -14,7 +14,6 @@
 </svelte:head>
 
 <ul>
-	<li><a href="#/reports" on:click={() => report('notrenewed')}>Not Renewed this year</a></li>
 	<li>
 		<a href="#/reports" on:click={() => report('expired')}
 			>"Active" but not renewed for 2 years or longer</a
