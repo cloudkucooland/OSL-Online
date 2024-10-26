@@ -27,6 +27,7 @@ func SubscriberSearch(query string) ([]SubSearchResult, error) {
 		return res, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		if err = rows.Scan(&n.ID, &n.Name, &attn); err != nil {
 			slog.Error(err.Error())

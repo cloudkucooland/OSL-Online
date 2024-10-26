@@ -16,6 +16,7 @@ func Leadership(category string) ([]Member, error) {
 		slog.Error(err.Error())
 		return members, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var n Member

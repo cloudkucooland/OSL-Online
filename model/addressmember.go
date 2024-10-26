@@ -46,13 +46,14 @@ func (m *Member) formatSG() (address.Address, error) {
 	)
 }
 
+// Address & Line 2 together
 func (m *Member) formatPH() (address.Address, error) {
 	return address.NewValid(
 		address.WithCountry(m.Country),
 		address.WithName(m.OSLName()),
 		address.WithStreetAddress([]string{m.Address + ", " + m.AddressLine2}),
-		address.WithAdministrativeArea(m.State),
 		address.WithLocality(m.City),
+		address.WithAdministrativeArea(m.State),
 		address.WithPostCode(m.PostalCode),
 	)
 }

@@ -52,6 +52,7 @@ func (m *Member) GivingRecords() ([]GivingRecord, error) {
 		slog.Error(err.Error())
 		return gr, err
 	}
+	defer rows.Close()
 
 	var g GivingRecord
 	var d string

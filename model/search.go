@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 )
 
@@ -20,15 +21,17 @@ func Search(query string, unlisted bool) ([]SearchResult, error) {
 	var n SearchResult
 
 	slog.Info("search", "query", query)
+	qq := fmt.Sprintf("%%%s%%", query)
 
 	var pn sql.NullString
 
-	rows, err := db.Query("SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", query, query, query, query)
+	rows, err := db.Query("SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
 	if err != nil {
 		slog.Error(err.Error())
 		return res, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
 			slog.Error(err.Error())
@@ -65,6 +68,7 @@ func SearchEmail(query string, unlisted bool) ([]SearchResult, error) {
 		return res, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
 			slog.Error(err.Error())

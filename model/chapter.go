@@ -40,6 +40,7 @@ func Chapters() ([]Chapter, error) {
 		slog.Error(err.Error())
 		return ch, err
 	}
+	defer rows.Close()
 
 	var c Chapter
 	for rows.Next() {
@@ -64,6 +65,7 @@ func (c *Chapter) Members() ([]Member, error) {
 		slog.Error(err.Error())
 		return members, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var n Member

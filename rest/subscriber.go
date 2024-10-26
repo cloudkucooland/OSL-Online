@@ -35,7 +35,7 @@ func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if err := r.ParseMultipartForm(1024 * 64); err != nil {
+	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return

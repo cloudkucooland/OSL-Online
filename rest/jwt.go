@@ -62,7 +62,7 @@ func mintjwt(username string, level authLevel) (string, error) {
 }
 
 func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if err := req.ParseMultipartForm(1024 * 64); err != nil {
+	if err := req.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
 		http.Error(res, jsonError(err), http.StatusNotAcceptable)
 		return

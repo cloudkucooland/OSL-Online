@@ -35,6 +35,10 @@ func main() {
 			panic(err)
 		}
 		fmt.Printf("%+v\n\n", m.FormattedAddr)
+
+		if m.Address != "" && m.FormattedAddr == "" {
+			panic(m.OSLName())
+		}
 	}
 
 	sids, err := model.ActiveSubscriberIDs()
@@ -49,5 +53,9 @@ func main() {
 			panic(err)
 		}
 		fmt.Printf("%+v\n\n", m.FormattedAddr)
+
+		if m.FormattedAddr == "" {
+			panic(m.Name)
+		}
 	}
 }

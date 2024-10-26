@@ -25,6 +25,7 @@ func (m *Member) Changelog() ([]ChangeLogEntry, error) {
 		slog.Error(err.Error())
 		return cr, err
 	}
+	defer rows.Close()
 
 	var c ChangeLogEntry
 	var d string

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/julienschmidt/httprouter"
@@ -11,13 +12,13 @@ import (
 
 func postRegister(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	if err := r.ParseMultipartForm(1024 * 64); err != nil {
+	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	email := r.PostFormValue("email")
+	email := strings.TrimSpace(r.PostFormValue("email"))
 	if email == "" {
 		err := fmt.Errorf("email not set")
 		slog.Error(err.Error())

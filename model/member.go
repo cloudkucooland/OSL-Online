@@ -109,7 +109,7 @@ type Member struct {
 
 // GetMember returns a populated Member struct, NULLs converted to ""
 func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
-	var n memberNulls
+	n := &memberNulls{}
 
 	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
 
@@ -151,16 +151,16 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 
 	// if not including unlisted, filter it out
 	if !includeUnlisted {
-		(&n).cleanUnlisted()
+		slog.Info("excluding unlisted")
+		n.cleanUnlisted()
 	}
 
-	m := (&n).toMember()
+	m := n.toMember()
 
-	// unlisted information is already filtered
-	if m.ListAddress && m.Address != "" {
+	if m.Address != "" {
 		m.FormattedAddr, err = FormatAddress(m)
 		if err != nil {
-			slog.Debug(err.Error())
+			slog.Error(err.Error())
 		}
 	}
 	return m, nil
@@ -385,6 +385,8 @@ func Create(firstname, lastname string) (MemberID, error) {
 }
 
 func (n *memberNulls) cleanUnlisted() {
+	slog.Info("cleanUnlisted")
+
 	if !n.ListInDirectory.Bool {
 		n.FirstName.String = ""
 		n.LastName.String = ""
@@ -494,8 +496,9 @@ func (m *Member) GetChapters() ([]int, error) {
 		slog.Error(err.Error())
 		return nil, err
 	}
-	chapters := make([]int, 0)
+	defer rows.Close()
 
+	chapters := make([]int, 0)
 	var ch int
 	for rows.Next() {
 		if err = rows.Scan(&ch); err != nil {

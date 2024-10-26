@@ -22,6 +22,8 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	switch report {
 	case "avery":
 		reportAvery(w, r, ps)
+	case "annual":
+		reportAnnual(w, r, ps)
 	case "email":
 		reportEmail(w, r, ps)
 	case "expired":

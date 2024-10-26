@@ -15,6 +15,7 @@ func reportMemberQuery(query string) ([]*Member, error) {
 		slog.Error(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var id MemberID
@@ -275,7 +276,7 @@ func DoxologyEmailed(w io.Writer) error {
 		r.Write([]string{"doxology-distribution@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
 	}
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
