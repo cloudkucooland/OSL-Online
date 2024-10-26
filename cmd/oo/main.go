@@ -6,8 +6,9 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
-	"time"
+	// "time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/cloudkucooland/OSL-Online/rest"
@@ -26,7 +27,19 @@ func main() {
 		panic(err)
 	}
 
-	go rest.Start(ctx)
+	var wg sync.WaitGroup
+
+	go func(ctx context.Context) {
+		wg.Add(1)
+		rest.Start(ctx)
+		wg.Done()
+	}(ctx)
+
+	go func(ctx context.Context) {
+		wg.Add(1)
+		background(ctx)
+		wg.Done()
+	}(ctx)
 
 	sigch := make(chan os.Signal, 1)
 	signal.Notify(sigch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
@@ -34,5 +47,6 @@ func main() {
 	slog.Info("shutdown", "requested by signal", sig)
 
 	shutdown()
-	time.Sleep(2)
+	wg.Wait()
+	model.Disconnect()
 }
