@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 
@@ -26,7 +27,13 @@ func postSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params)
 		return
 	}
 
-	// XXX min length or other checks?
+	query = strings.TrimSpace(query)
+	if len(query) < 3 {
+		err := fmt.Errorf("query too short")
+		slog.Error(err.Error())
+		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
 
 	unlisted := false
 	level, err := getLevel(req)

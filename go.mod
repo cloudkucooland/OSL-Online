@@ -6,7 +6,6 @@ require (
 	github.com/Boostport/address v0.11.2
 	github.com/aureum/usps-go v0.0.0-20150402201426-2f34ab376853
 	github.com/go-sql-driver/mysql v1.8.1
-	github.com/hashicorp/go-multierror v1.1.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/jwx/v2 v2.1.1
@@ -28,6 +27,7 @@ require (
 	github.com/google/uuid v1.0.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0 // indirect
