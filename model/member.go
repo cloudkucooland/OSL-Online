@@ -151,7 +151,6 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 
 	// if not including unlisted, filter it out
 	if !includeUnlisted {
-		slog.Info("excluding unlisted")
 		n.cleanUnlisted()
 	}
 
@@ -385,8 +384,6 @@ func Create(firstname, lastname string) (MemberID, error) {
 }
 
 func (n *memberNulls) cleanUnlisted() {
-	slog.Info("cleanUnlisted")
-
 	if !n.ListInDirectory.Bool {
 		n.FirstName.String = ""
 		n.LastName.String = ""

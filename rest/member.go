@@ -40,6 +40,7 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
+	slog.Info("user loaded", "user", m.OSLName(), "requester", getUser(r))
 	if err := json.NewEncoder(w).Encode(m); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
