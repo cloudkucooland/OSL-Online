@@ -33,7 +33,7 @@
 		{ value: 'Life Vows', name: 'Life Vows' },
 		{ value: 'Removed', name: 'Removed' },
 		{ value: 'Friend', name: 'Friend' },
-		{ value: 'Benefactor', name: 'Benefactor' }
+		{ value: 'Deceased', name: 'Deceased' }
 	];
 
 	const titles = [
@@ -46,7 +46,6 @@
 	const removereasons = [
 		{ value: ' ', name: '' },
 		{ value: 'Bad Address', name: 'Bad Address' },
-		{ value: 'Death', name: 'Death' },
 		{ value: 'No Reaffirmation', name: 'No Reaffirmation' },
 		{ value: 'Request', name: 'Request' }
 	];

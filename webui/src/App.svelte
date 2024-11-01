@@ -29,6 +29,7 @@
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
 	import Leadership from './routes/Leadership.svelte';
+	import SearchEmail from './routes/SearchEmail.svelte';
 	import { getMe, getChapters } from './oo';
 
 	const _init = getMe();
@@ -54,6 +55,7 @@
 		'/addsubscriber/': AddSubscriber,
 		'/chapterbrowser/': ChapterBrowser,
 		'/leadership/': Leadership,
+		'/searchemail/': SearchEmail,
 		'*': HomePage
 	};
 </script>

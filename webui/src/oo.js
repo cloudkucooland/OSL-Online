@@ -767,3 +767,31 @@ export async function getLeaders(category) {
 	}
 	return payload;
 }
+
+export async function searchemail(query) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const dataArray = new FormData();
+	dataArray.append('query', query);
+
+	const request = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		body: dataArray,
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/searchemail`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
