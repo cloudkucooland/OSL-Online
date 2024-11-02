@@ -57,6 +57,7 @@
 		'/chapterbrowser/': ChapterBrowser,
 		'/leadership/': Leadership,
 		'/searchemail/': SearchEmail,
+		'/localitybrowser/': LocalityBrowser,
 		'*': HomePage
 	};
 </script>
@@ -71,6 +72,7 @@
 		<NavUl>
 			<NavLi href="#/me">Me</NavLi>
 			<NavLi href="#/chapterbrowser">Chapters</NavLi>
+			<NavLi href="#/localitybrowser">Localities</NavLi>
 			<NavLi href="#/leadership">Leadership</NavLi>
 			{#if $me && $me.level >= 1}
 				<NavLi href="#/reports">Reports</NavLi>{/if}

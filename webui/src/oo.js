@@ -806,10 +806,35 @@ export async function getLocalities() {
 		throw new Error(payload.error);
 	}
 
+	console.log(payload);
 	// format for svelte-flowbite Select
 	payload.forEach((c) => {
-		c.value = c.Country;
-		c.name = c.State;
+		c.value = c.JointCode;
+		c.name = c.CountryCode + ": " + c.Locality;
 	});
 	return payload;
 }
+
+export async function getLocalityMembers(loc) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+	const response = await fetch(`${server}/api/v1/locality/${loc}`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
