@@ -15,11 +15,10 @@ type Locality struct {
 	Locality     string
 }
 
-// why doesn't Singapore show up in this?
 func Localities() ([]Locality, error) {
 	localities := make([]Locality, 0)
 
-	rows, err := db.Query("SELECT Country, State, CONCAT(Country, '-', State) AS CS FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND ListInDirectory = true GROUP BY (CS) ORDER BY CS")
+	rows, err := db.Query("SELECT DISTINCT Country, State FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND ListInDirectory = true ORDER BY Country, State")
 	if err != nil && err == sql.ErrNoRows {
 		return localities, nil
 	}
@@ -31,9 +30,9 @@ func Localities() ([]Locality, error) {
 
 	for rows.Next() {
 		var l Locality
-		var cc, lc, jc sql.NullString
+		var cc, lc sql.NullString
 
-		if err := rows.Scan(&cc, &lc, &jc); err != nil {
+		if err := rows.Scan(&cc, &lc); err != nil {
 			slog.Error(err.Error())
 			continue
 		}
@@ -46,13 +45,17 @@ func Localities() ([]Locality, error) {
 		l.JointCode = cc.String
 
 		if lc.Valid {
+			l.JointCode = fmt.Sprintf("%s-%s", cc.String, lc.String)
+			l.LocalityCode = lc.String
+			l.Locality = lc.String
+
 			country := address.GetCountry(l.CountryCode)
+
+			// get friendly name for the locality
 			if aa, ok := country.AdministrativeAreas["en"]; ok {
 				for _, k := range aa {
 					if k.ID == lc.String {
-						l.LocalityCode = lc.String
 						l.Locality = k.Name
-						l.JointCode = fmt.Sprintf("%s-%s", cc.String, lc.String)
 						break
 					}
 				}
@@ -65,6 +68,10 @@ func Localities() ([]Locality, error) {
 }
 
 func LocalityMembers(country string, locality string) ([]*Member, error) {
+	if country == "SG" {
+		return localityMembersSG()
+	}
+
 	members := make([]*Member, 0)
 
 	var lc sql.NullString
@@ -74,6 +81,36 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 	}
 
 	rows, err := db.Query("SELECT ID FROM member WHERE Country = ? AND State = ? AND MemberStatus != 'Deceased' AND MemberStatus != 'Removed' AND ListInDirectory = true ORDER BY LastName, FirstName", country, lc)
+	if err != nil && err == sql.ErrNoRows {
+		return members, nil
+	}
+	if err != nil {
+		slog.Error(err.Error())
+		return members, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id MemberID
+		if err := rows.Scan(&id); err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+
+		m, err := id.Get(false)
+		if err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		members = append(members, m)
+	}
+	return members, nil
+}
+
+func localityMembersSG() ([]*Member, error) {
+	members := make([]*Member, 0)
+
+	rows, err := db.Query("SELECT ID FROM member WHERE Country = 'SG' AND MemberStatus != 'Deceased' AND MemberStatus != 'Removed' AND ListInDirectory = true ORDER BY LastName, FirstName")
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
