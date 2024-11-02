@@ -276,7 +276,7 @@ func (n *Member) Store() error {
 	return nn.Store()
 }
 
-func SetMemberField(id MemberID, field string, value string, changer MemberID) error {
+func (id MemberID) SetMemberField(field string, value string, changer MemberID) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -321,7 +321,12 @@ func SetMemberField(id MemberID, field string, value string, changer MemberID) e
 				slog.Error(err.Error())
 				return err
 			}
-		case "Annual Vows", "Friend", "Life Vows", "Benefactor":
+		case "Deceased":
+			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = 'Deceased', `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", id); err != nil {
+				slog.Error(err.Error())
+				return err
+			}
+		case "Annual Vows", "Friend", "Life Vows":
 			if _, err := db.Exec(q, value, id); err != nil {
 				slog.Error(err.Error())
 				return err
@@ -331,6 +336,32 @@ func SetMemberField(id MemberID, field string, value string, changer MemberID) e
 			slog.Error(err.Error())
 			return err
 		}
+	case "PrimaryPhone", "SecondaryPhone":
+		var ns sql.NullString
+
+		m, err := id.Get(true)
+		if err != nil {
+			return err
+		}
+
+		pn, err := FormatPhoneNumber(value, m.Country)
+		if err != nil {
+			return err
+		}
+
+		if pn == "" {
+			ns.Valid = false
+			ns.String = ""
+		} else {
+			ns.Valid = true
+			ns.String = pn
+		}
+
+		if _, err := db.Exec(q, ns, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+		value = pn // for logging
 	default:
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
