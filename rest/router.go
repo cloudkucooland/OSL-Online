@@ -57,6 +57,7 @@ func getServeMux() *httprouter.Router {
 	m.GET("/api/v1/chapter/:id", authMW(getChapterMembers, AuthLevelView))
 
 	m.GET("/api/v1/localities", getLocalities) // public
+	m.GET("/api/v1/locality/:joint", authMW(getLocalityMembers, AuthLevelView))
 
 	// leadership
 	m.GET("/api/v1/leaders/:category", authMW(getLeadership, AuthLevelView))
