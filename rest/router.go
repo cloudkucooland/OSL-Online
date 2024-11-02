@@ -44,16 +44,19 @@ func getServeMux() *httprouter.Router {
 	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
 
 	// search lists
-	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))       // members
-	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView)) // subscribers
+	m.POST("/api/v1/search", authMW(postSearch, AuthLevelView))           // members
+	m.POST("/api/v1/searchemail", authMW(postEmailSearch, AuthLevelView)) // members by email address
+	m.POST("/api/v1/subsearch", authMW(postSubSearch, AuthLevelView))     // subscribers
 
 	// reports
 	m.GET("/api/v1/report/:report", authMW(reports, AuthLevelManager))
 
 	// manage chapters
-	m.GET("/api/v1/chapter", getChapters) // completely public
+	m.GET("/api/v1/chapter", getChapters) // public
 	m.PUT("/api/v1/chapter/:id", authMW(postChapter, AuthLevelAdmin))
 	m.GET("/api/v1/chapter/:id", authMW(getChapterMembers, AuthLevelView))
+
+	m.GET("/api/v1/localities", getLocalities) // public
 
 	// leadership
 	m.GET("/api/v1/leaders/:category", authMW(getLeadership, AuthLevelView))

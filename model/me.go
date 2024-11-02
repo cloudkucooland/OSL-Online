@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func SetMeField(id int, field string, value string) error {
+func SetMeField(id MemberID, field string, value string) error {
 	slog.Info("self-updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -63,6 +63,22 @@ func SetMeField(id int, field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
+	case "Communication": // users can do printed even if not donated this year
+		value = strings.TrimSpace(value)
+		if _, err := db.Exec(q, value, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	case "Newsletter", "Doxology": // only allow printed if donated this year
+		value = strings.TrimSpace(value)
+		if value == "mailed" && !id.allowPrinted() {
+			err := fmt.Errorf("Not donated in the past 12 months, cannot choose printed Doxology or Newsletter")
+			return err
+		}
+		if _, err := db.Exec(q, value, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
 	default:
 		err := fmt.Errorf("cannot edit that field")
 		slog.Error(err.Error(), "id", id, "field", field, "value", value)
@@ -75,4 +91,36 @@ func SetMeField(id int, field string, value string) error {
 	}
 
 	return nil
+}
+
+func (id MemberID) allowPrinted() bool {
+	m, err := id.Get(true)
+	if err != nil {
+		return false
+	}
+
+	if m.MemberStatus == "Removed" || m.MemberStatus == "Deceased" {
+		return false
+	}
+
+	gr, err := id.GivingRecords()
+	if err != nil {
+		return false
+	}
+	found := false
+	yearago := time.Now().AddDate(-1, 0, 0)
+	for _, r := range gr {
+		if r.Date.After(yearago) {
+			found = true
+			break
+		}
+	}
+	// no gifts in the past 12 months
+	if !found {
+		return false
+	}
+
+	// what else?
+
+	return true
 }

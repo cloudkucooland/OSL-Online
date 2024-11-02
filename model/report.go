@@ -79,7 +79,7 @@ func ReportLife(w io.Writer) error {
 
 func ReportAllEmail(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail"})
+	r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail", "Address"})
 
 	m, err := ActiveMemberIDs()
 	if err != nil {
@@ -93,7 +93,7 @@ func ReportAllEmail(w io.Writer) error {
 			err = nil
 			continue
 		}
-		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail})
+		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail, n.FormattedAddr})
 	}
 	r.Flush()
 	return nil
@@ -104,7 +104,7 @@ func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
 	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
 
-	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND PrimaryEmail IS NOT NULL AND  Newsletter = 'electronic' ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND PrimaryEmail IS NOT NULL AND Newsletter = 'electronic' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -147,7 +147,7 @@ func ReportSubscriber() ([]*Subscriber, error) {
 
 // Returns a slice of IDs
 func ActiveMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' ORDER BY LastName, FirstName")
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName, FirstName")
 }
 
 func reportMemberIDQuery(query string) ([]MemberID, error) {
@@ -224,7 +224,7 @@ func DoxologyPrinted(w io.Writer) error {
 	r := csv.NewWriter(w)
 	r.Write([]string{"Name", "Address"})
 
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err

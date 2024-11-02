@@ -73,14 +73,20 @@ func contentTypeIs(req *http.Request, check string) bool {
 	return strings.EqualFold(contentType, check)
 }
 
+func parsetoken(r *http.Request) (jwt.Token, error) {
+	return jwt.ParseRequest(r,
+		jwt.WithHeaderKey("Authorization"),
+		jwt.WithCookieKey("jwt"),
+		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
+		jwt.WithValidate(true),
+		jwt.WithAudience(sessionName),
+		jwt.WithAcceptableSkew(20*time.Second),
+	)
+}
+
 func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		token, err := jwt.ParseRequest(r,
-			jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
-			jwt.WithValidate(true),
-			jwt.WithAudience(sessionName),
-			jwt.WithAcceptableSkew(20*time.Second),
-		)
+		token, err := parsetoken(r)
 		if err != nil {
 			slog.Error("token parse/validate failed", "error", err.Error())
 			http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -115,12 +121,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 }
 
 func getUser(r *http.Request) string {
-	token, err := jwt.ParseRequest(r,
-		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
-		jwt.WithValidate(true),
-		jwt.WithAudience(sessionName),
-		jwt.WithAcceptableSkew(20*time.Second),
-	)
+	token, err := parsetoken(r)
 	if err != nil {
 		slog.Error("token parse/validate failed", "error", err.Error())
 		return ""
@@ -131,13 +132,7 @@ func getUser(r *http.Request) string {
 }
 
 func getLevel(r *http.Request) (authLevel, error) {
-	token, err := jwt.ParseRequest(r,
-		jwt.WithKeySet(sk, jws.WithInferAlgorithmFromKey(true), jws.WithUseDefault(true)),
-		jwt.WithValidate(true),
-		jwt.WithAudience(sessionName),
-		jwt.WithAcceptableSkew(20*time.Second),
-	)
-
+	token, err := parsetoken(r)
 	if err != nil {
 		slog.Error("token parse/validate failed", "error", err.Error())
 		return AuthLevelView, err

@@ -21,13 +21,7 @@ func getMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 	mid := model.MemberID(id)
-	m, err := mid.Get(false)
-	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-	gr, err := m.GivingRecords()
+	gr, err := mid.GivingRecords()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

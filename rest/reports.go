@@ -17,6 +17,7 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
+	slog.Info("report", "requested", report, "requester", getUser(r))
 
 	headers(w, r)
 	switch report {

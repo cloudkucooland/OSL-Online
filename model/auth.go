@@ -28,6 +28,7 @@ func GetAuthData(id string) (string, int, error) {
 }
 
 func SetAuthData(id string, pw string, level int) error {
+	slog.Info("updating password", "id", id)
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pw), 14)
 	if err != nil {
 		return err
@@ -41,6 +42,7 @@ func SetAuthData(id string, pw string, level int) error {
 }
 
 func Register(addr string) error {
+	slog.Info("registering user", "email", addr)
 	if _, err := GetID(addr); err != nil {
 		return err
 	}
@@ -64,8 +66,8 @@ func Register(addr string) error {
 	return nil
 }
 
-func GetID(addr string) (int, error) {
-	var id int
+func GetID(addr string) (MemberID, error) {
+	var id MemberID
 	err := db.QueryRow("SELECT id FROM member WHERE PrimaryEmail = ?", addr).Scan(&id)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("unknown email address")

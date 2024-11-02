@@ -12,18 +12,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func postSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if err := req.ParseMultipartForm(1024); err != nil {
+func postSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	query := req.PostFormValue("query")
+	query := r.PostFormValue("query")
 	if query == "" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
@@ -31,15 +31,15 @@ func postSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params)
 	if len(query) < 3 {
 		err := fmt.Errorf("query too short")
 		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
 	unlisted := false
-	level, err := getLevel(req)
+	level, err := getLevel(r)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 	if level >= AuthLevelManager {
@@ -49,14 +49,55 @@ func postSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params)
 	result, err := model.Search(query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 
-	headers(res, req)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
+	headers(w, r)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func postEmailSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if err := r.ParseMultipartForm(1024); err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	query := r.PostFormValue("query")
+	if query == "" {
+		err := fmt.Errorf("query not set")
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	unlisted := false
+	level, err := getLevel(r)
+	if err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	if level >= AuthLevelManager {
+		unlisted = true
+	}
+
+	result, err := model.SearchEmail(query, unlisted)
+	if err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	headers(w, r)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 }

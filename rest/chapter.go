@@ -42,6 +42,7 @@ func getChapterMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	chapter := model.Chapter{
 		ID: id,
 	}
+	slog.Info("chapter membership", "chapter", id, "requester", getUser(r))
 	members, err := chapter.Members()
 	if err != nil {
 		slog.Error(err.Error())

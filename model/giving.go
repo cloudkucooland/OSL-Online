@@ -41,10 +41,10 @@ func (n GivingRecord) Store() error {
 	return nil
 }
 
-func (m *Member) GivingRecords() ([]GivingRecord, error) {
+func (id MemberID) GivingRecords() ([]GivingRecord, error) {
 	gr := make([]GivingRecord, 0)
 
-	rows, err := db.Query("SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", m.ID)
+	rows, err := db.Query("SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", id)
 	if err != nil && err == sql.ErrNoRows {
 		return gr, nil
 	}

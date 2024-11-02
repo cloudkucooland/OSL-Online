@@ -12,7 +12,7 @@ func SearchBirthday(month time.Month, day int) ([]*Member, error) {
 
 	qq := fmt.Sprintf("%%-%2d-%2d", month, day)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE BirthDate LIKE ? AND MemberStatus != 'Removed' ORDER BY LastName, FirstName", qq)
+	rows, err := db.Query("SELECT ID FROM member WHERE BirthDate LIKE ? AND MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName, FirstName", qq)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
