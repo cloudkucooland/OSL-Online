@@ -31,6 +31,7 @@
 	import Leadership from './routes/Leadership.svelte';
 	import SearchEmail from './routes/SearchEmail.svelte';
 	import { getMe, getChapters } from './oo';
+	import LocalityBrowser from './routes/LocalityBrowser.svelte';
 
 	const _init = getMe();
 	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });

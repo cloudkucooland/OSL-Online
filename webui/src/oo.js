@@ -587,18 +587,12 @@ export async function getChangelog(id) {
 }
 
 export async function getChapters() {
-	const jwt = localStorage.getItem('jwt');
-	if (jwt === undefined || jwt === null) {
-		throw new Error('Not Logged in');
-	}
-
 	const request = {
 		method: 'GET',
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
 		referrerPolicy: 'origin',
-		headers: { Authorization: 'Bearer ' + jwt }
 	};
 
 	const response = await fetch(`${server}/api/v1/chapter`, request);
@@ -793,5 +787,29 @@ export async function searchemail(query) {
 		console.log('server returned ', response.status);
 		throw new Error(payload.error);
 	}
+	return payload;
+}
+
+export async function getLocalities() {
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+	};
+
+	const response = await fetch(`${server}/api/v1/localities`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+
+	// format for svelte-flowbite Select
+	payload.forEach((c) => {
+		c.value = c.Country;
+		c.name = c.State;
+	});
 	return payload;
 }
