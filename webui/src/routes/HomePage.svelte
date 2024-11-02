@@ -58,11 +58,13 @@
 				<TableBodyRow>
 					<TableBodyCell colspan={2}>
 						This searches first, last, life-vow, and preferred name as individual fields.<br />
-						Do <b>not</b> type full names (e.g. "Bob Smith"), they will not match the individual fields.<br />
+						Do <b>not</b> type full names (e.g. "Bob Smith"), they will not match the individual
+						fields.<br />
 						Use <b>one</b> name or, better still, a partial name to search.<br />
 						A minimum of 3 letters are required.<br />
 						Case is ignored.<br />
-						<i>e.g. <b>"sMi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob <b>Smi</b>th".</i><br />
+						<i>e.g. <b>"sMi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob <b>Smi</b>th".</i
+						><br />
 					</TableBodyCell>
 				</TableBodyRow>
 				<TableBodyRow>
@@ -103,7 +105,8 @@
 {#if $me && $me.level > 1}
 	<div>
 		<p>
-			<a href="#/subsearch">Subscriber Search</a> | <a href="#/searchemail">Email Search</a>  | <a href="#/addmember">Add Member</a>
+			<a href="#/subsearch">Subscriber Search</a> | <a href="#/searchemail">Email Search</a> |
+			<a href="#/addmember">Add Member</a>
 		</p>
 	</div>
 {/if}

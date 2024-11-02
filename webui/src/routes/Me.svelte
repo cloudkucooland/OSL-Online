@@ -6,7 +6,8 @@
 		updateMe,
 		getChapters,
 		updateMeChapters,
-		getMeChapters
+		getMeChapters,
+		oslname
 	} from '../oo';
 	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -116,16 +117,19 @@
 	<h3>... loading ...</h3>
 {:then r}
 	<div>
-		{r.Title}
-		{r.FirstName}
-		{r.LastName} ( {r.MemberStatus} )
+		{oslname(r)}
 		<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}
-			>List in Directory</Checkbox
+			><span style="color: red">List in Directory</span></Checkbox
 		>
 	</div>
 
 	<form>
 		<section>
+			<h3>
+				If any data is out-of date please use the <a href="https://saint-luke.net/reaffirmation"
+					>reaffirmation form</a
+				> to have the Chancellor-General update it.
+			</h3>
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
 					<Label for="FirstName" class="block">First Name</Label>
@@ -148,7 +152,7 @@
 					<Input id="LifeVowName" value={r.LifeVowName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
-					<Label for="PreferedName" class="block">Preferred Name</Label>
+					<Label for="PreferedName" class="block" style="color: red">Preferred Name</Label>
 					<Input id="PreferredName" value={r.PreferredName} on:change={change} />
 				</div>
 				<div class="col-span-2">
@@ -161,7 +165,13 @@
 				</div>
 				<div class="col-span-1">
 					<Label for="Title" class="block">Title</Label>
-					<Select id="Title" items={titles} value={r.Title} on:change={change} />
+					<Select
+						id="Title"
+						items={titles}
+						value={r.Title}
+						on:change={change}
+						disabled={r.MemberStatus == 'Friend'}
+					/>
 				</div>
 			</div>
 		</section>
@@ -175,7 +185,7 @@
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListAddress" checked={r.ListAddress} on:change={changeCheck}
-						>Listed</Checkbox
+						><span style="color: red">Listed</span></Checkbox
 					>
 				</div>
 				<div class="col-span-8">
@@ -219,7 +229,7 @@
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListPrimaryPhone" checked={r.ListPrimaryPhone} on:change={changeCheck}
-						>Listed</Checkbox
+						><span style="color: red">Listed</span></Checkbox
 					>
 				</div>
 				<div class="col-span-3">
@@ -233,7 +243,7 @@
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListSecondaryPhone" checked={r.ListSecondaryPhone} on:change={changeCheck}
-						>Listed</Checkbox
+						><span style="color: red">Listed</span></Checkbox
 					>
 				</div>
 				<div class="col-span-3">
@@ -247,7 +257,7 @@
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListPrimaryEmail" checked={r.ListPrimaryEmail} on:change={changeCheck}
-						>Listed</Checkbox
+						><span style="color: red">Listed</span></Checkbox
 					>
 				</div>
 				<div class="col-span-3">
@@ -261,7 +271,7 @@
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListSecondaryEmail" checked={r.ListSecondaryEmail} on:change={changeCheck}
-						>Listed</Checkbox
+						><span style="color: red">Listed</span></Checkbox
 					>
 				</div>
 			</div>
@@ -352,36 +362,22 @@
 
 		<section>
 			<hr class="px-4 py-2" />
+			<h3>
+				You can only choose "Mailed" if you have donated in the past 12 months. These revert to
+				"Electronic" if you have not donated in the past year.
+			</h3>
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-1">
-					<Label for="Newsletter" class="block">Newsletter</Label>
-					<Select
-						id="Newsletter"
-						items={commitems}
-						value={r.Newsletter}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Label for="Newsletter" class="block" style="color: red">Newsletter</Label>
+					<Select id="Newsletter" items={commitems} value={r.Newsletter} on:change={change} />
 				</div>
 				<div class="col-span-1">
-					<Label for="Doxology" class="block">Doxology</Label>
-					<Select
-						id="Doxology"
-						items={commitems}
-						value={r.Doxology}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Label for="Doxology" class="block" style="color: red">Doxology</Label>
+					<Select id="Doxology" items={commitems} value={r.Doxology} on:change={change} />
 				</div>
 				<div class="col-span-1">
-					<Label for="Communication" class="block">Communication</Label>
-					<Select
-						id="Communication"
-						items={commitems}
-						value={r.Communication}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Label for="Communication" class="block" style="color: red">Communication</Label>
+					<Select id="Communication" items={commitems} value={r.Communication} on:change={change} />
 				</div>
 			</div>
 		</section>
