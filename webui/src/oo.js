@@ -592,7 +592,7 @@ export async function getChapters() {
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin',
+		referrerPolicy: 'origin'
 	};
 
 	const response = await fetch(`${server}/api/v1/chapter`, request);
@@ -796,7 +796,7 @@ export async function getLocalities() {
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin',
+		referrerPolicy: 'origin'
 	};
 
 	const response = await fetch(`${server}/api/v1/localities`, request);
@@ -806,11 +806,10 @@ export async function getLocalities() {
 		throw new Error(payload.error);
 	}
 
-	console.log(payload);
 	// format for svelte-flowbite Select
 	payload.forEach((c) => {
 		c.value = c.JointCode;
-		c.name = c.CountryCode + ": " + c.Locality;
+		c.name = c.CountryCode + ': ' + c.Locality;
 	});
 	return payload;
 }
@@ -837,4 +836,3 @@ export async function getLocalityMembers(loc) {
 	}
 	return payload;
 }
-
