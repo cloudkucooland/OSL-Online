@@ -1,0 +1,58 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"os"
+
+	"github.com/cloudkucooland/OSL-Online/model"
+)
+
+func main() {
+	ctx := context.Background()
+
+	dbpath := os.Getenv("OO_DB")
+	if dbpath == "" {
+		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
+	}
+
+	if err := model.Connect(ctx, dbpath); err != nil {
+		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
+		panic(err)
+	}
+
+	// get the IDs of all active members and friends
+	ids, err := model.ActiveMemberIDs()
+	if err != nil {
+		slog.Error(err.Error())
+		panic(err)
+	}
+
+	for _, i := range ids {
+		m, err := i.Get(true)
+		if err != nil {
+			panic(err)
+		}
+
+		p, err := model.FormatPhoneNumber(m.PrimaryPhone, m.Country)
+		if err != nil {
+			slog.Info(err.Error(), "primary", m.PrimaryPhone)
+			panic(err)
+		}
+		s, err := model.FormatPhoneNumber(m.SecondaryPhone, m.Country)
+		if err != nil {
+			slog.Error(err.Error(), "secondary", m.SecondaryPhone)
+			panic(err)
+		}
+
+		if p != m.PrimaryPhone {
+			fmt.Printf("%s\t%s\t%s\n", m.OSLName(), m.PrimaryPhone, p)
+			i.SetMemberField("PrimaryPhone", p, 0)
+		}
+		if s != m.SecondaryPhone {
+			fmt.Printf("%s\t%s\t%s\n", m.OSLName(), m.SecondaryPhone, s)
+			i.SetMemberField("SecondaryPhone", s, 0)
+		}
+	}
+}
