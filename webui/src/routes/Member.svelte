@@ -119,9 +119,7 @@
 		<section>
 			<div class="grid grid-cols-6 gap-4 px-4 py-2">
 				<div class="col-span-3">
-					{r.Title}
-					{r.FirstName}
-					{r.LastName} ( {r.MemberStatus} )
+					{oslname(r)} ({r.MemberStatus})
 				</div>
 				<div class="col-span-1">
 					<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}

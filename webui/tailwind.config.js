@@ -1,6 +1,3 @@
-import flowbitePlugin from 'flowbite/plugin';
-// import { Config } from 'tailwindcss';
-
 const config = {
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
@@ -26,7 +23,7 @@ const config = {
 			}
 		}
 	},
-	plugins: [flowbitePlugin]
+	plugins: [require('flowbite/plugin')]
 };
 
 module.exports = config;
