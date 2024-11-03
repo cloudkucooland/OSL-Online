@@ -20,7 +20,7 @@ var sk jwk.Set
 
 const sessionName string = "OSL-Online"
 const jsonType = "application/json; charset=UTF-8"
-const jsonTypeShort = "application/json"
+// const jsonTypeShort = "application/json"
 const jsonStatusOK = `{"status":"ok"}`
 const BcryptRounds = 14
 
@@ -68,10 +68,10 @@ func jsonError(e error) string {
 	return fmt.Sprintf(`{"status":"error","error":"%s"}`, e.Error())
 }
 
-func contentTypeIs(req *http.Request, check string) bool {
+/* func contentTypeIs(req *http.Request, check string) bool {
 	contentType := strings.Split(strings.Replace(req.Header.Get("Content-Type"), " ", "", -1), ";")[0]
 	return strings.EqualFold(contentType, check)
-}
+} */
 
 func parsetoken(r *http.Request) (jwt.Token, error) {
 	return jwt.ParseRequest(r,

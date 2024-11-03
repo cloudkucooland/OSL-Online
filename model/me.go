@@ -115,12 +115,5 @@ func (id MemberID) allowPrinted() bool {
 			break
 		}
 	}
-	// no gifts in the past 12 months
-	if !found {
-		return false
-	}
-
-	// what else?
-
-	return true
+	return found
 }

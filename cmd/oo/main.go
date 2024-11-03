@@ -29,14 +29,14 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	wg.Add(1)
 	go func(ctx context.Context) {
-		wg.Add(1)
 		rest.Start(ctx)
 		wg.Done()
 	}(ctx)
 
+	wg.Add(1)
 	go func(ctx context.Context) {
-		wg.Add(1)
 		background(ctx)
 		wg.Done()
 	}(ctx)
