@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"time"
 
 	// need a comment here to make lint happy
 	_ "github.com/go-sql-driver/mysql"
@@ -13,9 +14,12 @@ import (
 // db is the private global used by all relevant functions to interact with the database
 var db *sql.DB
 
+const zerotime = "0001-01-01"
+const timeformat = "2006-01-02"
+
 // Connect tries to establish a connection to a MySQL/MariaDB database under the given URI and initializes the tables if they don"t exist yet.
 func Connect(ctx context.Context, uri string) error {
-	result, err := sql.Open("mysql", uri)
+	result, err := sql.Open("mysql", uri+"?parseTime=true")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -66,6 +70,19 @@ func makeNullString(in interface{}) sql.NullString {
 func makeNullBool(in bool) sql.NullBool {
 	return sql.NullBool{
 		Bool:  in,
+		Valid: true,
+	}
+}
+
+func makeNullTime(in time.Time) sql.NullTime {
+	zt, _ := time.Parse(timeformat, zerotime)
+
+	if in == zt {
+		return sql.NullTime{}
+	}
+
+	return sql.NullTime{
+		Time:  in,
 		Valid: true,
 	}
 }

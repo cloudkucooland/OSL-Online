@@ -30,13 +30,20 @@ func main() {
 	}
 
 	for _, i := range ids {
+		if i == 0 {
+			continue
+		}
 		m, err := i.Get(true)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("%+v\n\n", m.FormattedAddr)
+		formatted, err := model.FormatAddress(m)
+		if err != nil {
+			slog.Info(err.Error())
+		}
+		fmt.Printf("%+v\n\n", formatted)
 
-		if m.Address != "" && m.FormattedAddr == "" {
+		if m.Address != "" && formatted == "" {
 			panic(m.OSLName())
 		}
 	}

@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-const format = "2006-01-02"
-
 type MemberID int
 
 // memberNulls is the format used by the import tool and in the main query since NULLs are possible
@@ -33,14 +31,14 @@ type memberNulls struct {
 	SecondaryPhone     sql.NullString
 	PrimaryEmail       sql.NullString
 	SecondaryEmail     sql.NullString
-	BirthDate          time.Time
-	DateRecordCreated  time.Time
-	DateFirstVows      time.Time
-	DateReaffirmation  time.Time
-	DateRemoved        time.Time
-	DateDeceased       time.Time
-	DateNovitiate      time.Time
-	DateLifeVows       time.Time
+	BirthDate          sql.NullTime
+	DateRecordCreated  sql.NullTime
+	DateFirstVows      sql.NullTime
+	DateReaffirmation  sql.NullTime
+	DateRemoved        sql.NullTime
+	DateDeceased       sql.NullTime
+	DateNovitiate      sql.NullTime
+	DateLifeVows       sql.NullTime
 	Status             sql.NullString
 	Leadership         sql.NullString
 	HowJoined          sql.NullString
@@ -104,16 +102,14 @@ type Member struct {
 	Occupation         string
 	Employer           string
 	Denomination       string
-	FormattedAddr      string
+	FormattedAddr      string // only populated for export to webui
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
 func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 	n := &memberNulls{}
 
-	var bd, rc, fv, ra, dr, dd, dn, lv sql.NullString
-
-	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &bd, &rc, &fv, &ra, &dr, &dd, &dn, &lv, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
+	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
 		slog.Error(err.Error(), "id", id)
@@ -124,44 +120,12 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 		return nil, err
 	}
 
-	if bd.Valid {
-		n.BirthDate, _ = time.Parse(format, bd.String)
-	}
-	if rc.Valid {
-		n.DateRecordCreated, _ = time.Parse(format, rc.String)
-	}
-	if fv.Valid {
-		n.DateFirstVows, _ = time.Parse(format, fv.String)
-	}
-	if ra.Valid {
-		n.DateReaffirmation, _ = time.Parse(format, ra.String)
-	}
-	if dr.Valid {
-		n.DateRemoved, _ = time.Parse(format, dr.String)
-	}
-	if dd.Valid {
-		n.DateDeceased, _ = time.Parse(format, dd.String)
-	}
-	if dn.Valid {
-		n.DateNovitiate, _ = time.Parse(format, dn.String)
-	}
-	if lv.Valid {
-		n.DateLifeVows, _ = time.Parse(format, lv.String)
-	}
-
 	// if not including unlisted, filter it out
 	if !includeUnlisted {
 		n.cleanUnlisted()
 	}
 
 	m := n.toMember()
-
-	if m.Address != "" {
-		m.FormattedAddr, err = FormatAddress(m)
-		if err != nil {
-			slog.Error(err.Error())
-		}
-	}
 	return m, nil
 }
 
@@ -186,14 +150,14 @@ func (n *memberNulls) toMember() *Member {
 		SecondaryPhone:     n.SecondaryPhone.String,
 		PrimaryEmail:       n.PrimaryEmail.String,
 		SecondaryEmail:     n.SecondaryEmail.String,
-		BirthDate:          n.BirthDate,
-		DateRecordCreated:  n.DateRecordCreated,
-		DateFirstVows:      n.DateFirstVows,
-		DateReaffirmation:  n.DateReaffirmation,
-		DateRemoved:        n.DateRemoved,
-		DateDeceased:       n.DateDeceased,
-		DateNovitiate:      n.DateNovitiate,
-		DateLifeVows:       n.DateLifeVows,
+		BirthDate:          n.BirthDate.Time,
+		DateRecordCreated:  n.DateRecordCreated.Time,
+		DateFirstVows:      n.DateFirstVows.Time,
+		DateReaffirmation:  n.DateReaffirmation.Time,
+		DateRemoved:        n.DateRemoved.Time,
+		DateDeceased:       n.DateDeceased.Time,
+		DateNovitiate:      n.DateNovitiate.Time,
+		DateLifeVows:       n.DateLifeVows.Time,
 		Status:             n.Status.String,
 		Leadership:         n.Leadership.String,
 		HowJoined:          n.HowJoined.String,
@@ -234,14 +198,14 @@ func (n *Member) tomemberNulls() *memberNulls {
 		SecondaryPhone:     makeNullString(n.SecondaryPhone),
 		PrimaryEmail:       makeNullString(n.PrimaryEmail),
 		SecondaryEmail:     makeNullString(n.SecondaryEmail),
-		BirthDate:          n.BirthDate,
-		DateRecordCreated:  n.DateRecordCreated,
-		DateFirstVows:      n.DateFirstVows,
-		DateReaffirmation:  n.DateReaffirmation,
-		DateRemoved:        n.DateRemoved,
-		DateDeceased:       n.DateDeceased,
-		DateNovitiate:      n.DateNovitiate,
-		DateLifeVows:       n.DateLifeVows,
+		BirthDate:          makeNullTime(n.BirthDate),
+		DateRecordCreated:  makeNullTime(n.DateRecordCreated),
+		DateFirstVows:      makeNullTime(n.DateFirstVows),
+		DateReaffirmation:  makeNullTime(n.DateReaffirmation),
+		DateRemoved:        makeNullTime(n.DateRemoved),
+		DateDeceased:       makeNullTime(n.DateDeceased),
+		DateNovitiate:      makeNullTime(n.DateNovitiate),
+		DateLifeVows:       makeNullTime(n.DateLifeVows),
 		Status:             makeNullString(n.Status),
 		Leadership:         makeNullString(n.Leadership),
 		HowJoined:          makeNullString(n.HowJoined),
@@ -305,7 +269,7 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 		if value == "" {
 			value = "0001-01-01"
 		}
-		t, err := time.Parse(format, value)
+		t, err := time.Parse(timeformat, value)
 		if err != nil {
 			slog.Error(err.Error())
 			return err
@@ -398,7 +362,7 @@ func Create(firstname, lastname string) (MemberID, error) {
 		MemberStatus:      sql.NullString{Valid: true, String: "Friend"},
 		FirstName:         sql.NullString{Valid: true, String: firstname},
 		LastName:          sql.NullString{Valid: true, String: lastname},
-		DateRecordCreated: time.Now(),
+		DateRecordCreated: sql.NullTime{Valid: true, Time: time.Now()},
 	}
 
 	res, err := db.Exec("INSERT INTO member (MemberStatus, FirstName, LastName, DateRecordCreated) VALUES (?,?,?,?)", n.MemberStatus, n.FirstName, n.LastName, n.DateRecordCreated)
@@ -415,6 +379,8 @@ func Create(firstname, lastname string) (MemberID, error) {
 }
 
 func (n *memberNulls) cleanUnlisted() {
+	zt, _ := time.Parse(timeformat, zerotime)
+
 	if !n.ListInDirectory.Bool {
 		n.FirstName.String = ""
 		n.LastName.String = ""
@@ -423,12 +389,12 @@ func (n *memberNulls) cleanUnlisted() {
 		n.Title.String = ""
 		n.LifevowName.String = ""
 		n.Suffix.String = ""
-		n.BirthDate, _ = time.Parse(format, "0001-01-01")
-		n.DateNovitiate, _ = time.Parse(format, "0001-01-01")
-		n.DateRemoved, _ = time.Parse(format, "0001-01-01")
-		n.DateFirstVows, _ = time.Parse(format, "0001-01-01")
-		n.DateReaffirmation, _ = time.Parse(format, "0001-01-01")
-		n.DateDeceased, _ = time.Parse(format, "0001-01-01")
+		n.BirthDate.Time = zt
+		n.DateNovitiate.Time = zt
+		n.DateRemoved.Time = zt
+		n.DateFirstVows.Time = zt
+		n.DateReaffirmation.Time = zt
+		n.DateDeceased.Time = zt
 		n.Status.String = ""
 		n.Occupation.String = ""
 		n.Employer.String = ""

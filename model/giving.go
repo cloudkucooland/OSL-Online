@@ -62,7 +62,7 @@ func (id MemberID) GivingRecords() ([]GivingRecord, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		g.Date, _ = time.Parse(format, d)
+		g.Date, _ = time.Parse(timeformat, d)
 
 		gr = append(gr, g)
 	}

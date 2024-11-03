@@ -35,7 +35,7 @@ func (m *Member) Changelog() ([]ChangeLogEntry, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		c.Date, _ = time.Parse(format, d)
+		c.Date, _ = time.Parse(timeformat, d)
 
 		cr = append(cr, c)
 	}

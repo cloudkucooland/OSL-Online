@@ -39,7 +39,11 @@ func ReportExpired(w io.Writer) error {
 	r.Write([]string{"DateReaffirmation", "OSLName", "FormattedAddr", "PrimaryEmail"})
 
 	for _, m := range members {
-		r.Write([]string{m.DateReaffirmation.Format(time.DateOnly), m.OSLName(), m.FormattedAddr, m.PrimaryEmail})
+		f, err := FormatAddress(m)
+		if err != nil {
+			continue
+		}
+		r.Write([]string{m.DateReaffirmation.Format(time.DateOnly), m.OSLName(), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -55,7 +59,11 @@ func ReportAnnual(w io.Writer) error {
 	r.Write([]string{"OSLName", "OSLShortName", "DateReaffirmation", "FormattedAddress", "PrimaryEmail"})
 
 	for _, m := range members {
-		r.Write([]string{m.OSLName(), m.OSLShortName(), m.DateReaffirmation.Format(time.DateOnly), m.FormattedAddr, m.PrimaryEmail})
+		f, err := FormatAddress(m)
+		if err != nil {
+			continue
+		}
+		r.Write([]string{m.OSLName(), m.OSLShortName(), m.DateReaffirmation.Format(time.DateOnly), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -71,7 +79,11 @@ func ReportLife(w io.Writer) error {
 	r.Write([]string{"OSLName", "OSLShortName", "FormattedAddress", "PrimaryEmail"})
 
 	for _, m := range members {
-		r.Write([]string{m.OSLName(), m.OSLShortName(), m.FormattedAddr, m.PrimaryEmail})
+		f, err := FormatAddress(m)
+		if err != nil {
+			continue
+		}
+		r.Write([]string{m.OSLName(), m.OSLShortName(), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -93,7 +105,11 @@ func ReportAllEmail(w io.Writer) error {
 			err = nil
 			continue
 		}
-		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail, n.FormattedAddr})
+		f, err := FormatAddress(n)
+		if err != nil {
+			continue
+		}
+		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail, f})
 	}
 	r.Flush()
 	return nil
@@ -198,7 +214,7 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 }
 
 func ReportAvery(w io.Writer) error {
-	var members []*Member
+	var members []addressFormatter
 
 	ids, err := ActiveMemberIDs()
 	if err != nil {
@@ -235,7 +251,11 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		member := []string{m.OSLName(), m.FormattedAddr}
+		f, err := FormatAddress(m)
+		if err != nil {
+			continue
+		}
+		member := []string{m.OSLName(), f}
 		r.Write(member)
 	}
 
@@ -250,7 +270,11 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		subscriber := []string{s.Name, s.FormattedAddr}
+		f, err := FormatAddress(s)
+		if err != nil {
+			continue
+		}
+		subscriber := []string{s.Name, f}
 		r.Write(subscriber)
 	}
 	r.Flush()

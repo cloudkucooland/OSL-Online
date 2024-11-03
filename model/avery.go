@@ -9,7 +9,7 @@ import (
 )
 
 // Avery 5160
-func AveryLabels(pdffile io.Writer, members []*Member) {
+func AveryLabels(pdffile io.Writer, addresses []addressFormatter) {
 	count := 0
 
 	pdf := gofpdf.New("P", "in", "Letter", "")
@@ -22,7 +22,12 @@ func AveryLabels(pdffile io.Writer, members []*Member) {
 	marginh := (pagew - 3.0*labelw) / 4.0 // label margin
 	pdf.SetFont("Helvetica", "B", 12)
 
-	for _, member := range members {
+	for _, address := range addresses {
+		formatted, err := FormatAddress(address)
+		if err != nil {
+			continue
+		}
+
 		if count == 0 {
 			pdf.AddPage()
 		}
@@ -34,7 +39,7 @@ func AveryLabels(pdffile io.Writer, members []*Member) {
 		pdf.MultiCell(
 			labelw,
 			labelh/5,
-			member.FormattedAddr,
+			formatted,
 			"",    // no border
 			"LM",  // left justify, middle
 			false) // don't fill

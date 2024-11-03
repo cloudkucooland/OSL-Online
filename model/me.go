@@ -39,7 +39,7 @@ func SetMeField(id MemberID, field string, value string) error {
 		if value == "" {
 			value = "0001-01-01"
 		}
-		t, err := time.Parse(format, value)
+		t, err := time.Parse(timeformat, value)
 		if err != nil {
 			slog.Error(err.Error())
 			return err
