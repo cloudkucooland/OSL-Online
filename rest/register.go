@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cloudkucooland/OSL-Online/email"
 	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/julienschmidt/httprouter"
 )
@@ -18,18 +19,24 @@ func postRegister(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	email := strings.TrimSpace(r.PostFormValue("email"))
-	if email == "" {
+	addr := strings.TrimSpace(r.PostFormValue("email"))
+	if addr == "" {
 		err := fmt.Errorf("email not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	if err := model.Register(email); err != nil {
+	password, err := model.Register(addr)
+	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
+	}
+
+	if email.SendRegister(addr, password); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 	}
 
 	fmt.Fprint(w, jsonStatusOK)

@@ -2,11 +2,8 @@ package model
 
 import (
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"time"
-
-	"github.com/cloudkucooland/OSL-Online/email"
 )
 
 type GivingRecord struct {
@@ -20,23 +17,10 @@ type GivingRecord struct {
 }
 
 func (n GivingRecord) Store() error {
-	member, err := n.ID.Get(true)
+	_, err := db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,curdate())", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
-	}
-
-	_, err = db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,curdate())", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if member.PrimaryEmail != "" {
-		if err := email.SendGiving(member.PrimaryEmail, member.OSLName(), fmt.Sprintf("%.2f", n.Amount), n.Description); err != nil {
-			slog.Error(err.Error())
-			return err
-		}
 	}
 	return nil
 }

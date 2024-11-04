@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cloudkucooland/OSL-Online/email"
 	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/julienschmidt/httprouter"
 )
@@ -107,6 +108,10 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
+	}
+
+	if err := email.SendGiving(model.MemberID(id), fmt.Sprintf("%.2f", gr.Amount), gr.Description); err != nil {
+		slog.Error(err.Error())
 	}
 
 	fmt.Fprint(w, jsonStatusOK)

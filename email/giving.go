@@ -3,19 +3,29 @@ package email
 import (
 	"log/slog"
 
+	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/matcornic/hermes/v2"
 )
 
-func SendGiving(addr string, name string, amount string, description string) error {
+func SendGiving(id model.MemberID, amount string, description string) error {
 	h, err := setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
+	member, err := id.Get(true)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	if member.PrimaryEmail == "" {
+		return nil
+	}
+
 	e := hermes.Email{
 		Body: hermes.Body{
-			Name: name,
+			Name: member.OSLName(),
 			Intros: []string{
 				"Your donation has been recorded.",
 			},
@@ -32,7 +42,7 @@ func SendGiving(addr string, name string, amount string, description string) err
 					Instructions: "You can review your details in the online directory:",
 					Button: hermes.Button{
 						Text: "View your directory information",
-						Link: "https://saint-luke.net/oo",
+						Link: "https://saint-luke.net/oo/#/me",
 					},
 				},
 			},
@@ -54,7 +64,7 @@ func SendGiving(addr string, name string, amount string, description string) err
 		return err
 	}
 
-	if err := send(addr, "OSL Donation Receipt", body, text); err != nil {
+	if err := send(member.PrimaryEmail, "OSL Donation Receipt", body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

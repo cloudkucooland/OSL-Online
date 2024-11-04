@@ -7,7 +7,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/cloudkucooland/OSL-Online/email"
 	"github.com/sethvargo/go-password/password"
 )
 
@@ -41,29 +40,25 @@ func SetAuthData(id string, pw string, level int) error {
 	return nil
 }
 
-func Register(addr string) error {
+func Register(addr string) (string, error) {
 	slog.Info("registering user", "email", addr)
 	if _, err := GetID(addr); err != nil {
-		return err
+		return "", err
 	}
 
 	password, err := password.Generate(10, 3, 0, false, true)
 	if err != nil {
 		slog.Error(err.Error())
-		return err
+		return "", err
 	}
 
 	if err := SetAuthData(addr, password, 0); err != nil {
 		slog.Error(err.Error())
-		return err
+		return password, err
 	}
 
-	if email.SendRegister(addr, password); err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	return nil
+	// caller must send email
+	return password, nil
 }
 
 func GetID(addr string) (MemberID, error) {
