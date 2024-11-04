@@ -20,6 +20,7 @@ var sk jwk.Set
 
 const sessionName string = "OSL-Online"
 const jsonType = "application/json; charset=UTF-8"
+
 // const jsonTypeShort = "application/json"
 const jsonStatusOK = `{"status":"ok"}`
 const BcryptRounds = 14

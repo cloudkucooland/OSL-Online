@@ -27,6 +27,13 @@ func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 
+	m.FormattedAddr, err = model.FormatAddress(m)
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
 	if err := json.NewEncoder(w).Encode(m); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

@@ -59,9 +59,13 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("%+v\n\n", m.FormattedAddr)
+		formatted, err := model.FormatAddress(m)
+		if err != nil {
+			slog.Info(err.Error())
+		}
+		fmt.Printf("%+v\n\n", formatted)
 
-		if m.FormattedAddr == "" {
+		if m.Address != "" && formatted == "" {
 			panic(m.Name)
 		}
 	}

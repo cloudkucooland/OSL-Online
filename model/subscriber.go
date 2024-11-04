@@ -46,8 +46,8 @@ type subNulls struct {
 	SecondaryPhone    sql.NullString
 	PrimaryEmail      sql.NullString
 	SecondaryEmail    sql.NullString
-	DateRecordCreated time.Time
-	DatePaid          time.Time
+	DateRecordCreated sql.NullTime
+	DatePaid          sql.NullTime
 	Doxology          sql.NullString
 	Newsletter        sql.NullString
 	Communication     sql.NullString
@@ -56,9 +56,7 @@ type subNulls struct {
 func (id SubscriberID) Get() (*Subscriber, error) {
 	var n subNulls
 
-	var created, paid sql.NullString
-
-	err := db.QueryRow("SELECT ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication FROM subscriber WHERE ID = ?", id).Scan(&n.ID, &n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &created, &paid, &n.Doxology, &n.Newsletter, &n.Communication)
+	err := db.QueryRow("SELECT ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication FROM subscriber WHERE ID = ?", id).Scan(&n.ID, &n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.DateRecordCreated, &n.DatePaid, &n.Doxology, &n.Newsletter, &n.Communication)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("subscriber not found")
 		slog.Error(err.Error(), "id", id)
@@ -69,18 +67,7 @@ func (id SubscriberID) Get() (*Subscriber, error) {
 		return nil, err
 	}
 
-	if created.Valid {
-		n.DateRecordCreated, _ = time.Parse("2006-01-02", created.String)
-	}
-	if paid.Valid {
-		n.DatePaid, _ = time.Parse("2006-01-02", paid.String)
-	}
 	s := (&n).toSubscriber()
-	s.FormattedAddr, err = FormatAddress(s)
-	if err != nil {
-		slog.Error(err.Error())
-		return s, err
-	}
 	return s, nil
 }
 
@@ -99,8 +86,8 @@ func (n *subNulls) toSubscriber() *Subscriber {
 		SecondaryPhone:    n.SecondaryPhone.String,
 		PrimaryEmail:      n.PrimaryEmail.String,
 		SecondaryEmail:    n.SecondaryEmail.String,
-		DateRecordCreated: n.DateRecordCreated,
-		DatePaid:          n.DatePaid,
+		DateRecordCreated: n.DateRecordCreated.Time,
+		DatePaid:          n.DatePaid.Time,
 		Doxology:          n.Doxology.String,
 		Newsletter:        n.Newsletter.String,
 		Communication:     n.Communication.String,
