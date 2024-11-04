@@ -39,15 +39,12 @@ func (id MemberID) GivingRecords() ([]GivingRecord, error) {
 	defer rows.Close()
 
 	var g GivingRecord
-	var d string
 	for rows.Next() {
-		err := rows.Scan(&g.EntryID, &g.Amount, &g.Check, &g.Transaction, &g.Description, &d)
+		err := rows.Scan(&g.EntryID, &g.Amount, &g.Check, &g.Transaction, &g.Description, &g.Date)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
-		g.Date, _ = time.Parse(timeformat, d)
-
 		gr = append(gr, g)
 	}
 	return gr, nil
