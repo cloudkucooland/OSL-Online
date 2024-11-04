@@ -69,6 +69,10 @@ func ReportAnnual(w io.Writer) error {
 	return nil
 }
 
+func ReminderAnnual() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")
+}
+
 func ReportLife(w io.Writer) error {
 	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {
