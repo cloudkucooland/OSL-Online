@@ -37,7 +37,7 @@ func SetMeField(id MemberID, field string, value string) error {
 	case "BirthDate":
 		value = strings.TrimSpace(value)
 		if value == "" {
-			value = "0001-01-01"
+			value = zerotime
 		}
 		t, err := time.Parse(timeformat, value)
 		if err != nil {

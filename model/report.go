@@ -125,6 +125,7 @@ func ReportFontEmailed(w io.Writer) error {
 		slog.Error(err.Error())
 		return err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var e string
@@ -147,6 +148,7 @@ func ReportSubscriber() ([]*Subscriber, error) {
 		slog.Error(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var id SubscriberID
@@ -175,6 +177,7 @@ func reportMemberIDQuery(query string) ([]MemberID, error) {
 		slog.Error(err.Error())
 		return list, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&id)
@@ -201,6 +204,7 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 		slog.Error(err.Error())
 		return list, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&id)

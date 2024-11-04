@@ -267,7 +267,7 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateDeceased", "DateNovitiate", "DateLifeVows":
 		value = strings.TrimSpace(value)
 		if value == "" {
-			value = "0001-01-01"
+			value = zerotime
 		}
 		t, err := time.Parse(timeformat, value)
 		if err != nil {
