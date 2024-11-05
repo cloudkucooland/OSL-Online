@@ -37,5 +37,7 @@ func doDaily() {
 		bdays = append(bdays, &email.BirthdayEmailEntry{int(m.ID), m.OSLName()})
 	}
 
-	email.SendBirthdayMail(bdays, month, day)
+	if err := email.SendBirthdayMail(bdays, month, day); err != nil {
+		panic(err)
+	}
 }
