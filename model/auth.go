@@ -10,9 +10,9 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
-func GetAuthData(id string) (string, int, error) {
+func GetAuthData(id string) (string, uint8, error) {
 	var pwhash string
-	var level int
+	var level uint8
 	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", id).Scan(&pwhash, &level)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("user %s not found", id)

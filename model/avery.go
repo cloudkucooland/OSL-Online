@@ -48,5 +48,7 @@ func AveryLabels(pdffile io.Writer, addresses []addressFormatter) {
 			count = 0
 		}
 	}
-	pdf.Output(pdffile)
+	if err := pdf.Output(pdffile); err != nil {
+		// nothing
+	}
 }

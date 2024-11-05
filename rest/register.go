@@ -34,7 +34,7 @@ func postRegister(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	if email.SendRegister(addr, password); err != nil {
+	if err := email.SendRegister(addr, password); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 	}

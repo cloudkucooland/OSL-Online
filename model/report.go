@@ -36,14 +36,14 @@ func ReportExpired(w io.Writer) error {
 	}
 
 	r := csv.NewWriter(w)
-	r.Write([]string{"DateReaffirmation", "OSLName", "FormattedAddr", "PrimaryEmail"})
+	_ = r.Write([]string{"DateReaffirmation", "OSLName", "FormattedAddr", "PrimaryEmail"})
 
 	for _, m := range members {
 		f, err := FormatAddress(m)
 		if err != nil {
 			continue
 		}
-		r.Write([]string{m.DateReaffirmation.Format(time.DateOnly), m.OSLName(), f, m.PrimaryEmail})
+		_ = r.Write([]string{m.DateReaffirmation.Format(time.DateOnly), m.OSLName(), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -56,14 +56,14 @@ func ReportAnnual(w io.Writer) error {
 	}
 
 	r := csv.NewWriter(w)
-	r.Write([]string{"OSLName", "OSLShortName", "DateReaffirmation", "FormattedAddress", "PrimaryEmail"})
+	_ = r.Write([]string{"OSLName", "OSLShortName", "DateReaffirmation", "FormattedAddress", "PrimaryEmail"})
 
 	for _, m := range members {
 		f, err := FormatAddress(m)
 		if err != nil {
 			continue
 		}
-		r.Write([]string{m.OSLName(), m.OSLShortName(), m.DateReaffirmation.Format(time.DateOnly), f, m.PrimaryEmail})
+		_ = r.Write([]string{m.OSLName(), m.OSLShortName(), m.DateReaffirmation.Format(time.DateOnly), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -80,14 +80,14 @@ func ReportLife(w io.Writer) error {
 	}
 
 	r := csv.NewWriter(w)
-	r.Write([]string{"OSLName", "OSLShortName", "FormattedAddress", "PrimaryEmail"})
+	_ = r.Write([]string{"OSLName", "OSLShortName", "FormattedAddress", "PrimaryEmail"})
 
 	for _, m := range members {
 		f, err := FormatAddress(m)
 		if err != nil {
 			continue
 		}
-		r.Write([]string{m.OSLName(), m.OSLShortName(), f, m.PrimaryEmail})
+		_ = r.Write([]string{m.OSLName(), m.OSLShortName(), f, m.PrimaryEmail})
 	}
 	r.Flush()
 	return nil
@@ -95,7 +95,7 @@ func ReportLife(w io.Writer) error {
 
 func ReportAllEmail(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail", "Address"})
+	_ = r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail", "Address"})
 
 	m, err := ActiveMemberIDs()
 	if err != nil {
@@ -113,7 +113,7 @@ func ReportAllEmail(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail, f})
+		_ = r.Write([]string{n.OSLName(), n.OSLShortName(), n.MemberStatus, n.PrimaryEmail, f})
 	}
 	r.Flush()
 	return nil
@@ -122,7 +122,7 @@ func ReportAllEmail(w io.Writer) error {
 // structured for Google Groups CSV upload
 func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
+	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
 
 	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND PrimaryEmail IS NOT NULL AND Newsletter = 'electronic' ORDER BY LastName, FirstName")
 	if err != nil {
@@ -138,7 +138,7 @@ func ReportFontEmailed(w io.Writer) error {
 			// return err
 			continue
 		}
-		r.Write([]string{"font@saint-luke.net", e, "USER", "MEMBER"})
+		_ = r.Write([]string{"font@saint-luke.net", e, "USER", "MEMBER"})
 	}
 	r.Flush()
 	return nil
@@ -246,7 +246,7 @@ func ReportAvery(w io.Writer) error {
 
 func DoxologyPrinted(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"Name", "Address"})
+	_ = r.Write([]string{"Name", "Address"})
 
 	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
@@ -264,7 +264,7 @@ func DoxologyPrinted(w io.Writer) error {
 			continue
 		}
 		member := []string{m.OSLName(), f}
-		r.Write(member)
+		_ = r.Write(member)
 	}
 
 	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY Name")
@@ -283,7 +283,7 @@ func DoxologyPrinted(w io.Writer) error {
 			continue
 		}
 		subscriber := []string{s.Name, f}
-		r.Write(subscriber)
+		_ = r.Write(subscriber)
 	}
 	r.Flush()
 	return nil
@@ -292,7 +292,7 @@ func DoxologyPrinted(w io.Writer) error {
 // structured for Google Groups CSV upload
 func DoxologyEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
-	r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role", "Name"})
+	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role", "Name"})
 
 	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil {
@@ -305,7 +305,7 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		r.Write([]string{"doxology-distribution@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
+		_ = r.Write([]string{"doxology-distribution@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
 	}
 
 	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
@@ -319,7 +319,7 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		r.Write([]string{"doxology-distribution@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
+		_ = r.Write([]string{"doxology-distribution@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
 	}
 	r.Flush()
 	return nil
