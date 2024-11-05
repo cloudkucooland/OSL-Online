@@ -20,7 +20,6 @@ func Search(query string, unlisted bool) ([]SearchResult, error) {
 	var res []SearchResult
 	var n SearchResult
 
-	slog.Info("search", "query", query)
 	qq := fmt.Sprintf("%%%s%%", query)
 
 	var pn sql.NullString
@@ -57,8 +56,6 @@ func Search(query string, unlisted bool) ([]SearchResult, error) {
 func SearchEmail(query string, unlisted bool) ([]SearchResult, error) {
 	var res []SearchResult
 	var n SearchResult
-
-	slog.Info("email search", "query", query)
 
 	var pn sql.NullString
 
