@@ -169,7 +169,19 @@ func ReportSubscriber() ([]*Subscriber, error) {
 
 // Returns a slice of IDs
 func ActiveMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName, FirstName")
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' OR MemberStatus = 'Friend' ORDER BY LastName, FirstName")
+}
+
+func AnnualMemberIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+}
+
+func LifeMemberIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+}
+
+func FriendIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
 }
 
 func reportMemberIDQuery(query string) ([]MemberID, error) {
