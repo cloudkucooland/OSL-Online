@@ -836,3 +836,33 @@ export async function getLocalityMembers(loc) {
 	}
 	return payload;
 }
+
+export async function sendemail(whom, subject, message) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const dataArray = new FormData();
+	dataArray.append('message', message);
+	dataArray.append('whom', whom);
+	dataArray.append('subject', subject);
+
+	const request = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt },
+		body: dataArray
+	};
+
+	const response = await fetch(`${server}/api/v1/email`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status, payload.error);
+		throw new Error(payload.error);
+	}
+	return true;
+}

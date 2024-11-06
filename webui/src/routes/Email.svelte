@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { Label, Textarea, Button, Select } from 'flowbite-svelte';
+	import { Input, Label, Textarea, Button, Select } from 'flowbite-svelte';
 	import { push } from 'svelte-spa-router';
-	import { getMe } from '../oo';
+	import { sendemail } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
 	const { me } = getContext('oo');
@@ -20,12 +20,14 @@
 
 	let whom = 'nobody@localhost';
 	let content = '';
+	let subject = 'OSL Announcement';
 
 	async function send() {
 		try {
-			const id = await sendemail(whom, content);
-			toast.push(`sent`);
-			content = 'nobody@localhost';
+			const id = await sendemail(whom, subject, content);
+			toast.push(`Message Sent`);
+			content = '';
+			subject = 'OSL Announcment';
 			return true;
 		} catch (err) {
 			console.log(err);
@@ -41,12 +43,18 @@
 <form>
 	<section>
 		<div class="grid grid-cols-4 gap-4 px-4 py-2">
-			<div class="col-span-3">
-				<Select id="whom" items={towhom} value={whom} />
+			<div class="col-span-4">
+				<Select id="whom" items={towhom} bind:value={whom} />
+			</div>
+			<div class="col-span-4">
+				<Label>Subject</Label>
+				<Input id="subject" bind:value={subject} />
 			</div>
 			<div class="col-span-4">
 				<h3>Hi [sibling name]</h3>
 				<Textarea id="content" rows={8} bind:value={content} />
+				<h3>Living the Sacramental Life</h3>
+				<h3>Yours truly,</h3>
 				<h3>The Order of Saint Luke</h3>
 			</div>
 			<div class="col-span-3"></div>

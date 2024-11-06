@@ -8,17 +8,17 @@ import (
 	"github.com/matcornic/hermes/v2"
 )
 
-func SendGeneric(ids []model.MemberID, content string) error {
+func SendGeneric(ids []model.MemberID, subject string, message string) error {
 	h, err := setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	intros := strings.Split(content, "\n")
+	intros := strings.Split(message, "\n")
 
 	for _, id := range ids {
-		if err := sendGeneric(id, intros, h); err != nil {
+		if err := sendGeneric(id, subject, intros, h); err != nil {
 			slog.Error(err.Error())
 			// continue
 		}
@@ -26,7 +26,7 @@ func SendGeneric(ids []model.MemberID, content string) error {
 	return nil
 }
 
-func sendGeneric(id model.MemberID, intros []string, h *hermes.Hermes) error {
+func sendGeneric(id model.MemberID, subject string, intros []string, h *hermes.Hermes) error {
 	member, err := id.Get(true)
 	if err != nil {
 		slog.Error(err.Error())
@@ -58,7 +58,7 @@ func sendGeneric(id model.MemberID, intros []string, h *hermes.Hermes) error {
 		return err
 	}
 
-	if err := send(member.PrimaryEmail, "OSL Reaffirmation Reminder", body, text); err != nil {
+	if err := send(member.PrimaryEmail, subject, body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

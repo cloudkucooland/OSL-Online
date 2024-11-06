@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// reportMemberQuery returns full member data, unlisted data is included
 func reportMemberQuery(query string) ([]*Member, error) {
 	var members []*Member
 
@@ -69,10 +70,6 @@ func ReportAnnual(w io.Writer) error {
 	return nil
 }
 
-func ReminderAnnual() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")
-}
-
 func ReportLife(w io.Writer) error {
 	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {
@@ -119,7 +116,7 @@ func ReportAllEmail(w io.Writer) error {
 	return nil
 }
 
-// structured for Google Groups CSV upload
+// ReportFontEmail writes a report structured for Google Groups CSV upload
 func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
@@ -144,7 +141,7 @@ func ReportFontEmailed(w io.Writer) error {
 	return nil
 }
 
-func ReportSubscriber() ([]*Subscriber, error) {
+/* func ReportSubscriber() ([]*Subscriber, error) {
 	var subscribers []*Subscriber
 
 	rows, err := db.Query("SELECT id FROM subscriber ORDER BY Name")
@@ -165,23 +162,35 @@ func ReportSubscriber() ([]*Subscriber, error) {
 		subscribers = append(subscribers, sub)
 	}
 	return subscribers, nil
-}
+} */
 
-// Returns a slice of IDs
+// ActiveMemberIDs returns All Annual Vows, Life Vows and Friends
 func ActiveMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' OR MemberStatus = 'Friend' ORDER BY LastName, FirstName")
 }
 
+// AnnualMemberIDs does what it says
 func AnnualMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
 }
 
+// LifeMemberIDs does what it says
 func LifeMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 }
 
+// FriendsIDs does what it says
 func FriendIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
+}
+
+// ReminderAnnual returns those who have not reaffirmed in the past year
+func ReminderAnnual() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")
+}
+
+func TestMemberIDs() ([]MemberID, error) {
+	return []MemberID{1078}, nil
 }
 
 func reportMemberIDQuery(query string) ([]MemberID, error) {
@@ -207,9 +216,9 @@ func reportMemberIDQuery(query string) ([]MemberID, error) {
 }
 
 // Returns a slice of IDs
-func ActiveSubscriberIDs() ([]SubscriberID, error) {
+/* func ActiveSubscriberIDs() ([]SubscriberID, error) {
 	return reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) ORDER BY Name")
-}
+} */
 
 func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 	var id int
@@ -301,7 +310,7 @@ func DoxologyPrinted(w io.Writer) error {
 	return nil
 }
 
-// structured for Google Groups CSV upload
+// DoxologyEmailed writes a report that is structured for Google Groups CSV upload
 func DoxologyEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role", "Name"})
@@ -317,7 +326,7 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		_ = r.Write([]string{"doxology-distribution@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
+		_ = r.Write([]string{"doxology@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
 	}
 
 	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
@@ -331,7 +340,7 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		_ = r.Write([]string{"doxology-distribution@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
+		_ = r.Write([]string{"doxology@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
 	}
 	r.Flush()
 	return nil

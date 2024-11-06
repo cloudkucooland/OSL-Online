@@ -33,20 +33,27 @@ func postEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
+	subject := r.PostFormValue("subject")
+	if subject == "" {
+		err := fmt.Errorf("subject not set")
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
 
 	var ids []model.MemberID
 	var err error
 	switch whom {
-	case "all":
+	/* case "all":
 		ids, err = model.ActiveMemberIDs()
 	case "annual":
 		ids, err = model.AnnualMemberIDs()
 	case "life":
 		ids, err = model.LifeMemberIDs()
 	case "friends":
-		ids, err = model.FriendIDs()
+		ids, err = model.FriendIDs() */
 	default:
-		ids = make([]model.MemberID, 0)
+		ids, err = model.TestMemberIDs()
 	}
 	if err != nil {
 		slog.Error(err.Error())
@@ -54,7 +61,9 @@ func postEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	if err := email.SendGeneric(ids, message); err != nil {
+	slog.Info("sending bulk email", "whom", whom, "subject", subject, "from", getUser(r))
+
+	if err := email.SendGeneric(ids, subject, message); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
