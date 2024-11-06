@@ -26,7 +26,7 @@ func setup() (*hermes.Hermes, error) {
 		Product: hermes.Product{
 			Name: "The Order of Saint Luke",
 			Link: "https://saint-luke.net/",
-			Logo: "https://saint-luke.net/wp-content/themes/elevation_theme/assets/images/logo-footer.svg",
+			Logo: "https://saint-luke.net/static/logo.png",
 		},
 	}
 	return &h, nil
