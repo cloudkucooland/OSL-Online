@@ -32,6 +32,7 @@
 	import SearchEmail from './routes/SearchEmail.svelte';
 	import { getMe, getChapters } from './oo';
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
+	import Email from './routes/Email.svelte';
 
 	const _init = getMe();
 	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });
@@ -58,6 +59,7 @@
 		'/leadership/': Leadership,
 		'/searchemail/': SearchEmail,
 		'/localitybrowser/': LocalityBrowser,
+		'/email/': Email,
 		'*': HomePage
 	};
 </script>
@@ -76,6 +78,8 @@
 			<NavLi href="#/leadership">Leadership</NavLi>
 			{#if $me && $me.level >= 1}
 				<NavLi href="#/reports">Reports</NavLi>{/if}
+			{#if $me && $me.level == 2}
+				<NavLi href="#/email">Email</NavLi>{/if}
 		</NavUl>
 	</Navbar>
 	<div class="flex gap-10"></div>
