@@ -51,6 +51,8 @@ func getServeMux() *httprouter.Router {
 	// reports
 	m.GET("/api/v1/report/:report", authMW(reports, AuthLevelManager))
 
+	m.POST("/api/v1/email", authMW(postEmail, AuthLevelAdmin))
+
 	// manage chapters
 	m.GET("/api/v1/chapter", getChapters) // public
 	m.PUT("/api/v1/chapter/:id", authMW(postChapter, AuthLevelAdmin))
