@@ -179,6 +179,10 @@ func LifeMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 }
 
+// NewMemberIDs does what it says
+func NewMemberIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateFirstVows > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY LastName, FirstName")
+}
 // FriendsIDs does what it says
 func FriendIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
