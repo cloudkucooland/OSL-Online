@@ -2,7 +2,7 @@
 	import { getContext } from 'svelte';
 	import { Label, Input, Button } from 'flowbite-svelte';
 	import { push } from 'svelte-spa-router';
-	import { getMe, createMember } from '../oo';
+	import { createMember } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
 	const { me } = getContext('oo');

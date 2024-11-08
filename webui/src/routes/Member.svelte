@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import {
-		getMe,
 		getMember,
 		updateMember,
 		getMemberChapters,

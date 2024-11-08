@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { getMe, getMember, getGiving, postGiving } from '../oo';
+	import { getMember, getGiving, postGiving } from '../oo';
 	import { Label, Input, Button, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
@@ -19,7 +19,6 @@
 	let transaction = 0;
 
 	async function add() {
-		console.log(params.id, postdate, amount, description, check, transaction);
 		try {
 			await postGiving(params.id, postdate, amount, description, check, transaction);
 			toast.push(`Posted`);

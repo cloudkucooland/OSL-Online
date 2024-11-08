@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { getMe, getSubscriber, updateSubscriber } from '../oo';
+	import { getSubscriber, updateSubscriber } from '../oo';
 	import { Label, Input, Checkbox, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 

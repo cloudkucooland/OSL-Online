@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { push } from 'svelte-spa-router';
-	import { getMe, report } from '../oo';
+	import { report } from '../oo';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {
