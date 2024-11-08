@@ -28,15 +28,12 @@ func (m *Member) Changelog() ([]ChangeLogEntry, error) {
 	defer rows.Close()
 
 	var c ChangeLogEntry
-	var d string
 	for rows.Next() {
-		err := rows.Scan(&c.ID, &c.Changer, &c.Field, &c.Value, &d)
+		err := rows.Scan(&c.ID, &c.Changer, &c.Field, &c.Value, &c.Date)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
-		c.Date, _ = time.Parse(timeformat, d)
-
 		cr = append(cr, c)
 	}
 	return cr, nil
