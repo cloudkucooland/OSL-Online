@@ -57,7 +57,8 @@
 		'/addsubscriber/': AddSubscriber,
 		'/chapterbrowser/': ChapterBrowser,
 		'/leadership/': Leadership,
-		'/searchemail/': SearchEmail,
+		'/searchemail': SearchEmail,
+		'/searchemail/:id': SearchEmail,
 		'/localitybrowser/': LocalityBrowser,
 		'/email/': Email,
 		'*': HomePage

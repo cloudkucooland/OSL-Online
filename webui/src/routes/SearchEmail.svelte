@@ -31,7 +31,7 @@
 					{ id: 0, FirstName: 'no results', LastName: '', PreferredName: '', MemberStatus: '' }
 				];
 			}
-			replace(`/emailsearch/${query}`);
+			replace(`#/searchemail/${query}`);
 		} catch (e) {
 			console.log(e);
 			toast.push(e.message);
@@ -41,7 +41,7 @@
 	async function resetSearch(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		push(`/`);
+		push(`#/searchemail`);
 		result = '';
 	}
 </script>
