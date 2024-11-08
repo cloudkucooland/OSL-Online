@@ -7,7 +7,7 @@ import (
 )
 
 func SendRegister(addr string, password string) error {
-	h, err := setup()
+	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -46,7 +46,7 @@ func SendRegister(addr string, password string) error {
 		return err
 	}
 
-	if err := send(addr, "OSL Directory Register / Password Reset requested", body, text); err != nil {
+	if err := Send(addr, "OSL Directory Register / Password Reset requested", body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

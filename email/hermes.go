@@ -12,7 +12,7 @@ import (
 var senderEmail string
 var senderIdentity string
 
-func setup() (*hermes.Hermes, error) {
+func Setup() (*hermes.Hermes, error) {
 	senderEmail = os.Getenv("SENDER_EMAIL")
 	if senderEmail == "" {
 		senderEmail = "wembaster@saint-luke.net"
@@ -32,7 +32,7 @@ func setup() (*hermes.Hermes, error) {
 	return &h, nil
 }
 
-func send(to string, subject string, htmlBody string, txtBody string) error {
+func Send(to string, subject string, htmlBody string, txtBody string) error {
 	from := mail.Address{
 		Name:    senderIdentity,
 		Address: senderEmail,

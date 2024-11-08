@@ -18,7 +18,7 @@ func SendBirthdayMail(members []*BirthdayEmailEntry, month time.Month, day int) 
 		return nil
 	}
 
-	h, err := setup()
+	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -71,7 +71,7 @@ func SendBirthdayMail(members []*BirthdayEmailEntry, month time.Month, day int) 
 		return err
 	}
 
-	if err := send("birthdays@saint-luke.net", "Today's OSL Birthdays", body, text); err != nil {
+	if err := Send("birthdays@saint-luke.net", "Today's OSL Birthdays", body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

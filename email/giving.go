@@ -8,7 +8,7 @@ import (
 )
 
 func SendGiving(id model.MemberID, amount string, description string) error {
-	h, err := setup()
+	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -64,7 +64,7 @@ func SendGiving(id model.MemberID, amount string, description string) error {
 		return err
 	}
 
-	if err := send(member.PrimaryEmail, "OSL Donation Receipt", body, text); err != nil {
+	if err := Send(member.PrimaryEmail, "OSL Donation Receipt", body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

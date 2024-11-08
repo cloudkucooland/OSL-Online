@@ -9,7 +9,7 @@ import (
 )
 
 func SendGeneric(ids []model.MemberID, subject string, message string) error {
-	h, err := setup()
+	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -58,7 +58,7 @@ func sendGeneric(id model.MemberID, subject string, intros []string, h *hermes.H
 		return err
 	}
 
-	if err := send(member.PrimaryEmail, subject, body, text); err != nil {
+	if err := Send(member.PrimaryEmail, subject, body, text); err != nil {
 		slog.Error(err.Error())
 		return err
 	}
