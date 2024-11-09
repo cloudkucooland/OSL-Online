@@ -1,0 +1,112 @@
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+	"time"
+
+	"github.com/cloudkucooland/OSL-Online/email"
+	"github.com/cloudkucooland/OSL-Online/model"
+	"strings"
+	"github.com/matcornic/hermes/v2"
+)
+
+func main() {
+	dbpath := os.Getenv("OO_DB")
+	if dbpath == "" {
+		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
+	}
+
+	if err := model.Connect(context.Background(), dbpath); err != nil {
+		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
+		panic(err)
+	}
+
+	members, err := model.NewMemberIDs()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, id := range members {
+		if err := SendMessage(id); err != nil {
+			panic(err)
+		}
+	}
+}
+
+const message = `For the past year or so, certificates of membership have not been sent to new members. I'm going through our records trying to identify those who have not received their certificates.
+
+If you have not received your membership certificate, please reply to this email and say "Yes, I need my certificate."
+
+Please verifiy the data of your first vows and let me know if our records are not correct.
+
+If your address is not correct in our database, please use the online reaffirmation form (even if you've already reaffirmed in the past 12 months) to update your address.
+`
+
+
+func SendMessage(id model.MemberID) error {
+	h, err := email.Setup()
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	member, err := id.Get(true)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	if member.PrimaryEmail == "" {
+		return nil
+	}
+	slog.Info("sending to", "member", member.OSLName(), "firstvows", member.DateFirstVows.Format(time.DateOnly))
+
+	intros := strings.Split(message, "\n")
+	addr, _ := model.FormatAddress(member)
+	intros = append(intros, addr)
+	intros = append(intros, "First Vows: " + member.DateFirstVows.Format(time.DateOnly))
+
+	e := hermes.Email{
+		Body: hermes.Body{
+			Name:   member.OSLShortName(),
+			Intros: intros,
+			Actions: []hermes.Action{
+				{
+					Button: hermes.Button{
+						Text: "Online Directory",
+						Link: "https://saint-luke.net/oo/",
+					},
+				},
+				{
+					Button: hermes.Button{
+						Text: "Online Reaffirmation",
+						Link: "https://saint-luke.net/reaffirmation/",
+					},
+				},
+			},
+			Outros: []string{
+				"Living the sacramental life",
+			},
+		},
+	}
+
+	body, err := h.GenerateHTML(e)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	text, err := h.GeneratePlainText(e)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	if err := email.Send(member.PrimaryEmail, "OSL Membership Certificate", body, text); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
