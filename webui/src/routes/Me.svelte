@@ -336,7 +336,7 @@
 					<Select id="Leadership" items={leadership} value={r.Leadership} disabled="true" />
 				</div>
 				<div class="col-span-2">
-					<Label for="Chapters" class="block">Chapters</Label>
+					<Label for="Chapters" class="block" style="color: red">Chapters</Label>
 					<MultiSelect
 						id="Chapters"
 						items={chaps}
