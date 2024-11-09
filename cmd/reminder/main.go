@@ -28,7 +28,7 @@ func main() {
 	}
 
 	for _, id := range members {
-		if err := email.SendReminder(id); err != nil {
+		if err := sendReminder(id); err != nil {
 			panic(err)
 		}
 	}
@@ -42,7 +42,7 @@ If you no longer wish to reaffirm the vows you can reply to this email and infor
 
 Membership in the order does not require financial donations. If you choose to donate you may opt to receive the periodicals in printed form. Those who do not donate will receive the periodicals via email.`
 
-func SendReminder(id model.MemberID) error {
+func sendReminder(id model.MemberID) error {
 	h, err := email.Setup()
 	if err != nil {
 		slog.Error(err.Error())
