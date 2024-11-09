@@ -32,7 +32,7 @@ func getLocalityMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 
 	q := ps.ByName("joint")
 
-	slog.Info("locality search", "locality", q)
+	slog.Info("locality search", "locality", q, "requester", getUser(r))
 
 	chunks := strings.Split(q, "-")
 	var country, locality string

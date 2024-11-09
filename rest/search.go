@@ -46,7 +46,7 @@ func postSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		unlisted = true
 	}
 
-	slog.Info("search", "query", query, "by", getUser(r))
+	slog.Info("search", "query", query, "requester", getUser(r))
 	result, err := model.Search(query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
@@ -88,7 +88,7 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		unlisted = true
 	}
 
-	slog.Info("search email", "query", query, "by", getUser(r))
+	slog.Info("search email", "query", query, "requester", getUser(r))
 	result, err := model.SearchEmail(query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
