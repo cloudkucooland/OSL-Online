@@ -345,15 +345,15 @@
 					/>
 				</div>
 				<div class="col-span-2">
-					<Label for="Occupation" class="block">Occupation</Label>
+					<Label for="Occupation" class="block" style="color: red">Occupation</Label>
 					<Input id="Occupation" value={r.Occupation} on:change={change} />
 				</div>
 				<div class="col-span-2">
-					<Label for="Employer" class="block">Employer</Label>
+					<Label for="Employer" class="block" style="color: red">Employer</Label>
 					<Input id="Employer" value={r.Employer} on:change={change} />
 				</div>
 				<div class="col-span-2">
-					<Label for="Denomination" class="block">Denomination</Label>
+					<Label for="Denomination" class="block" style="color: red">Denomination</Label>
 					<Input id="Denomination" value={r.Denomination} on:change={change} />
 				</div>
 			</div>
