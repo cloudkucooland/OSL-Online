@@ -17,7 +17,11 @@ type GivingRecord struct {
 }
 
 func (n GivingRecord) Store() error {
-	_, err := db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,curdate())", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description)
+	zt, _ := time.Parse(timeformat, zerotime)
+	if n.Date == zt {
+		n.Date = time.Now()
+	}
+	_, err := db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,?)", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description, makeNullTime(n.Date))
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -8,7 +8,7 @@ import (
 
 // SearchResult is the format sent to the UI
 type SearchResult struct {
-	ID              int
+	ID              MemberID
 	MemberStatus    string
 	FirstName       string
 	LastName        string

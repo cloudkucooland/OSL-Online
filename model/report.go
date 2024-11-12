@@ -271,7 +271,7 @@ func ReportAvery(w io.Writer) error {
 
 func DoxologyPrinted(w io.Writer) error {
 	r := csv.NewWriter(w)
-	_ = r.Write([]string{"Name", "Address"})
+	_ = r.Write([]string{"Last Name", "First Name", "Address", "City", "State", "Zip Code", "Country"})
 
 	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
@@ -284,11 +284,7 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		f, err := FormatAddress(m)
-		if err != nil {
-			continue
-		}
-		member := []string{m.OSLName(), f}
+		member := []string{m.LastName, m.FirstName, m.Address, m.City, m.State, m.PostalCode, m.Country }
 		_ = r.Write(member)
 	}
 
@@ -303,11 +299,7 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		f, err := FormatAddress(s)
-		if err != nil {
-			continue
-		}
-		subscriber := []string{s.Name, f}
+		subscriber := []string{s.Name, s.Attn, s.Address, s.City, s.State, s.PostalCode, s.Country}
 		_ = r.Write(subscriber)
 	}
 	r.Flush()
