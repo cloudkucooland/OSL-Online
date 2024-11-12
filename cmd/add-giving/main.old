@@ -1,0 +1,89 @@
+package main
+
+import (
+	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/cloudkucooland/OSL-Online/model"
+)
+
+var errTime time.Time
+
+func main() {
+	ctx, shutdown := context.WithCancel(context.Background())
+
+	dbpath := os.Getenv("OO_DB")
+	if dbpath == "" {
+		panic("OO_DB not set")
+	}
+
+	if err := model.Connect(ctx, dbpath); err != nil {
+		panic(err)
+	}
+
+	f, err := os.Open("data.csv")
+	if err != nil {
+		panic(err)
+	}
+
+	r := csv.NewReader(f)
+	r.LazyQuotes = true
+	r.TrimLeadingSpace = true
+	r.ReuseRecord = true
+
+	for {
+		d, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		if d[19] == "" {
+			continue
+		}
+		if d[45] != "Paid" {
+			continue
+		}
+
+		ids, err := model.SearchEmail(d[19], true)
+		if len(ids) != 1 {
+			continue
+		}
+
+		member, err := ids[0].ID.Get(true)
+		if err != nil {
+			continue
+		}
+		fmt.Println(member.OSLName())
+
+		ammount, err := strconv.ParseFloat(d[43], 64)
+		if err != nil {
+			panic(err)
+		}
+
+		date, err := time.Parse(time.DateTime, d[44])
+		if err != nil {
+			panic(err)
+		}
+
+		gr := model.GivingRecord {
+			EntryID:     0,
+			ID:          ids[0].ID,
+			Amount:      ammount,
+			Check:       0,
+			Transaction: d[42],
+			Description: "Annual Reaffirmation",
+			Date:        date,
+		}
+		gr.Store()
+	}
+	shutdown()
+}
+
