@@ -151,7 +151,7 @@
 					<Input id="LifeVowName" value={r.LifeVowName} on:change={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
-					<Label for="PreferedName" class="block" style="color: red">Preferred Name</Label>
+					<Label for="PreferedName" class="block" style="color: red">Preferred Name (If different from First Name)</Label>
 					<Input id="PreferredName" value={r.PreferredName} on:change={change} />
 				</div>
 				<div class="col-span-2">
