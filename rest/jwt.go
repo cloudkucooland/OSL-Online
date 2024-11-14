@@ -13,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/cloudkucooland/OSL-Online/model"
 
 	"github.com/julienschmidt/httprouter"
@@ -84,17 +82,10 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	pwhash, level, err := model.GetAuthData(username)
-	if err != nil || pwhash == "" {
-		err := fmt.Errorf("the email address %s has not yet been registered", username)
-		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(pwhash), []byte(password)); err != nil {
+	level, err := model.Authenticate(username, password)
+	if err != nil {
 		slog.Error("login failed", "err", err)
-		http.Error(res, "Invalid username/password", http.StatusNotAcceptable)
+		http.Error(res, err.Error(), http.StatusNotAcceptable)
 		return
 	}
 

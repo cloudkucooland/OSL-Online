@@ -10,7 +10,7 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
-func GetAuthData(id string) (string, uint8, error) {
+func getAuthData(id string) (string, uint8, error) {
 	var pwhash string
 	var level uint8
 	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", id).Scan(&pwhash, &level)
@@ -25,6 +25,23 @@ func GetAuthData(id string) (string, uint8, error) {
 	}
 	return pwhash, level, nil
 }
+
+func Authenticate(username string, password string) (uint8, error) {
+	pwhash, level, err := getAuthData(username)
+	if err != nil || pwhash == "" {
+		err := fmt.Errorf("the email address %s has not yet been registered", username)
+		slog.Error(err.Error())
+		return 0, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(pwhash), []byte(password)); err != nil {
+		slog.Error("login failed", "err", err)
+		return 0, err
+	}
+
+	return level, nil
+}
+
 
 func SetAuthData(id string, pw string, level int) error {
 	slog.Info("updating password", "id", id)
