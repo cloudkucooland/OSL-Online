@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log/slog"
 	"time"
@@ -183,6 +184,7 @@ func LifeMemberIDs() ([]MemberID, error) {
 func NewMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateFirstVows > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY LastName, FirstName")
 }
+
 // FriendsIDs does what it says
 func FriendIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
@@ -223,6 +225,28 @@ func reportMemberIDQuery(query string) ([]MemberID, error) {
 /* func ActiveSubscriberIDs() ([]SubscriberID, error) {
 	return reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) ORDER BY Name")
 } */
+
+func ReportAllSubscribers(w io.Writer) error {
+	r := csv.NewWriter(w)
+	_ = r.Write([]string{"ID", "Name", "Attn", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryPhone", "SecondaryPhone", "PrimaryEmail", "SecondaryEmail", "DateRecordCreated", "DatePaid", "Doxology", "Newsletter", "Communication"})
+
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber ORDER BY id")
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	for _, id := range subscribers {
+		s, err := id.Get()
+		if err != nil {
+			continue
+		}
+		subscriber := []string{fmt.Sprintf("%d", s.ID), s.Name, s.Attn, s.Address, s.AddressLine2, s.City, s.State, s.Country, s.PostalCode, s.PrimaryPhone, s.SecondaryPhone, s.PrimaryEmail, s.SecondaryEmail, s.DateRecordCreated.Format(time.DateOnly), s.DatePaid.Format(time.DateOnly), s.Doxology, s.Newsletter, s.Communication}
+		_ = r.Write(subscriber)
+	}
+	r.Flush()
+	return nil
+}
 
 func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 	var id int
@@ -284,7 +308,7 @@ func DoxologyPrinted(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		member := []string{m.LastName, m.FirstName, m.Address, m.City, m.State, m.PostalCode, m.Country }
+		member := []string{m.LastName, m.FirstName, m.Address, m.City, m.State, m.PostalCode, m.Country}
 		_ = r.Write(member)
 	}
 

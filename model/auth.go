@@ -42,7 +42,6 @@ func Authenticate(username string, password string) (uint8, error) {
 	return level, nil
 }
 
-
 func SetAuthData(id string, pw string, level int) error {
 	slog.Info("updating password", "id", id)
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pw), 14)

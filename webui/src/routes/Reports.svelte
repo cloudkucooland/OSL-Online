@@ -37,4 +37,9 @@
 			>Font Email List (for google groups update)</a
 		>
 	</li>
+	<li>
+		<a href="#/reports" on:click={() => report('allsubscribers')}
+			>All Subscribers</a
+		>
+	</li>
 </ul>
