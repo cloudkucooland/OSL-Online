@@ -14,11 +14,10 @@ func FormatPhoneNumber(number string, country string) (string, error) {
 		return "", err
 	}
 
-	pf := ""
+	mode := phonenumbers.INTERNATIONAL
 	if country == "US" || country == "CA" {
-		pf = phonenumbers.Format(p, phonenumbers.NATIONAL)
-	} else {
-		pf = phonenumbers.Format(p, phonenumbers.INTERNATIONAL)
+		mode = phonenumbers.NATIONAL
 	}
-	return pf, nil
+	formatted := phonenumbers.Format(p, mode)
+	return formatted, nil
 }
