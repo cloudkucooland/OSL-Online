@@ -10,9 +10,9 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/jwx/v2 v2.1.1
 	github.com/matcornic/hermes/v2 v2.1.0
-	github.com/nyaruka/phonenumbers v1.4.1
+	github.com/nyaruka/phonenumbers v1.4.2
 	github.com/sethvargo/go-password v0.3.1
-	golang.org/x/crypto v0.25.0
+	golang.org/x/crypto v0.29.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
@@ -45,9 +45,11 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20191214114701-be27abe028fe // indirect
-	golang.org/x/net v0.21.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
+	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
