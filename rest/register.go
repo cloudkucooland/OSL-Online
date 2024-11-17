@@ -19,22 +19,22 @@ func postRegister(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	addr := strings.TrimSpace(r.PostFormValue("email"))
-	if addr == "" {
+	username := model.Authname(strings.TrimSpace(r.PostFormValue("email")))
+	if username == "" {
 		err := fmt.Errorf("email not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	password, err := model.Register(addr)
+	password, err := username.Register()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 
-	if err := email.SendRegister(addr, password); err != nil {
+	if err := email.SendRegister(username.String(), password); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 	}

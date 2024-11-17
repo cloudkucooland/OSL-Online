@@ -14,8 +14,8 @@ import (
 
 func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	email := getUser(r)
-	id, err := model.GetID(email)
+	username := model.Authname(getUser(r))
+	id, err := username.GetID()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -39,8 +39,8 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	email := getUser(r)
-	id, err := model.GetID(email)
+	username := model.Authname(getUser(r))
+	id, err := username.GetID()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -71,8 +71,8 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 func setMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	email := getUser(r)
-	id, err := model.GetID(email)
+	username := model.Authname(getUser(r))
+	id, err := username.GetID()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -105,8 +105,8 @@ func setMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	email := getUser(r)
-	id, err := model.GetID(email)
+	username := model.Authname(getUser(r))
+	id, err := username.GetID()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

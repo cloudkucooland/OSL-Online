@@ -26,7 +26,7 @@ import (
 const jwtSignerFilename = "signer.jwk"
 const stateStore = "/var/oo"
 
-func mintjwt(username string, level authLevel) (string, error) {
+func mintjwt(username model.Authname, level authLevel) (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return "", err
@@ -66,7 +66,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	username := req.PostFormValue("username")
+	username := model.Authname(req.PostFormValue("username"))
 	if username == "" {
 		err := fmt.Errorf("login: username not set")
 		slog.Error(err.Error())
@@ -82,7 +82,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	level, err := model.Authenticate(username, password)
+	level, err := username.Authenticate(password)
 	if err != nil {
 		slog.Error("login failed", "err", err)
 		http.Error(res, err.Error(), http.StatusNotAcceptable)

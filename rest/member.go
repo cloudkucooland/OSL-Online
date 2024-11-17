@@ -84,8 +84,8 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	email := getUser(r)
-	changer, err := model.GetID(email)
+	username := model.Authname(getUser(r))
+	changer, err := username.GetID()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

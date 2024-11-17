@@ -10,13 +10,20 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
-func getAuthData(id string) (string, uint8, error) {
+type Authname string
+
+// String satisfies the stringer interface
+func (u Authname) String() string {
+	return string(u)
+}
+
+func (u Authname) getAuthData() (string, uint8, error) {
 	var pwhash string
 	var level uint8
-	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", id).Scan(&pwhash, &level)
+	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", u).Scan(&pwhash, &level)
 	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("user %s not found", id)
-		slog.Error(err.Error(), "id", id)
+		err = fmt.Errorf("user %s not found", u)
+		slog.Error(err.Error(), "username", u)
 		return "", 0, err
 	}
 	if err != nil {
@@ -26,10 +33,10 @@ func getAuthData(id string) (string, uint8, error) {
 	return pwhash, level, nil
 }
 
-func Authenticate(username string, password string) (uint8, error) {
-	pwhash, level, err := getAuthData(username)
+func (u Authname) Authenticate(password string) (uint8, error) {
+	pwhash, level, err := u.getAuthData()
 	if err != nil || pwhash == "" {
-		err := fmt.Errorf("the email address %s has not yet been registered", username)
+		err := fmt.Errorf("the email address %s has not yet been registered", u)
 		slog.Error(err.Error())
 		return 0, err
 	}
@@ -42,23 +49,23 @@ func Authenticate(username string, password string) (uint8, error) {
 	return level, nil
 }
 
-func SetAuthData(id string, pw string, level int) error {
-	slog.Info("updating password", "id", id)
+func (u Authname) SetAuthData(pw string, level int) error {
+	slog.Info("updating password", "username", u)
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pw), 14)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("REPLACE INTO auth VALUES (?,?,?)", id, bytes, level)
+	_, err = db.Exec("REPLACE INTO auth VALUES (?,?,?)", u, bytes, level)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func Register(addr string) (string, error) {
-	slog.Info("registering user", "email", addr)
-	if _, err := GetID(addr); err != nil {
+func (u Authname) Register() (string, error) {
+	slog.Info("registering user", "username", u)
+	if _, err := u.GetID(); err != nil {
 		return "", err
 	}
 
@@ -68,7 +75,7 @@ func Register(addr string) (string, error) {
 		return "", err
 	}
 
-	if err := SetAuthData(addr, password, 0); err != nil {
+	if err := u.SetAuthData(password, 0); err != nil {
 		slog.Error(err.Error())
 		return password, err
 	}
@@ -77,12 +84,12 @@ func Register(addr string) (string, error) {
 	return password, nil
 }
 
-func GetID(addr string) (MemberID, error) {
+func (u Authname) GetID() (MemberID, error) {
 	var id MemberID
-	err := db.QueryRow("SELECT id FROM member WHERE PrimaryEmail = ?", addr).Scan(&id)
+	err := db.QueryRow("SELECT id FROM member WHERE PrimaryEmail = ?", u).Scan(&id)
 	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("unknown email address")
-		slog.Error(err.Error(), "addr", addr)
+		err = fmt.Errorf("unknown primary email address")
+		slog.Error(err.Error(), "username", u)
 		return 0, err
 	}
 	if err != nil {
