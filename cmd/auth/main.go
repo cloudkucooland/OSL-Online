@@ -14,7 +14,7 @@ const usage = "auth username password level"
 
 func main() {
 	flag.Parse()
-	username := flag.Arg(0)
+	username := model.Authname(flag.Arg(0))
 	password := flag.Arg(1)
 	level := flag.Arg(2)
 	if username == "" || password == "" || level == "" {
@@ -38,7 +38,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	if err := model.SetAuthData(username, password, ll); err != nil {
+	if err := username.SetAuthData(password, ll); err != nil {
 		panic(err.Error())
 	}
 }
