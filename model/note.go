@@ -7,13 +7,13 @@ import (
 type NoteID uint
 
 type Note struct {
-	ID NoteID
+	ID     NoteID
 	member MemberID
-	date time.Time
-	note string
+	date   time.Time
+	note   string
 }
 
-func  (m MemberID) GetNotes() ([]Note, error) {
+func (m MemberID) GetNotes() ([]Note, error) {
 	notes := make([]Note, 0)
 
 	// TODO XXX

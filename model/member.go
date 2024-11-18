@@ -377,55 +377,55 @@ func Create(firstname, lastname string) (MemberID, error) {
 func (n *Member) CleanUnlisted() {
 	zt, _ := time.Parse(timeformat, zerotime)
 
-	if !n.ListInDirectory  {
-		n.FirstName= ""
-		n.LastName= ""
-		n.MiddleName= ""
-		n.PreferredName= ""
-		n.Title  = ""
-		n.LifevowName  = ""
-		n.Suffix  = ""
-		n.BirthDate  = zt
-		n.DateNovitiate  = zt
-		n.DateRemoved  = zt
-		n.DateFirstVows  = zt
-		n.DateReaffirmation  = zt
-		n.DateDeceased  = zt
-		n.Status  = ""
-		n.Occupation  = ""
-		n.Employer  = ""
-		n.Denomination  = ""
-		n.HowRemoved  = ""
-		n.ListAddress  = false
-		n.ListPrimaryPhone  = false
-		n.ListSecondaryPhone  = false
-		n.ListPrimaryEmail  = false
-		n.ListSecondaryEmail  = false
+	if !n.ListInDirectory {
+		n.FirstName = ""
+		n.LastName = ""
+		n.MiddleName = ""
+		n.PreferredName = ""
+		n.Title = ""
+		n.LifevowName = ""
+		n.Suffix = ""
+		n.BirthDate = zt
+		n.DateNovitiate = zt
+		n.DateRemoved = zt
+		n.DateFirstVows = zt
+		n.DateReaffirmation = zt
+		n.DateDeceased = zt
+		n.Status = ""
+		n.Occupation = ""
+		n.Employer = ""
+		n.Denomination = ""
+		n.HowRemoved = ""
+		n.ListAddress = false
+		n.ListPrimaryPhone = false
+		n.ListSecondaryPhone = false
+		n.ListPrimaryEmail = false
+		n.ListSecondaryEmail = false
 	}
 
-	if !n.ListAddress  {
-		n.Address  = ""
-		n.AddressLine2  = ""
-		n.City  = ""
-		n.State  = ""
-		n.Country  = ""
-		n.PostalCode  = ""
+	if !n.ListAddress {
+		n.Address = ""
+		n.AddressLine2 = ""
+		n.City = ""
+		n.State = ""
+		n.Country = ""
+		n.PostalCode = ""
 	}
 
-	if !n.ListPrimaryPhone  {
-		n.PrimaryPhone  = ""
+	if !n.ListPrimaryPhone {
+		n.PrimaryPhone = ""
 	}
 
-	if !n.ListSecondaryPhone  {
-		n.SecondaryPhone  = ""
+	if !n.ListSecondaryPhone {
+		n.SecondaryPhone = ""
 	}
 
-	if !n.ListPrimaryEmail  {
-		n.PrimaryEmail  = ""
+	if !n.ListPrimaryEmail {
+		n.PrimaryEmail = ""
 	}
 
-	if !n.ListSecondaryEmail  {
-		n.SecondaryEmail  = ""
+	if !n.ListSecondaryEmail {
+		n.SecondaryEmail = ""
 	}
 }
 
