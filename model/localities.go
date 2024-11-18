@@ -15,8 +15,8 @@ type Locality struct {
 	Locality     string
 }
 
-func Localities() ([]Locality, error) {
-	localities := make([]Locality, 0)
+func Localities() ([]*Locality, error) {
+	localities := make([]*Locality, 0)
 
 	rows, err := db.Query("SELECT DISTINCT Country, State FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND ListInDirectory = true ORDER BY Country, State")
 	if err != nil && err == sql.ErrNoRows {
@@ -62,7 +62,7 @@ func Localities() ([]Locality, error) {
 			}
 		}
 
-		localities = append(localities, l)
+		localities = append(localities, &l)
 	}
 	return localities, nil
 }

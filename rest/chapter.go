@@ -40,7 +40,7 @@ func getChapterMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 
 	chapter := model.Chapter{
-		ID: id,
+		ID: model.ChapterID(id),
 	}
 	slog.Info("chapter membership", "chapter", id, "requester", getUser(r))
 	members, err := chapter.Members()
@@ -102,9 +102,9 @@ func postChapter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	c := model.Chapter{
-		ID:    id,
+		ID:    model.ChapterID(id),
 		Name:  name,
-		Prior: prior,
+		Prior: model.MemberID(prior),
 	}
 	if err := c.Store(); err != nil {
 		slog.Error(err.Error())

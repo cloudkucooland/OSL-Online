@@ -14,8 +14,8 @@ type SubSearchResult struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-func SubscriberSearch(query string) ([]SubSearchResult, error) {
-	var res []SubSearchResult
+func SubscriberSearch(query string) ([]*SubSearchResult, error) {
+	var res []*SubSearchResult
 	var attn sql.NullString
 	var n SubSearchResult
 
@@ -37,7 +37,7 @@ func SubscriberSearch(query string) ([]SubSearchResult, error) {
 		if attn.Valid {
 			n.Attn = attn.String
 		}
-		res = append(res, n)
+		res = append(res, &n)
 	}
 
 	return res, nil

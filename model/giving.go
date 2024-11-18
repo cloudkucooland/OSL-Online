@@ -16,7 +16,7 @@ type GivingRecord struct {
 	Date        time.Time
 }
 
-func (n GivingRecord) Store() error {
+func (n *GivingRecord) Store() error {
 	zt, _ := time.Parse(timeformat, zerotime)
 	if n.Date == zt {
 		n.Date = time.Now()
@@ -29,8 +29,8 @@ func (n GivingRecord) Store() error {
 	return nil
 }
 
-func (id MemberID) GivingRecords() ([]GivingRecord, error) {
-	gr := make([]GivingRecord, 0)
+func (id MemberID) GivingRecords() ([]*GivingRecord, error) {
+	gr := make([]*GivingRecord, 0)
 
 	rows, err := db.Query("SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", id)
 	if err != nil && err == sql.ErrNoRows {
@@ -49,7 +49,7 @@ func (id MemberID) GivingRecords() ([]GivingRecord, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		gr = append(gr, g)
+		gr = append(gr, &g)
 	}
 	return gr, nil
 }

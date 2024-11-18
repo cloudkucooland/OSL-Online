@@ -16,8 +16,8 @@ type SearchResult struct {
 	ListInDirectory bool
 }
 
-func Search(query string, unlisted bool) ([]SearchResult, error) {
-	var res []SearchResult
+func Search(query string, unlisted bool) ([]*SearchResult, error) {
+	var res []*SearchResult
 	var n SearchResult
 
 	qq := fmt.Sprintf("%%%s%%", query)
@@ -46,15 +46,15 @@ func Search(query string, unlisted bool) ([]SearchResult, error) {
 			n.PreferredName = ""
 		}
 		if unlisted || n.ListInDirectory {
-			res = append(res, n)
+			res = append(res, &n)
 		}
 	}
 
 	return res, nil
 }
 
-func SearchEmail(query string, unlisted bool) ([]SearchResult, error) {
-	var res []SearchResult
+func SearchEmail(query string, unlisted bool) ([]*SearchResult, error) {
+	var res []*SearchResult
 	var n SearchResult
 
 	var pn sql.NullString
@@ -81,7 +81,7 @@ func SearchEmail(query string, unlisted bool) ([]SearchResult, error) {
 			n.PreferredName = ""
 		}
 		if unlisted || n.ListInDirectory {
-			res = append(res, n)
+			res = append(res, &n)
 		}
 	}
 

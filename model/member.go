@@ -500,6 +500,6 @@ func (m *Member) GetChapters() ([]int, error) {
 	return chapters, nil
 }
 
-func (m Member) ISOCountry() string {
+func (m *Member) ISOCountry() string {
 	return m.Country
 }

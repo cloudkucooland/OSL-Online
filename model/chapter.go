@@ -5,10 +5,12 @@ import (
 	"log/slog"
 )
 
+type ChapterID int
+
 type Chapter struct {
-	ID    int
+	ID    ChapterID
 	Name  string
-	Prior int
+	Prior MemberID
 }
 
 func (c *Chapter) Store() error {
@@ -29,8 +31,8 @@ func (c *Chapter) Remove() error {
 	return nil
 }
 
-func Chapters() ([]Chapter, error) {
-	ch := make([]Chapter, 0)
+func Chapters() ([]*Chapter, error) {
+	ch := make([]*Chapter, 0)
 
 	rows, err := db.Query("SELECT `id`, `name`, `prior` FROM `chapters` ORDER BY `name`")
 	if err != nil && err == sql.ErrNoRows {
@@ -49,7 +51,7 @@ func Chapters() ([]Chapter, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		ch = append(ch, c)
+		ch = append(ch, &c)
 	}
 	return ch, nil
 }

@@ -13,15 +13,15 @@ type Note struct {
 	note   string
 }
 
-func (m MemberID) GetNotes() ([]Note, error) {
-	notes := make([]Note, 0)
+func (m MemberID) GetNotes() ([]*Note, error) {
+	notes := make([]*Note, 0)
 
 	// TODO XXX
 
 	return notes, nil
 }
 
-func (n Note) Store() error {
+func (n *Note) Store() error {
 	// TODO XXX
 
 	return nil
