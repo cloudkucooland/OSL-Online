@@ -25,7 +25,7 @@ func reportMemberQuery(query string) ([]*Member, error) {
 			slog.Error(err.Error())
 			return nil, err
 		}
-		member, _ := id.Get(true)
+		member, _ := id.Get()
 		members = append(members, member)
 	}
 	return members, nil
@@ -101,7 +101,7 @@ func ReportAllEmail(w io.Writer) error {
 	}
 
 	for _, id := range m {
-		n, err := id.Get(true)
+		n, err := id.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			err = nil
@@ -280,7 +280,7 @@ func ReportAvery(w io.Writer) error {
 	}
 
 	for _, id := range ids {
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -304,7 +304,7 @@ func DoxologyPrinted(w io.Writer) error {
 	}
 
 	for _, id := range members {
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			continue
 		}
@@ -342,7 +342,7 @@ func DoxologyEmailed(w io.Writer) error {
 	}
 
 	for _, id := range members {
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			continue
 		}

@@ -97,11 +97,12 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 			continue
 		}
 
-		m, err := id.Get(false)
+		m, err := id.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
+		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil
@@ -127,11 +128,12 @@ func localityMembersSG() ([]*Member, error) {
 			continue
 		}
 
-		m, err := id.Get(false)
+		m, err := id.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
+		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil

@@ -23,7 +23,7 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	mid := model.MemberID(id)
-	m, err := mid.Get(true)
+	m, err := mid.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -48,7 +48,7 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	mid := model.MemberID(id)
-	m, err := mid.Get(true)
+	m, err := mid.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -136,7 +136,7 @@ func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	mid := model.MemberID(id)
-	member, err := mid.Get(true)
+	member, err := mid.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

@@ -14,7 +14,7 @@ func SendGiving(id model.MemberID, amount string, description string) error {
 		return err
 	}
 
-	member, err := id.Get(true)
+	member, err := id.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -94,7 +94,7 @@ func SetMeField(id MemberID, field string, value string) error {
 }
 
 func (id MemberID) allowPrinted() bool {
-	m, err := id.Get(true)
+	m, err := id.Get()
 	if err != nil {
 		return false
 	}

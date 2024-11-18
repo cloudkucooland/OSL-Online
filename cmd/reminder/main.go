@@ -49,7 +49,7 @@ func sendReminder(id model.MemberID) error {
 		return err
 	}
 
-	member, err := id.Get(true)
+	member, err := id.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		return err

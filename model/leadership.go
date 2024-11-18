@@ -24,10 +24,11 @@ func Leadership(category string) ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			continue
 		}
+		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil

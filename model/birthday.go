@@ -30,7 +30,7 @@ func SearchBirthday(month time.Month, day int) ([]*Member, error) {
 			continue
 		}
 
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			continue

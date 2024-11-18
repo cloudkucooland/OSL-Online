@@ -43,7 +43,7 @@ func main() {
 
 	var a usps.Address
 	for _, i := range ids {
-		m, err := i.Get(true)
+		m, err := i.Get()
 		if err != nil {
 			slog.Error(err.Error())
 			panic(err)

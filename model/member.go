@@ -106,7 +106,7 @@ type Member struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
+func (id MemberID) Get() (*Member, error) {
 	n := &memberNulls{}
 
 	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
@@ -118,11 +118,6 @@ func (id MemberID) Get(includeUnlisted bool) (*Member, error) {
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
-	}
-
-	// if not including unlisted, filter it out
-	if !includeUnlisted {
-		n.cleanUnlisted()
 	}
 
 	m := n.toMember()
@@ -303,7 +298,7 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 	case "PrimaryPhone", "SecondaryPhone":
 		var ns sql.NullString
 
-		m, err := id.Get(true)
+		m, err := id.Get()
 		if err != nil {
 			return err
 		}
@@ -342,10 +337,11 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 		}
 	}
 
-	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", changer, id, field, value); err != nil {
-		slog.Error(err.Error())
-		return err
-	}
+	id.ChangeLogStore(ChangeLogEntry{
+		Changer: changer,
+		Field:   field,
+		Value:   value,
+	})
 
 	return nil
 }
@@ -378,58 +374,58 @@ func Create(firstname, lastname string) (MemberID, error) {
 	return MemberID(last), nil
 }
 
-func (n *memberNulls) cleanUnlisted() {
+func (n *Member) CleanUnlisted() {
 	zt, _ := time.Parse(timeformat, zerotime)
 
-	if !n.ListInDirectory.Bool {
-		n.FirstName.String = ""
-		n.LastName.String = ""
-		n.MiddleName.String = ""
-		n.PreferredName.String = ""
-		n.Title.String = ""
-		n.LifevowName.String = ""
-		n.Suffix.String = ""
-		n.BirthDate.Time = zt
-		n.DateNovitiate.Time = zt
-		n.DateRemoved.Time = zt
-		n.DateFirstVows.Time = zt
-		n.DateReaffirmation.Time = zt
-		n.DateDeceased.Time = zt
-		n.Status.String = ""
-		n.Occupation.String = ""
-		n.Employer.String = ""
-		n.Denomination.String = ""
-		n.HowRemoved.String = ""
-		n.ListAddress.Bool = false
-		n.ListPrimaryPhone.Bool = false
-		n.ListSecondaryPhone.Bool = false
-		n.ListPrimaryEmail.Bool = false
-		n.ListSecondaryEmail.Bool = false
+	if !n.ListInDirectory  {
+		n.FirstName= ""
+		n.LastName= ""
+		n.MiddleName= ""
+		n.PreferredName= ""
+		n.Title  = ""
+		n.LifevowName  = ""
+		n.Suffix  = ""
+		n.BirthDate  = zt
+		n.DateNovitiate  = zt
+		n.DateRemoved  = zt
+		n.DateFirstVows  = zt
+		n.DateReaffirmation  = zt
+		n.DateDeceased  = zt
+		n.Status  = ""
+		n.Occupation  = ""
+		n.Employer  = ""
+		n.Denomination  = ""
+		n.HowRemoved  = ""
+		n.ListAddress  = false
+		n.ListPrimaryPhone  = false
+		n.ListSecondaryPhone  = false
+		n.ListPrimaryEmail  = false
+		n.ListSecondaryEmail  = false
 	}
 
-	if !n.ListAddress.Bool {
-		n.Address.String = ""
-		n.AddressLine2.String = ""
-		n.City.String = ""
-		n.State.String = ""
-		n.Country.String = ""
-		n.PostalCode.String = ""
+	if !n.ListAddress  {
+		n.Address  = ""
+		n.AddressLine2  = ""
+		n.City  = ""
+		n.State  = ""
+		n.Country  = ""
+		n.PostalCode  = ""
 	}
 
-	if !n.ListPrimaryPhone.Bool {
-		n.PrimaryPhone.String = ""
+	if !n.ListPrimaryPhone  {
+		n.PrimaryPhone  = ""
 	}
 
-	if !n.ListSecondaryPhone.Bool {
-		n.SecondaryPhone.String = ""
+	if !n.ListSecondaryPhone  {
+		n.SecondaryPhone  = ""
 	}
 
-	if !n.ListPrimaryEmail.Bool {
-		n.PrimaryEmail.String = ""
+	if !n.ListPrimaryEmail  {
+		n.PrimaryEmail  = ""
 	}
 
-	if !n.ListSecondaryEmail.Bool {
-		n.SecondaryEmail.String = ""
+	if !n.ListSecondaryEmail  {
+		n.SecondaryEmail  = ""
 	}
 }
 

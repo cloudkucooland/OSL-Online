@@ -161,10 +161,10 @@ func (id SubscriberID) SetField(field string, value string) error {
 	}
 
 	// XXX get ID
-	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
+	/* if _, err := db.Exec("INSERT INTO subscriberauditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", 0, id, field, value); err != nil {
 		slog.Error(err.Error())
 		return err
-	}
+	} */
 
 	return nil
 }

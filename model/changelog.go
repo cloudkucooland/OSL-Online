@@ -7,8 +7,8 @@ import (
 )
 
 type ChangeLogEntry struct {
-	ID      int
-	Changer int
+	ID      MemberID
+	Changer MemberID
 	Field   string
 	Value   string
 	Date    time.Time
@@ -37,4 +37,13 @@ func (m *Member) Changelog() ([]ChangeLogEntry, error) {
 		cr = append(cr, c)
 	}
 	return cr, nil
+}
+
+func (id MemberID) ChangeLogStore(c ChangeLogEntry) error {
+	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", c.Changer, id, c.Field, c.Value); err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+
+	return nil
 }

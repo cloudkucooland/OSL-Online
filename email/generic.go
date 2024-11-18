@@ -27,7 +27,7 @@ func SendGeneric(ids []model.MemberID, subject string, message string) error {
 }
 
 func sendGeneric(id model.MemberID, subject string, intros []string, h *hermes.Hermes) error {
-	member, err := id.Get(true)
+	member, err := id.Get()
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -74,10 +74,11 @@ func (c *Chapter) Members() ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m, err := id.Get(false)
+		m, err := id.Get()
 		if err != nil {
 			continue
 		}
+		m.CleanUnlisted()
 
 		members = append(members, m)
 	}
