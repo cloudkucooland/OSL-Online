@@ -11,18 +11,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func postSubSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if err := req.ParseMultipartForm(1024); err != nil {
+func postSubSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	query := req.PostFormValue("query")
+	query := r.PostFormValue("query")
 	if query == "" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
@@ -31,14 +31,14 @@ func postSubSearch(res http.ResponseWriter, req *http.Request, _ httprouter.Para
 	result, err := model.SubscriberSearch(query)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 
-	headers(res, req)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
+	headers(w, r)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 }

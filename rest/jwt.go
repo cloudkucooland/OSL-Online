@@ -59,47 +59,47 @@ func mintjwt(username model.Authname, level authLevel) (string, error) {
 	return string(signed[:]), nil
 }
 
-func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if err := req.ParseMultipartForm(1024 * 2); err != nil {
+func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	username := model.Authname(req.PostFormValue("username"))
+	username := model.Authname(r.PostFormValue("username"))
 	if username == "" {
 		err := fmt.Errorf("login: username not set")
 		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	password := req.FormValue("password")
+	password := r.FormValue("password")
 	if password == "" {
 		err := fmt.Errorf("login: password not set")
 		slog.Error(err.Error())
-		http.Error(res, jsonError(err), http.StatusNotAcceptable)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
 	level, err := username.Authenticate(password)
 	if err != nil {
 		slog.Error("login failed", "err", err)
-		http.Error(res, err.Error(), http.StatusNotAcceptable)
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return
 	}
 
 	JWT, err := mintjwt(username, authLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(res, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	slog.Info("login", "username", username, "level", level)
-	headers(res, req)
-	res.Header().Set("content-type", "application/jwt")
-	http.SetCookie(res, &http.Cookie{
+	headers(w, r)
+	w.Header().Set("content-type", "application/jwt")
+	http.SetCookie(w, &http.Cookie{
 		Name:     "jwt",
 		Value:    JWT,
 		Path:     "/",
@@ -109,7 +109,7 @@ func login(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		HttpOnly: false,
 		SameSite: http.SameSiteLaxMode,
 	})
-	fmt.Fprint(res, JWT)
+	fmt.Fprint(w, JWT)
 }
 
 func generateID(size int) string {
