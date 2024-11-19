@@ -42,8 +42,8 @@ func (id MemberID) GivingRecords() ([]*GivingRecord, error) {
 	}
 	defer rows.Close()
 
-	var g GivingRecord
 	for rows.Next() {
+		var g GivingRecord
 		err := rows.Scan(&g.EntryID, &g.Amount, &g.Check, &g.Transaction, &g.Description, &g.Date)
 		if err != nil {
 			slog.Error(err.Error())
