@@ -10,7 +10,7 @@ import (
 
 // reportMemberQuery returns full member data, unlisted data is included
 func reportMemberQuery(query string) ([]*Member, error) {
-	var members []*Member
+	members := make([]*Member, 0)
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -143,7 +143,7 @@ func ReportFontEmailed(w io.Writer) error {
 }
 
 /* func ReportSubscriber() ([]*Subscriber, error) {
-	var subscribers []*Subscriber
+	subscribers := make([]*Subscriber, 0)
 
 	rows, err := db.Query("SELECT id FROM subscriber ORDER BY Name")
 	if err != nil {
@@ -200,7 +200,6 @@ func TestMemberIDs() ([]MemberID, error) {
 }
 
 func reportMemberIDQuery(query string) ([]MemberID, error) {
-	var id int
 	list := make([]MemberID, 0, 500)
 
 	rows, err := db.Query(query)
@@ -211,6 +210,7 @@ func reportMemberIDQuery(query string) ([]MemberID, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var id int
 		err := rows.Scan(&id)
 		if err != nil {
 			slog.Error(err.Error())
@@ -249,7 +249,6 @@ func ReportAllSubscribers(w io.Writer) error {
 }
 
 func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
-	var id int
 	list := make([]SubscriberID, 0, 50)
 
 	rows, err := db.Query(query)
@@ -260,6 +259,7 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var id int
 		err := rows.Scan(&id)
 		if err != nil {
 			slog.Error(err.Error())
@@ -271,7 +271,7 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 }
 
 func ReportAvery(w io.Writer) error {
-	var members []addressFormatter
+	members := make([]addressFormatter, 0)
 
 	ids, err := ActiveMemberIDs()
 	if err != nil {

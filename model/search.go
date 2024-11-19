@@ -17,7 +17,7 @@ type SearchResult struct {
 }
 
 func Search(query string, unlisted bool) ([]*SearchResult, error) {
-	var res []*SearchResult
+	res := make([]*SearchResult, 0)
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
@@ -54,7 +54,7 @@ func Search(query string, unlisted bool) ([]*SearchResult, error) {
 }
 
 func SearchEmail(query string, unlisted bool) ([]*SearchResult, error) {
-	var res []*SearchResult
+	res := make([]*SearchResult, 0)
 
 	var pn sql.NullString
 

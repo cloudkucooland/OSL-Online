@@ -15,9 +15,8 @@ type SubSearchResult struct {
 
 // GetMember returns a populated Member struct, NULLs converted to ""
 func SubscriberSearch(query string) ([]*SubSearchResult, error) {
-	var res []*SubSearchResult
+	res := make([]*SubSearchResult, 0)
 	var attn sql.NullString
-	var n SubSearchResult
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
@@ -29,6 +28,7 @@ func SubscriberSearch(query string) ([]*SubSearchResult, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var n SubSearchResult
 		if err = rows.Scan(&n.ID, &n.Name, &attn); err != nil {
 			slog.Error(err.Error())
 			continue
