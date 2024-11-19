@@ -18,7 +18,6 @@ type SearchResult struct {
 
 func Search(query string, unlisted bool) ([]*SearchResult, error) {
 	var res []*SearchResult
-	var n SearchResult
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
@@ -32,6 +31,7 @@ func Search(query string, unlisted bool) ([]*SearchResult, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var n SearchResult
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
 			slog.Error(err.Error())
 			continue
@@ -55,7 +55,6 @@ func Search(query string, unlisted bool) ([]*SearchResult, error) {
 
 func SearchEmail(query string, unlisted bool) ([]*SearchResult, error) {
 	var res []*SearchResult
-	var n SearchResult
 
 	var pn sql.NullString
 
@@ -67,6 +66,7 @@ func SearchEmail(query string, unlisted bool) ([]*SearchResult, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var n SearchResult
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
 			slog.Error(err.Error())
 			continue
