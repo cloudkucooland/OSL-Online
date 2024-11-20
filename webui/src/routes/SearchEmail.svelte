@@ -14,8 +14,16 @@
 	let query;
 	let result;
 
+	console.log(query, result, params);
+
 	if (params.query) {
 		query = params.query;
+		const e = new Event('search', { bubbles: true, cancelable: true });
+		doSearch(e);
+	}
+
+	if (params.id) {
+		query = params.id;
 		const e = new Event('search', { bubbles: true, cancelable: true });
 		doSearch(e);
 	}

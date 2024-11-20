@@ -18,16 +18,18 @@
 	let check = 0;
 	let transaction = 0;
 
+	console.log(params);
+
 	async function add() {
 		try {
 			await postGiving(params.id, postdate, amount, description, check, transaction);
 			toast.push(`Posted`);
 			push(`#/giving/${params.id}`);
-			return true;
 		} catch (err) {
 			console.log(err);
 			toast.push('failed to change: ' + err.message);
 		}
+		return true;
 	}
 
 	async function getBoth(id) {
@@ -79,7 +81,11 @@
 	</section>
 
 	<section>
-		<form on:submit={add}>
+		<form
+			on:submit={async () => {
+				await add();
+			}}
+		>
 			<div class="grid grid-cols-5 gap-4 px-4 py-2">
 				<div class="col-span-1">
 					<Label for="Date" class="block">Date</Label>
