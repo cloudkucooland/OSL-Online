@@ -27,8 +27,8 @@ func (m *Member) Changelog() ([]*ChangeLogEntry, error) {
 	}
 	defer rows.Close()
 
-	var c ChangeLogEntry
 	for rows.Next() {
+		var c ChangeLogEntry
 		err := rows.Scan(&c.ID, &c.Changer, &c.Field, &c.Value, &c.Date)
 		if err != nil {
 			slog.Error(err.Error())

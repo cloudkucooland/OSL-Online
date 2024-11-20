@@ -44,8 +44,8 @@ func Chapters() ([]*Chapter, error) {
 	}
 	defer rows.Close()
 
-	var c Chapter
 	for rows.Next() {
+		var c Chapter
 		err := rows.Scan(&c.ID, &c.Name, &c.Prior)
 		if err != nil {
 			slog.Error(err.Error())
