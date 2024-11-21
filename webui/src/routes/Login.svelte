@@ -28,12 +28,22 @@
 	async function doLogin(event) {
 		event.preventDefault();
 		event.stopPropagation();
+
+		if (!username || !password) {
+			toast.push('Fill in both username and password');
+			return;
+		}
+
 		try {
 			await getJWT(username, password);
 			// push('/');
 			window.location.href = '';
 		} catch (e) {
 			console.log(e);
+			if (e.message == 'crypto/bcrypt: hashedPassword is not the hash of the given password') {
+				toast.push('Incorrect password for ' + username);
+				return;
+			}
 			toast.push(e.message);
 		}
 	}

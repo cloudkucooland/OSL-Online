@@ -14,8 +14,6 @@
 	let query;
 	let result;
 
-	console.log(query, result, params);
-
 	if (params.query) {
 		query = params.query;
 		const e = new Event('search', { bubbles: true, cancelable: true });
@@ -31,6 +29,11 @@
 	async function doSearch(e) {
 		e.preventDefault();
 		e.stopPropagation();
+
+		if (!query || query == '' || query == 'undefined') {
+			toast.push('please enter a search query, a full email address');
+			return;
+		}
 
 		try {
 			result = await searchemail(query);
@@ -59,7 +62,11 @@
 </svelte:head>
 
 {#if !result}
-	<form on:submit={doSearch}>
+	<form
+		on:submit={async (e) => {
+			await doSearch(e);
+		}}
+	>
 		<Table>
 			<TableBody>
 				<TableBodyRow>

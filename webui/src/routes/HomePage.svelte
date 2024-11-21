@@ -25,6 +25,18 @@
 		e.preventDefault();
 		e.stopPropagation();
 
+		if (!query) {
+			toast.push('Please enter a search query, mimimum of 3 letters');
+			return;
+		}
+
+		query = query.trim();
+
+		if (query.length < 3) {
+			toast.push('Query too short (A minimum 3 of letters are required)');
+			return;
+		}
+
 		try {
 			result = await search(query);
 			if (result == null || result.length == 0) {
