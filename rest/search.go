@@ -20,7 +20,7 @@ func postSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	query := r.PostFormValue("query")
-	if query == "" {
+	if query == "" || query == "undefined" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -70,7 +70,7 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	}
 
 	query := r.PostFormValue("query")
-	if query == "" {
+	if query == "" || query == "undefined" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
