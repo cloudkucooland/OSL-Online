@@ -21,8 +21,8 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	headers(w, r)
 	switch report {
-	case "avery":
-		reportAvery(w, r, ps)
+	// case "avery":
+	//	reportAvery(w, r, ps)
 	case "annual":
 		reportAnnual(w, r, ps)
 	case "email":
@@ -39,8 +39,10 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		reportFontEmailed(w, r, ps)
 	case "allsubscribers":
 		reportAllSubscribers(w, r, ps)
+	case "barb":
+		reportBarb(w, r, ps)
 	default:
-		reportLife(w, r, ps)
+		reportBarb(w, r, ps)
 	}
 }
 
@@ -120,6 +122,15 @@ func reportFontEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 func reportAllSubscribers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/csv")
 	if err := model.ReportAllSubscribers(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+
+func reportBarb(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "text/csv")
+	if err := model.ReportBarb(w); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

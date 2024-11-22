@@ -117,6 +117,38 @@ func ReportAllEmail(w io.Writer) error {
 	return nil
 }
 
+func ReportBarb(w io.Writer) error {
+	months := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "X"}
+	r := csv.NewWriter(w)
+	_ = r.Write([]string{"OSLName", "MemberStatus", "PrimaryEmail", "Month"})
+
+	m, err := ActiveMemberIDs()
+	if err != nil {
+		return err
+	}
+	permonth := int(len(m) / 12)
+
+	month := 0
+	i := 0
+	for _, id := range m {
+		if i > permonth {
+			i = 0
+			month = month + 1
+		}
+		n, err := id.Get()
+		if err != nil {
+			slog.Error(err.Error())
+			err = nil
+			continue
+		}
+
+		_ = r.Write([]string{n.OSLName(), n.MemberStatus, n.PrimaryEmail, months[month]})
+		i = i + 1
+	}
+	r.Flush()
+	return nil
+}
+
 // ReportFontEmail writes a report structured for Google Groups CSV upload
 func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
