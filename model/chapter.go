@@ -80,6 +80,9 @@ func (c *Chapter) Members() ([]*Member, error) {
 		if err != nil {
 			continue
 		}
+		if !m.ListInDirectory {
+			continue
+		}
 		m.CleanUnlisted()
 
 		members = append(members, m)
