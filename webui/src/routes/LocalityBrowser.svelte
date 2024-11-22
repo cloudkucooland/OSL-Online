@@ -7,17 +7,23 @@
 
 	const { me } = getContext('oo');
 
+	export let params = {};
 	let locs = [];
 	let members = [];
 	let selected;
+
+	if (params.loc) {
+		selected = params.loc;
+		const e = new Event('search', { bubbles: true, cancelable: true });
+		chooseLocality(e);
+	}
 
 	async function chooseLocality(event) {
 		event.preventDefault();
 		event.stopPropagation();
 		try {
 			members = await getLocalityMembers(selected);
-			// push('/');
-			// window.location.href = '#/';
+			push(`#/localitybrowser/${selected}`);
 		} catch (e) {
 			console.log(e);
 			toast.push(e.message);

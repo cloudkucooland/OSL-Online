@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { push, replace } from 'svelte-spa-router';
+	import { push } from 'svelte-spa-router';
 	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
 	import { searchemail } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -8,7 +8,7 @@
 	export let params = {};
 	const { me } = getContext('oo');
 	if ($me === undefined) {
-		replace('/Login');
+		push('/Login');
 	}
 
 	let query;
@@ -16,12 +16,6 @@
 
 	if (params.query) {
 		query = params.query;
-		const e = new Event('search', { bubbles: true, cancelable: true });
-		doSearch(e);
-	}
-
-	if (params.id) {
-		query = params.id;
 		const e = new Event('search', { bubbles: true, cancelable: true });
 		doSearch(e);
 	}
@@ -42,7 +36,7 @@
 					{ id: 0, FirstName: 'no results', LastName: '', PreferredName: '', MemberStatus: '' }
 				];
 			}
-			replace(`#/searchemail/${query}`);
+			push(`#/searchemail/${query}`);
 		} catch (e) {
 			console.log(e);
 			toast.push(e.message);
@@ -52,8 +46,9 @@
 	async function resetSearch(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		push(`#/searchemail`);
 		result = '';
+		query = '';
+		push(`#/searchemail`);
 	}
 </script>
 
@@ -75,7 +70,7 @@
 					</TableBodyCell>
 				</TableBodyRow>
 				<TableBodyRow>
-					<TableBodyCell>Member Search:</TableBodyCell>
+					<TableBodyCell>Email Search:</TableBodyCell>
 					<TableBodyCell>
 						<Input type="text" name="query" bind:value={query} />
 					</TableBodyCell>

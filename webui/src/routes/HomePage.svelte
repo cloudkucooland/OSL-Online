@@ -1,21 +1,20 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { push, replace } from 'svelte-spa-router';
+	import { push } from 'svelte-spa-router';
 	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
 	import { search } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
 	export let params = {};
 	const { me } = getContext('oo');
-	// console.log('in HomePage', $me);
 	if ($me === undefined) {
-		replace('/Login');
+		push('/Login');
 	}
 
 	let query;
 	let result;
 
-	if (params.query) {
+	if (params.query && params.query != query) {
 		query = params.query;
 		const e = new Event('search', { bubbles: true, cancelable: true });
 		doSearch(e);
@@ -44,7 +43,7 @@
 					{ id: 0, FirstName: 'no results', LastName: '', PreferredName: '', MemberStatus: '' }
 				];
 			}
-			replace(`/search/${query}`);
+			push(`/search/${query}`);
 		} catch (e) {
 			console.log(e);
 			toast.push(e.message);
@@ -54,8 +53,9 @@
 	async function resetSearch(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		push(`/`);
 		result = '';
+		query = '';
+		push(`/`);
 	}
 </script>
 

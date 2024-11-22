@@ -56,10 +56,13 @@
 		'/subscriber/:id': Subscriber,
 		'/addsubscriber/': AddSubscriber,
 		'/chapterbrowser/': ChapterBrowser,
+		'/chapterbrowser/:id': ChapterBrowser,
 		'/leadership/': Leadership,
+		'/leadership/:id': Leadership,
 		'/searchemail': SearchEmail,
-		'/searchemail/:id': SearchEmail,
+		'/searchemail/:query': SearchEmail,
 		'/localitybrowser/': LocalityBrowser,
+		'/localitybrowser/:loc': LocalityBrowser,
 		'/email/': Email,
 		'*': HomePage
 	};

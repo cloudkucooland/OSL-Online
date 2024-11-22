@@ -40,4 +40,5 @@
 	<li>
 		<a href="#/reports" on:click={() => report('allsubscribers')}>All Subscribers</a>
 	</li>
+	<li><a href="#/reports" on:click={() => report('barb')}>Sr. Barb's Monthly Prayer list</a></li>
 </ul>

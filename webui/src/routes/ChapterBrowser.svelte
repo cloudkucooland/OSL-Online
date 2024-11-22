@@ -7,17 +7,23 @@
 
 	const { me } = getContext('oo');
 
+	export let params = {};
 	let chaps = [];
 	let members = [];
 	let selected;
+
+	if (params.id) {
+		selected = params.id;
+		const e = new Event('search', { bubbles: true, cancelable: true });
+		chooseChapter(e);
+	}
 
 	async function chooseChapter(event) {
 		event.preventDefault();
 		event.stopPropagation();
 		try {
 			members = await getChapterMembers(selected);
-			// push('/');
-			// window.location.href = '#/';
+			push(`#/chapterbrowser/${selected}`);
 		} catch (e) {
 			console.log(e);
 			toast.push(e.message);
@@ -34,6 +40,9 @@
 	<h3>... loading ...</h3>
 {:then}
 	<div class="grid grid-cols-8 gap-4 px-4 py-2">
+		<div class="col-span-8">
+			Chapter Browser
+		</div>
 		<div class="col-span-8">
 			<Select class="mt-2" items={chaps} bind:value={selected} on:change={chooseChapter} />
 		</div>
