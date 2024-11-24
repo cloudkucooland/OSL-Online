@@ -337,7 +337,7 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 		}
 	}
 
-	id.ChangeLogStore(ChangeLogEntry{
+	_ = id.ChangeLogStore(ChangeLogEntry{
 		Changer: changer,
 		Field:   field,
 		Value:   value,

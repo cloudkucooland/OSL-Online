@@ -307,17 +307,22 @@ export async function report(reportname) {
 	};
 
 	const response = await fetch(`${server}/api/v1/report/${reportname}`, request);
-	const payload = await response.text();
+	const payload = await response.blob();
 	if (response.status != 200) {
 		console.log('server returned ', response.status);
 		throw new Error(payload.error);
 	}
+	const contentType = response.headers.get('Content-Type');
+	let extension = 'csv';
+	if (contentType == 'application/pdf') {
+		extension = 'pdf';
+	}
 
 	// https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-	const blob = new Blob([payload], { type: 'text/csv;charset=utf-8;' });
+	const blob = new Blob([payload], { type: contentType });
 	if (navigator.msSaveBlob) {
 		// IE 10+
-		navigator.msSaveBlob(blob, `${reportname}.csv`);
+		navigator.msSaveBlob(blob, `${reportname}.${extension}`);
 	} else {
 		const link = document.createElement('a');
 		if (link.download !== undefined) {
@@ -325,7 +330,7 @@ export async function report(reportname) {
 			// Browsers that support HTML5 download attribute
 			const url = URL.createObjectURL(blob);
 			link.setAttribute('href', url);
-			link.setAttribute('download', `${reportname}.csv`);
+			link.setAttribute('download', `${reportname}.${extension}`);
 			link.style.visibility = 'hidden';
 			document.body.appendChild(link);
 			link.click();

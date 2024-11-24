@@ -40,9 +40,7 @@
 	<h3>... loading ...</h3>
 {:then}
 	<div class="grid grid-cols-8 gap-4 px-4 py-2">
-		<div class="col-span-8">
-			Chapter Browser
-		</div>
+		<div class="col-span-8">Chapter Browser</div>
 		<div class="col-span-8">
 			<Select class="mt-2" items={chaps} bind:value={selected} on:change={chooseChapter} />
 		</div>

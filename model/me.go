@@ -72,7 +72,7 @@ func SetMeField(id MemberID, field string, value string) error {
 	case "Newsletter", "Doxology": // only allow printed if donated this year
 		value = strings.TrimSpace(value)
 		if value == "mailed" && !id.allowPrinted() {
-			err := fmt.Errorf("Not donated in the past 12 months, cannot choose printed Doxology or Newsletter")
+			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Doxology or Newsletter")
 			return err
 		}
 		if _, err := db.Exec(q, value, id); err != nil {
@@ -85,7 +85,11 @@ func SetMeField(id MemberID, field string, value string) error {
 		return err
 	}
 
-	if _, err := db.Exec("INSERT INTO auditlog VALUES (?, ?, ?, ?, CURRENT_DATE())", id, id, field, value); err != nil {
+	if err := id.ChangeLogStore(ChangeLogEntry{
+		Changer: id,
+		Field:   field,
+		Value:   value,
+	}); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

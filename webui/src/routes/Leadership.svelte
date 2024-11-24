@@ -37,9 +37,7 @@
 </script>
 
 <div class="grid grid-cols-8 gap-4 px-4 py-2">
-	<div class="col-span-8">
-		Leadership Browser
-	</div>
+	<div class="col-span-8">Leadership Browser</div>
 	<div class="col-span-8">
 		<Select class="mt-2" items={categories} bind:value={selected} on:change={chooseType} />
 	</div>
