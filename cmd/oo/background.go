@@ -34,7 +34,7 @@ func doDaily() {
 
 	bdays := make([]*email.BirthdayEmailEntry, 0)
 	for _, m := range members {
-		bdays = append(bdays, &email.BirthdayEmailEntry{int(m.ID), m.OSLName()})
+		bdays = append(bdays, &email.BirthdayEmailEntry{ID: int(m.ID), Name: m.OSLName()})
 	}
 
 	if err := email.SendBirthdayMail(bdays, month, day); err != nil {

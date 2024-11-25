@@ -50,7 +50,7 @@ func main() {
 		}
 
 		if m.Country != "US" {
-			slog.Debug("Skipping non-us: %s\n", m.Country)
+			slog.Debug("Skipping non-us", "country", m.Country)
 			continue
 		}
 		// slog.Info(m.OSLName())

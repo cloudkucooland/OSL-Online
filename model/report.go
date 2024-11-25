@@ -199,7 +199,12 @@ func ReportFontEmailed(w io.Writer) error {
 
 // ActiveMemberIDs returns All Annual Vows, Life Vows and Friends
 func ActiveMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' OR MemberStatus = 'Life Vows' OR MemberStatus = 'Friend' ORDER BY LastName, FirstName")
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') ORDER BY LastName, FirstName")
+}
+
+// ActiveMemberIDsUS returns All Annual Vows, Life Vows and Friends in the US
+func ActiveMemberIDsUS() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') AND Country = 'US' ORDER BY LastName, FirstName")
 }
 
 // AnnualMemberIDs does what it says
@@ -305,7 +310,7 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 func ReportAvery(w io.Writer) error {
 	members := make([]addressFormatter, 0)
 
-	ids, err := ActiveMemberIDs()
+	ids, err := ActiveMemberIDsUS()
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -20,7 +20,7 @@ func AveryLabels(pdffile io.Writer, addresses []addressFormatter) {
 	labelw := 2.5                         // 2 1/2" wide
 	marginv := (pageh - 10*labelh) / 2.0  // 1/2" from top
 	marginh := (pagew - 3.0*labelw) / 4.0 // label margin
-	pdf.SetFont("Helvetica", "B", 12)
+	pdf.SetFont("Helvetica", "", 10)      // "B" for bold, "I" for italic
 
 	for _, address := range addresses {
 		formatted, err := FormatAddress(address)

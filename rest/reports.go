@@ -9,6 +9,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+const contentType = "Content-Type"
+const csvMime = "text/csv;charset=utf-8;"
+const pdfMime = "application/pdf;"
+
+// const contentDisposition = "Content-Disposition"
+// const csvDisposition = "attachment"
+// const pdfDisposition = `attachment;filename="avery.pdf";`
+
 func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	report := ps.ByName("report")
 	if report == "" {
@@ -19,118 +27,45 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	slog.Info("report", "requested", report, "requester", getUser(r))
 
+	var err error
 	headers(w, r)
 	switch report {
-	// case "avery":
-	//	reportAvery(w, r, ps)
+	case "avery":
+		w.Header().Set(contentType, pdfMime)
+		// w.Header().Set(contentDisposition, pdfDisposition)
+		err = model.ReportAvery(w)
 	case "annual":
-		reportAnnual(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportAnnual(w)
 	case "email":
-		reportEmail(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportAllEmail(w)
 	case "expired":
-		reportExpired(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportExpired(w)
 	case "life":
-		reportLife(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportLife(w)
 	case "doxprint":
-		reportDoxPrinted(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.DoxologyPrinted(w)
 	case "doxemail":
-		reportDoxEmailed(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.DoxologyEmailed(w)
 	case "fontemail":
-		reportFontEmailed(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportFontEmailed(w)
 	case "allsubscribers":
-		reportAllSubscribers(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportAllSubscribers(w)
 	case "barb":
-		reportBarb(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportBarb(w)
 	default:
-		reportBarb(w, r, ps)
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportBarb(w)
 	}
-}
-
-func reportExpired(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportExpired(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportAllEmail(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportAnnual(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportAnnual(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportLife(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportLife(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportAvery(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "application/pdf")
-	if err := model.ReportAvery(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// convert older reports to this new way of doing things
-func reportDoxPrinted(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.DoxologyPrinted(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportDoxEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.DoxologyEmailed(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportFontEmailed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportFontEmailed(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportAllSubscribers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportAllSubscribers(w); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
-}
-
-func reportBarb(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "text/csv")
-	if err := model.ReportBarb(w); err != nil {
+	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

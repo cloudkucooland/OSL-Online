@@ -20,6 +20,7 @@
 		>
 	</li>
 	<li><a href="#/reports" on:click={() => report('email')}>All Member Email List</a></li>
+	<li><a href="#/reports" on:click={() => report('avery')}>Avery Labels</a></li>
 	<li><a href="#/reports" on:click={() => report('annual')}>Annual Vows Mail Merge</a></li>
 	<li><a href="#/reports" on:click={() => report('life')}>Life Vows Mail Merge</a></li>
 	<li>

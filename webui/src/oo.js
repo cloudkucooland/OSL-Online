@@ -314,7 +314,7 @@ export async function report(reportname) {
 	}
 	const contentType = response.headers.get('Content-Type');
 	let extension = 'csv';
-	if (contentType == 'application/pdf') {
+	if (contentType.toLowerCase().startsWith('application/pdf')) {
 		extension = 'pdf';
 	}
 
