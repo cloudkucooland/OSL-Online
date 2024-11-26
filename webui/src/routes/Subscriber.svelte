@@ -9,7 +9,7 @@
 		push('/Login');
 	}
 
-	export let params;
+	let { params } = $props();
 
 	const commitems = [
 		{ value: 'none', name: 'None' },

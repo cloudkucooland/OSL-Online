@@ -16,10 +16,10 @@
 	if ($me === undefined) {
 		push('/Login');
 	}
-	let chaps = [];
-	let selectedchapters = [];
+	let chaps = $state([]);
+	let selectedchapters = $state([]);
 
-	export let params;
+	let { params } = $props();
 
 	const commitems = [
 		{ value: 'none', name: 'None' },

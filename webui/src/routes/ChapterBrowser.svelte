@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { getContext } from 'svelte';
 	import { Label, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -7,10 +7,10 @@
 
 	const { me } = getContext('oo');
 
-	export let params = {};
-	let chaps = [];
-	let members = [];
-	let selected;
+	let { params = {} } = $props();
+	let chaps = $state([]);
+	let members = $state([]);
+	let selected = $state();
 
 	if (params.id) {
 		selected = params.id;

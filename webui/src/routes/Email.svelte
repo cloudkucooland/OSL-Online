@@ -18,9 +18,9 @@
 		{ value: 'friends', name: 'Friends' }
 	];
 
-	let whom = 'nobody@localhost';
-	let content = '';
-	let subject = 'OSL Announcement';
+	let whom = $state('nobody@localhost');
+	let content = $state('');
+	let subject = $state('OSL Announcement');
 
 	async function send() {
 		try {

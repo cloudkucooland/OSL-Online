@@ -22,8 +22,8 @@
 		toast.push('Logged out');
 	}
 
-	let username;
-	let password;
+	let username = $state();
+	let password = $state();
 
 	async function doLogin(event) {
 		event.preventDefault();
@@ -49,7 +49,7 @@
 	}
 </script>
 
-<form on:submit={doLogin}>
+<form onsubmit={doLogin}>
 	<div class="grid grid-cols-8 gap-4 px-4 py-2">
 		<div class="col-span-8">
 			Your username is your primary email address as listed in our system.<br />

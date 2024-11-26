@@ -10,8 +10,8 @@
 		push('/Login');
 	}
 
-	let query;
-	let result;
+	let query = $state();
+	let result = $state();
 
 	async function doSearch(e) {
 		e.preventDefault();
@@ -37,7 +37,7 @@
 </svelte:head>
 
 {#if !result}
-	<form on:submit={doSearch}>
+	<form onsubmit={doSearch}>
 		<Table>
 			<TableBody>
 				<TableBodyRow>
@@ -54,7 +54,7 @@
 		</Table>
 	</form>
 {:else}
-	<form on:submit={resetSearch}>
+	<form onsubmit={resetSearch}>
 		<Table>
 			<TableBody>
 				<TableBodyRow>

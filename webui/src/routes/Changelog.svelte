@@ -10,7 +10,7 @@
 		push('/Login');
 	}
 
-	export let params;
+	let { params } = $props();
 	const dd = new Date().toISOString().split('T');
 	let postdate = dd[0];
 	let amount;

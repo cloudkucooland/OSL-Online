@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext, afterUpdate } from 'svelte';
+	import { getContext } from 'svelte';
 	import {
 		getMeFromServer,
 		updateMe,
@@ -16,8 +16,8 @@
 	if ($me === undefined) {
 		push('/Login');
 	}
-	let chaps = [];
-	let selectedchapters = [];
+	let chaps = $state([]);
+	let selectedchapters = $state([]);
 
 	const cannotedit = true; // placeholder for fields we are considering enabling
 

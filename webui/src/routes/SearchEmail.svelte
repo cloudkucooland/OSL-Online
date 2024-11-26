@@ -5,14 +5,14 @@
 	import { searchemail } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
-	export let params = {};
+	let { params = {} } = $props();
 	const { me } = getContext('oo');
 	if ($me === undefined) {
 		push('/Login');
 	}
 
-	let query;
-	let result;
+	let query = $state();
+	let result = $state();
 
 	if (params.query) {
 		query = params.query;
@@ -58,7 +58,7 @@
 
 {#if !result}
 	<form
-		on:submit={async (e) => {
+		onsubmit={async (e) => {
 			await doSearch(e);
 		}}
 	>
@@ -83,7 +83,7 @@
 		</Table>
 	</form>
 {:else}
-	<form on:submit={resetSearch}>
+	<form onsubmit={resetSearch}>
 		<Table>
 			<TableBody>
 				{#each result as r, i}

@@ -10,8 +10,8 @@
 		push('/Login');
 	}
 
-	let firstname = 'first';
-	let lastname = 'last';
+	let firstname = $state('first');
+	let lastname = $state('last');
 
 	async function create() {
 		try {

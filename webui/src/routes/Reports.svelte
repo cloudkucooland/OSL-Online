@@ -15,31 +15,31 @@
 
 <ul>
 	<li>
-		<a href="#/reports" on:click={() => report('expired')}
+		<a href="#/reports" onclick={() => report('expired')}
 			>"Active" but not renewed for 2 years or longer</a
 		>
 	</li>
-	<li><a href="#/reports" on:click={() => report('email')}>All Member Email List</a></li>
-	<li><a href="#/reports" on:click={() => report('avery')}>Avery Labels</a></li>
-	<li><a href="#/reports" on:click={() => report('annual')}>Annual Vows Mail Merge</a></li>
-	<li><a href="#/reports" on:click={() => report('life')}>Life Vows Mail Merge</a></li>
+	<li><a href="#/reports" onclick={() => report('email')}>All Member Email List</a></li>
+	<li><a href="#/reports" onclick={() => report('avery')}>Avery Labels</a></li>
+	<li><a href="#/reports" onclick={() => report('annual')}>Annual Vows Mail Merge</a></li>
+	<li><a href="#/reports" onclick={() => report('life')}>Life Vows Mail Merge</a></li>
 	<li>
-		<a href="#/reports" on:click={() => report('doxprint')}
+		<a href="#/reports" onclick={() => report('doxprint')}
 			>Doxology Mailing List (member + subscriber)</a
 		>
 	</li>
 	<li>
-		<a href="#/reports" on:click={() => report('doxemail')}
+		<a href="#/reports" onclick={() => report('doxemail')}
 			>Doxology Email List (member + subscriber)</a
 		>
 	</li>
 	<li>
-		<a href="#/reports" on:click={() => report('fontemail')}
+		<a href="#/reports" onclick={() => report('fontemail')}
 			>Font Email List (for google groups update)</a
 		>
 	</li>
 	<li>
-		<a href="#/reports" on:click={() => report('allsubscribers')}>All Subscribers</a>
+		<a href="#/reports" onclick={() => report('allsubscribers')}>All Subscribers</a>
 	</li>
-	<li><a href="#/reports" on:click={() => report('barb')}>Sr. Barb's Monthly Prayer list</a></li>
+	<li><a href="#/reports" onclick={() => report('barb')}>Sr. Barb's Monthly Prayer list</a></li>
 </ul>

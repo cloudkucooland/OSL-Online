@@ -12,8 +12,8 @@
 	import { toast } from '@zerodevx/svelte-toast';
 	import { postRegister } from '../oo';
 
-	let username;
-	let submitted = false;
+	let username = $state();
+	let submitted = $state(false);
 
 	async function doRegister(event) {
 		event.preventDefault();
@@ -27,7 +27,7 @@
 	}
 </script>
 
-<form on:submit={doRegister}>
+<form onsubmit={doRegister}>
 	<div class="grid grid-cols-8 gap-4 px-4 py-2">
 		{#if !submitted}
 			<div class="col-span-8">

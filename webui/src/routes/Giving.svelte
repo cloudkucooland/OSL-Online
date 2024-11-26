@@ -10,13 +10,13 @@
 		push('/Login');
 	}
 
-	export let params;
+	let { params } = $props();
 	const dd = new Date().toISOString().split('T');
-	let postdate = dd[0];
-	let amount;
-	let description = 'Annual Reaffirmation';
-	let check = 0;
-	let transaction = 0;
+	let postdate = $state(dd[0]);
+	let amount = $state();
+	let description = $state('Annual Reaffirmation');
+	let check = $state(0);
+	let transaction = $state(0);
 
 	console.log(params);
 
@@ -82,7 +82,7 @@
 
 	<section>
 		<form
-			on:submit={async () => {
+			onsubmit={async () => {
 				await add();
 			}}
 		>
