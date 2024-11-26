@@ -14,7 +14,7 @@
 	let query = $state();
 	let result = $state();
 
-	if (params.query && params.query != query) {
+	if (params.query) {
 		query = params.query;
 		const e = new Event('search', { bubbles: true, cancelable: true });
 		doSearch(e);
