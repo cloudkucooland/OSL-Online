@@ -871,3 +871,46 @@ export async function sendemail(whom, subject, message) {
 	}
 	return true;
 }
+
+export async function vcard(memberid) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${memberid}/vcard`, request);
+	const payload = await response.blob();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+
+	// https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+	const blob = new Blob([payload], { type: 'text/vcard' });
+	if (navigator.msSaveBlob) {
+		// IE 10+
+		navigator.msSaveBlob(blob, `${memberid}.vcf`);
+	} else {
+		const link = document.createElement('a');
+		if (link.download !== undefined) {
+			// feature detection
+			// Browsers that support HTML5 download attribute
+			const url = URL.createObjectURL(blob);
+			link.setAttribute('href', url);
+			link.setAttribute('download', `${memberid}.vcf`);
+			link.style.visibility = 'hidden';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+	}
+}

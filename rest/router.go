@@ -23,6 +23,7 @@ func getServeMux() *httprouter.Router {
 	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, AuthLevelView))
 	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager)) // should use PUT
 	m.PUT("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
+	m.GET("/api/v1/member/:id/vcard", authMW(getMemberVcard, AuthLevelView))
 	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
 	m.PUT("/api/v1/member/:id/chapters", authMW(setMemberChapters, AuthLevelAdmin))
 

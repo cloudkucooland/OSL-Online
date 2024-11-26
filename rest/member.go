@@ -207,3 +207,27 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func getMemberVcard(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+	id, err := strconv.Atoi(ps.ByName("id"))
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+	mid := model.MemberID(id)
+	member, err := mid.Get()
+	if err != nil {
+		slog.Warn(err.Error())
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
+
+	w.Header().Set(contentType, "text/vcard")
+	if err := member.WriteVCard(w); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}

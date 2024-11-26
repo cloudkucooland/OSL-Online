@@ -6,9 +6,10 @@
 		getMemberChapters,
 		getChapters,
 		updateMemberChapters,
-		oslname
+		oslname,
+		vcard
 	} from '../oo';
-	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
+	import { Button, Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 
@@ -362,6 +363,10 @@
 					</div>
 				</div>
 			</section>
+
+			<section>
+				<Button onclick={() => vcard(r.ID)}>Add to Address Book</Button>
+			</section>
 		</form>
 	{:else}
 		<section>
@@ -390,6 +395,10 @@
 					<div class="col-span-3">{r.SecondaryEmail}</div>{/if}
 				{#if r.Chapter}<div class="col-span-1 justify-self-start">Chapter</div>
 					<div class="col-span-3">{r.Chapter}</div>{/if}
+				<div class="col-span-1 justify-self-start">&nbsp;</div>
+				<div class="col-span-3">
+					<Button onclick={() => vcard(r.ID)}>Add to Address Book</Button>
+				</div>
 			</div>
 		</section>
 	{/if}
