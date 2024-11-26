@@ -8,7 +8,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jung-kurt/gofpdf v1.16.2
-	github.com/lestrrat-go/jwx/v2 v2.1.1
+	github.com/lestrrat-go/jwx/v2 v2.1.3
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/nyaruka/phonenumbers v1.4.2
 	github.com/sethvargo/go-password v0.3.1
