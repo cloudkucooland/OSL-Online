@@ -396,9 +396,6 @@
 				{#if r.Chapter}<div class="col-span-1 justify-self-start">Chapter</div>
 					<div class="col-span-3">{r.Chapter}</div>{/if}
 				<div class="col-span-1 justify-self-start">&nbsp;</div>
-				<div class="col-span-3">
-					<Button onclick={() => vcard(r.ID)}>Add to Address Book</Button>
-				</div>
 			</div>
 		</section>
 	{/if}

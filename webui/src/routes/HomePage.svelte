@@ -2,7 +2,7 @@
 	import { getContext } from 'svelte';
 	import { push } from 'svelte-spa-router';
 	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
-	import { search } from '../oo';
+	import { updateMember, search, vcard } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
 	let { params = {} } = $props();
@@ -44,9 +44,9 @@
 				];
 			}
 			push(`/search/${query}`);
-		} catch (e) {
-			console.log(e);
-			toast.push(e.message);
+		} catch (err) {
+			console.log(err);
+			toast.push(err.message);
 		}
 	}
 
@@ -56,6 +56,19 @@
 		result = '';
 		query = '';
 		push(`/`);
+	}
+
+	async function quickRenew(e, r) {
+		e.preventDefault();
+		e.stopPropagation();
+		try {
+			const dd = new Date().toISOString().split('T');
+			await updateMember(r.ID, "DateReaffirmation", dd[0]);
+			push(`/member/${r.ID}`);
+		} catch (err) {
+			console.log(err);
+			toast.push(err.message);
+		}
 	}
 </script>
 
@@ -93,21 +106,24 @@
 		</Table>
 	</form>
 {:else}
-	<form onsubmit={resetSearch}>
+	<form>
 		<Table>
 			<TableBody>
 				{#each result as r, i}
 					<TableBodyRow>
-						<TableBodyCell>{i}</TableBodyCell>
 						<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
 						<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
 						<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
 						<TableBodyCell>{r.MemberStatus}</TableBodyCell>
+						<TableBodyCell><Button onclick={() => vcard(r.ID)}>Add to Contacts</Button></TableBodyCell>
+						{#if $me && $me.level > 1}
+						<TableBodyCell><Button onclick={(e) => quickRenew(e, r)}>Quick Renew</Button></TableBodyCell>
+						{/if}
 					</TableBodyRow>
 				{/each}
 				<TableBodyRow>
 					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
+					<TableBodyCell><Button onclick={resetSearch}>Reset</Button></TableBodyCell>
 				</TableBodyRow>
 			</TableBody>
 		</Table>
