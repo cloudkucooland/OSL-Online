@@ -42,9 +42,7 @@ func Friendzone() error {
 	return nil
 }
 
+// the logic for moving to friend is already in SetMemberField, use that
 func (id MemberID) makeFriend() error {
-	if err := id.SetMemberField("MemberStatus", "friend", MemberID(0)); err != nil {
-		return err
-	}
-	return nil
+	return id.SetMemberField("MemberStatus", "Friend", MemberID(0))
 }
