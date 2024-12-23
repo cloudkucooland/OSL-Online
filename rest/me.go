@@ -16,6 +16,7 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
 	username := model.Authname(getUser(r))
 	id, err := username.GetID()
+
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -29,6 +30,8 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
+
+	slog.Info("loading self", "user", m.OSLName())
 
 	if err := json.NewEncoder(w).Encode(m); err != nil {
 		slog.Error(err.Error())
@@ -61,6 +64,8 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
+
+	// slog.Info("loading self chpaters", "user", m.OSLName())
 
 	if err := json.NewEncoder(w).Encode(chapters); err != nil {
 		slog.Error(err.Error())

@@ -224,6 +224,8 @@ func getMemberVcard(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 
+	slog.Info("loaded vcard", "member", member.OSLName(), "requester", getUser(r))
+
 	w.Header().Set(contentType, "text/vcard")
 	if err := member.WriteVCard(w); err != nil {
 		slog.Error(err.Error())

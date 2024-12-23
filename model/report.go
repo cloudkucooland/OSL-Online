@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
 	"time"
 )
 
@@ -154,7 +155,7 @@ func ReportFontEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
 
-	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND PrimaryEmail IS NOT NULL AND Newsletter = 'electronic' ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND PrimaryEmail IS NOT NULL AND Newsletter != 'none' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -334,7 +335,7 @@ func DoxologyPrinted(w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"Last Name", "First Name", "Address", "City", "State", "Zip Code", "Country"})
 
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND DateReaffirmation > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY LastName, FirstName")
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -349,7 +350,8 @@ func DoxologyPrinted(w io.Writer) error {
 		_ = r.Write(member)
 	}
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY Name")
+	// subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'mailed' ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -370,9 +372,9 @@ func DoxologyPrinted(w io.Writer) error {
 // DoxologyEmailed writes a report that is structured for Google Groups CSV upload
 func DoxologyEmailed(w io.Writer) error {
 	r := csv.NewWriter(w)
-	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role", "Name"})
+	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
 
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus != 'Removed' AND Doxology = 'electronic' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology != 'none' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -383,10 +385,14 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		_ = r.Write([]string{"doxology@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER", m.OSLName()})
+		if strings.TrimSpace(m.PrimaryEmail) == "" {
+			continue
+		}
+		_ = r.Write([]string{"doxology@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER"})
 	}
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'electronic' AND PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
+	// subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -397,7 +403,10 @@ func DoxologyEmailed(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		_ = r.Write([]string{"doxology@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER", s.Name + " : " + s.Attn})
+		if strings.TrimSpace(s.PrimaryEmail) == "" {
+			continue
+		}
+		_ = r.Write([]string{"doxology@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER"})
 	}
 	r.Flush()
 	return nil
