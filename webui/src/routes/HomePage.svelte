@@ -63,7 +63,7 @@
 		e.stopPropagation();
 		try {
 			const dd = new Date().toISOString().split('T');
-			await updateMember(r.ID, "DateReaffirmation", dd[0]);
+			await updateMember(r.ID, 'DateReaffirmation', dd[0]);
 			push(`/member/${r.ID}`);
 		} catch (err) {
 			console.log(err);
@@ -100,7 +100,7 @@
 				</TableBodyRow>
 				<TableBodyRow>
 					<TableBodyCell>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button type="submit">Search</Button></TableBodyCell>
+					<TableBodyCell><Button color="green" type="submit">Search</Button></TableBodyCell>
 				</TableBodyRow>
 			</TableBody>
 		</Table>
@@ -115,15 +115,21 @@
 						<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
 						<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
 						<TableBodyCell>{r.MemberStatus}</TableBodyCell>
-						<TableBodyCell><Button onclick={() => vcard(r.ID)}>Add to Contacts</Button></TableBodyCell>
+						<TableBodyCell
+							><Button color="green" onclick={() => vcard(r.ID)}>Add to Contacts</Button
+							></TableBodyCell
+						>
 						{#if $me && $me.level > 1}
-						<TableBodyCell><Button onclick={(e) => quickRenew(e, r)}>Quick Renew</Button></TableBodyCell>
+							<TableBodyCell
+								><Button color="purple" onclick={(e) => quickRenew(e, r)}>Quick Renew</Button
+								></TableBodyCell
+							>
 						{/if}
 					</TableBodyRow>
 				{/each}
 				<TableBodyRow>
 					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button onclick={resetSearch}>Reset</Button></TableBodyCell>
+					<TableBodyCell><Button color="red" onclick={resetSearch}>Reset</Button></TableBodyCell>
 				</TableBodyRow>
 			</TableBody>
 		</Table>

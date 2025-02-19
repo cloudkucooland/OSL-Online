@@ -3,17 +3,17 @@
 	import { writable, readable } from 'svelte/store';
 	import Router from 'svelte-spa-router';
 	import {
+		DarkMode,
+		Footer,
+		FooterCopyright,
+		FooterLink,
 		Navbar,
 		NavBrand,
 		NavLi,
 		NavUl,
-		NavHamburger,
-		Footer,
-		FooterCopyright,
-		FooterLink
+		NavHamburger
 	} from 'flowbite-svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
-	import { DarkMode } from 'flowbite-svelte';
 
 	import HomePage from './routes/HomePage.svelte';
 	import Login from './routes/Login.svelte';
@@ -94,8 +94,8 @@
 	<Router {routes}></Router>
 </main>
 
-<Footer class="bottom-0 start-0 border-t py-2.5 sm:px-4">
-	<FooterCopyright href="/" by="The Order of St. Luke ®" year={2024} />
+<Footer class="start-0 bottom-0 border-t py-2.5 sm:px-4">
+	<FooterCopyright href="/" by="The Order of St. Luke ®" year={2025} />
 	{#if $me}<FooterLink href="#/Login">Log out</FooterLink>{/if}
 	<DarkMode />
 </Footer>
