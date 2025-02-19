@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/Boostport/address v0.11.2
 	github.com/aureum/usps-go v0.0.0-20150402201426-2f34ab376853
+	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jung-kurt/gofpdf v1.16.2
@@ -24,7 +25,6 @@ require (
 	github.com/andybalholm/cascadia v1.0.0 // indirect
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
-	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/google/uuid v1.0.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
