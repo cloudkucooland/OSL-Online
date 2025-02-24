@@ -31,7 +31,7 @@ func FormatAddress(m addressFormatter) (string, error) {
 		addr, err = m.formatMain()
 	}
 	if err != nil {
-		slog.Error(err.Error(), m)
+		slog.Error(err.Error(), "m", m)
 		return "", err
 	}
 
