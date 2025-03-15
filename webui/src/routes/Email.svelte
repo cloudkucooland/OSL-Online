@@ -28,11 +28,11 @@
 			toast.push(`Message Sent`);
 			content = '';
 			subject = 'OSL Announcment';
-			return true;
 		} catch (err) {
 			console.log(err);
 			toast.push('failed to create: ' + err.message);
 		}
+		return true;
 	}
 </script>
 

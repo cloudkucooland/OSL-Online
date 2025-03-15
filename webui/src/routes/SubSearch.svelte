@@ -58,7 +58,7 @@
 		<Table>
 			<TableBody>
 				<TableBodyRow>
-					<TableBodyCell colspan="2">&nbsp;</TableBodyCell>
+					<TableBodyCell colspan={2}>&nbsp;</TableBodyCell>
 					<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
 				</TableBodyRow>
 				{#each result as r, i}

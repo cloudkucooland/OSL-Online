@@ -18,11 +18,11 @@
 			const id = await createMember(firstname, lastname);
 			toast.push(`created`);
 			push(`/member/${id}`);
-			return true;
 		} catch (err) {
 			console.log(err);
 			toast.push('failed to create: ' + err.message);
 		}
+		return true;
 	}
 </script>
 

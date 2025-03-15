@@ -3,6 +3,7 @@
 	import { getSubscriber, updateSubscriber } from '../oo';
 	import { Label, Input, Checkbox, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
+	import { push } from 'svelte-spa-router';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {
@@ -21,22 +22,22 @@
 		try {
 			await updateSubscriber(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 
 	async function changeCheck(e) {
 		try {
 			await updateSubscriber(params.id, e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 </script>
 

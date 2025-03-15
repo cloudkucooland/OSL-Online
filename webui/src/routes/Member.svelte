@@ -78,33 +78,33 @@
 		try {
 			await updateMember(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err.message);
 		}
+		return true;
 	}
 
 	async function changeCheck(e) {
 		try {
 			await updateMember(params.id, e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err.message);
 		}
+		return true;
 	}
 
 	async function setchapters() {
 		try {
 			await updateMemberChapters(params.id, selectedchapters);
 			toast.push(`Updated Chapters`);
-			return true;
 		} catch (err) {
 			toast.push('failed to set chapter: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 </script>
 
