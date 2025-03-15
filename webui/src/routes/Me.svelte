@@ -78,33 +78,33 @@
 		try {
 			await updateMe(e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 
 	async function changeCheck(e) {
 		try {
 			await updateMe(e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
-			return true;
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 
 	async function setchapters() {
 		try {
 			await updateMeChapters(selectedchapters);
 			toast.push(`Updated Chapters`);
-			return true;
 		} catch (err) {
 			toast.push('failed to set chapter: ' + err.message);
 			console.log(err);
 		}
+		return true;
 	}
 </script>
 
@@ -158,11 +158,11 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="DateReaffirmation" class="block">Last Reffirmation</Label>
-					<Input id="DateReaffirmation" value={r.DateReaffirmation} disabled="true" />
+					<Input id="DateReaffirmation" value={r.DateReaffirmation} disabled={true} />
 				</div>
 				<div class="col-span-1">
 					<Label for="MemberStatus" class="block">Member Status</Label>
-					<Select id="MemberStatus" items={memberstatus} value={r.MemberStatus} disabled="true" />
+					<Select id="MemberStatus" items={memberstatus} value={r.MemberStatus} disabled={true} />
 				</div>
 				<div class="col-span-1">
 					<Label for="Title" class="block">Title</Label>
@@ -283,11 +283,11 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-2">
 					<Label for="DateFirstVows" class="block">First Vows</Label>
-					<Input id="DateFirstVows" value={r.DateFirstVows} disabled="true" />
+					<Input id="DateFirstVows" value={r.DateFirstVows} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateNovitiate" class="block">Novitiate</Label>
-					<Input id="DateNovitiate" value={r.DateNovitiate} disabled="true" />
+					<Input id="DateNovitiate" value={r.DateNovitiate} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="BirthDate" class="block">Birth Day</Label>
@@ -295,19 +295,19 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="DateDeceased" class="block">Deceased</Label>
-					<Input id="DateDeceased" value={r.DateDeceased} disabled="true" />
+					<Input id="DateDeceased" value={r.DateDeceased} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateLifeVows" class="block">Life Vows</Label>
-					<Input id="DateLifeVows" value={r.DateLifeVows} disabled="true" />
+					<Input id="DateLifeVows" value={r.DateLifeVows} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateRecordCreated" class="block">Record Created</Label>
-					<Input id="DateRecordCreated" value={r.DateRecordCreated} disabled="true" />
+					<Input id="DateRecordCreated" value={r.DateRecordCreated} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateRemoved" class="block">Removed</Label>
-					<Input id="DateRemoved" value={r.DateRemoved} disabled="true" />
+					<Input id="DateRemoved" value={r.DateRemoved} disabled={true} />
 				</div>
 			</div>
 		</section>
@@ -317,11 +317,11 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-2">
 					<Label for="HowJoined" class="block">How Joined</Label>
-					<Input id="HowJoined" value={r.HowJoined} disabled="true" />
+					<Input id="HowJoined" value={r.HowJoined} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="HowRemoved" class="block">How Removed</Label>
-					<Select id="HowRemoved" items={removereasons} value={r.HowRemoved} disabled="true" />
+					<Select id="HowRemoved" items={removereasons} value={r.HowRemoved} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Status" class="block">Status</Label>
@@ -335,7 +335,7 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="Leadership" class="block">Leadership</Label>
-					<Select id="Leadership" items={leadership} value={r.Leadership} disabled="true" />
+					<Select id="Leadership" items={leadership} value={r.Leadership} disabled={true} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Chapters" class="block" style="color: red">Chapters</Label>
