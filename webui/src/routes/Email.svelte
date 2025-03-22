@@ -22,7 +22,9 @@
 	let content = $state('');
 	let subject = $state('OSL Announcement');
 
-	async function send() {
+	async function send(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		try {
 			const id = await sendemail(whom, subject, content);
 			toast.push(`Message Sent`);
@@ -40,7 +42,7 @@
 	<title>OSL Member Manager: Email</title>
 </svelte:head>
 
-<form>
+<form onsubmit={send}>
 	<section>
 		<div class="grid grid-cols-4 gap-4 px-4 py-2">
 			<div class="col-span-4">
@@ -59,7 +61,7 @@
 			</div>
 			<div class="col-span-3"></div>
 			<div class="col-span-1">
-				<Button type="submit" on:click={send}>Send</Button>
+				<Button type="submit">Send</Button>
 			</div>
 		</div>
 	</section>

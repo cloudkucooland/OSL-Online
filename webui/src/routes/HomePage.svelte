@@ -16,13 +16,14 @@
 
 	if (params.query) {
 		query = params.query;
-		const e = new Event('search', { bubbles: true, cancelable: true });
-		doSearch(e);
+		console.log(query);
+		const event = new Event('search', { bubbles: true, cancelable: true });
+		doSearch(event);
 	}
 
-	async function doSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function doSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 
 		if (!query) {
 			toast.push('Please enter a search query, mimimum of 3 letters');
@@ -50,17 +51,17 @@
 		}
 	}
 
-	async function resetSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function resetSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		result = '';
 		query = '';
 		push(`/`);
 	}
 
-	async function quickRenew(e, r) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function quickRenew(event, r) {
+		event.preventDefault();
+		event.stopPropagation();
 		try {
 			const dd = new Date().toISOString().split('T');
 			await updateMember(r.ID, 'DateReaffirmation', dd[0]);
@@ -106,7 +107,7 @@
 		</Table>
 	</form>
 {:else}
-	<form>
+	<form onsubmit={resetSearch}>
 		<Table>
 			<TableBody>
 				{#each result as r, i}
@@ -129,7 +130,7 @@
 				{/each}
 				<TableBodyRow>
 					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button color="red" onclick={resetSearch}>Reset</Button></TableBodyCell>
+					<TableBodyCell><Button color="red" type="submit">Reset</Button></TableBodyCell>
 				</TableBodyRow>
 			</TableBody>
 		</Table>

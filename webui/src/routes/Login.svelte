@@ -40,11 +40,7 @@
 			window.location.href = '';
 		} catch (e) {
 			console.log(e);
-			if (e.message == 'crypto/bcrypt: hashedPassword is not the hash of the given password') {
-				toast.push('Incorrect password for ' + username);
-				return;
-			}
-			toast.push(e.message);
+			toast.push('Incorrect password for ' + username);
 		}
 	}
 </script>

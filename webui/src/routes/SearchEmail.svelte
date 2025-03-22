@@ -20,9 +20,9 @@
 		doSearch(e);
 	}
 
-	async function doSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function doSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 
 		if (!query || query == '' || query == 'undefined') {
 			toast.push('please enter a search query, a full email address');
@@ -37,15 +37,15 @@
 				];
 			}
 			push(`#/searchemail/${query}`);
-		} catch (e) {
-			console.log(e);
-			toast.push(e.message);
+		} catch (err) {
+			console.log(err);
+			toast.push(err.message);
 		}
 	}
 
-	async function resetSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function resetSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		result = '';
 		query = '';
 		push(`#/searchemail`);
@@ -57,11 +57,7 @@
 </svelte:head>
 
 {#if !result}
-	<form
-		onsubmit={async (e) => {
-			await doSearch(e);
-		}}
-	>
+	<form onsubmit={doSearch}>
 		<Table>
 			<TableBody>
 				<TableBodyRow>

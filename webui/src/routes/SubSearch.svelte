@@ -13,21 +13,20 @@
 	let query = $state();
 	let result = $state();
 
-	async function doSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
+	async function doSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		try {
 			result = await subsearch(query);
-		} catch (e) {
-			console.log(e);
-			toast.push(e.message);
+		} catch (err) {
+			console.log(err);
+			toast.push(err.message);
 		}
 	}
 
-	async function resetSearch(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function resetSearch(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		result = '';
 	}
 </script>

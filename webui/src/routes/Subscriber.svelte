@@ -19,6 +19,8 @@
 	];
 
 	async function change(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		try {
 			await updateSubscriber(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
@@ -29,7 +31,16 @@
 		return true;
 	}
 
+	async function reload(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		// do nothing
+		return true;
+	}
+
 	async function changeCheck(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		try {
 			await updateSubscriber(params.id, e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
@@ -48,7 +59,7 @@
 {#await getSubscriber(params.id)}
 	<h3>... loading ...</h3>
 {:then r}
-	<form>
+	<form onsubmit={reload}>
 		<section>
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-4">

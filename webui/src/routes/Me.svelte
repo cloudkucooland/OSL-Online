@@ -74,6 +74,13 @@
 		return m;
 	}
 
+	// useless
+	async function reload(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		return await load();
+	}
+
 	async function change(e) {
 		try {
 			await updateMe(e.target.id, e.target.value);
@@ -122,7 +129,7 @@
 		>
 	</div>
 
-	<form>
+	<form onsubmit={reload}>
 		<section>
 			<h3>
 				If any data is out-of date please use the <a href="https://saint-luke.net/reaffirmation"

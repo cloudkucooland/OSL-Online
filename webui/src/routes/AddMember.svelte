@@ -13,7 +13,10 @@
 	let firstname = $state('first');
 	let lastname = $state('last');
 
-	async function create() {
+	async function create(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
 		try {
 			const id = await createMember(firstname, lastname);
 			toast.push(`created`);
@@ -30,7 +33,7 @@
 	<title>OSL Member Manager: Create member</title>
 </svelte:head>
 
-<form>
+<form onsubmit={create}>
 	<section>
 		<div class="grid grid-cols-2 gap-4 px-4 py-2">
 			<div class="col-span-1">
@@ -42,7 +45,7 @@
 				<Input id="LastName" bind:value={lastname} />
 			</div>
 			<div class="col-span-2">
-				<Button type="submit" on:click={create}>Add</Button>
+				<Button type="submit">Add</Button>
 			</div>
 		</div>
 	</section>

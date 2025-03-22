@@ -74,7 +74,16 @@
 		return m;
 	}
 
+	// useless, but so when I grep for form actions, I see something
+	async function reload(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		load(params.id);
+	}
+
 	async function change(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		try {
 			await updateMember(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
@@ -86,6 +95,8 @@
 	}
 
 	async function changeCheck(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		try {
 			await updateMember(params.id, e.target.id, e.target.checked);
 			toast.push(`Changed ${e.target.id}`);
@@ -96,7 +107,9 @@
 		return true;
 	}
 
-	async function setchapters() {
+	async function setchapters(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		try {
 			await updateMemberChapters(params.id, selectedchapters);
 			toast.push(`Updated Chapters`);
@@ -135,7 +148,7 @@
 			</div>
 		</section>
 
-		<form>
+		<form onsubmit={reload}>
 			<section>
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-3">

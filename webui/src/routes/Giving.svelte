@@ -20,7 +20,10 @@
 
 	console.log(params);
 
-	async function add() {
+	async function add(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
 		try {
 			await postGiving(params.id, postdate, amount, description, check, transaction);
 			toast.push(`Posted`);
@@ -81,11 +84,7 @@
 	</section>
 
 	<section>
-		<form
-			onsubmit={async () => {
-				await add();
-			}}
-		>
+		<form onsubmit={add}>
 			<div class="grid grid-cols-5 gap-4 px-4 py-2">
 				<div class="col-span-1">
 					<Label for="Date" class="block">Date</Label>
@@ -109,7 +108,7 @@
 				</div>
 				<div class="col-span-4">&nbsp;</div>
 				<div class="col-span-1">
-					<Button type="submit">Add Giving Record</Button>
+					<Button color="green" type="submit">Add Giving Record</Button>
 				</div>
 			</div>
 		</form>
