@@ -11,9 +11,12 @@
 		NavBrand,
 		NavLi,
 		NavUl,
-		NavHamburger
+		NavHamburger,
+		Dropdown,
+		DropdownItem
 	} from 'flowbite-svelte';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 
 	import HomePage from './routes/HomePage.svelte';
 	import Login from './routes/Login.svelte';
@@ -36,6 +39,8 @@
 	const _init = getMe();
 	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });
 	const { me, chapters } = getContext('oo');
+
+	console.log($me.sub);
 
 	const routes = {
 		'/': HomePage,
@@ -66,26 +71,47 @@
 </script>
 
 <svelte:window />
-<header class="w-full flex-none bg-white dark:bg-slate-950">
+<header class="w-full flex-none bg-white">
 	<Navbar>
 		<NavBrand href="#/">
-			<span class="whitspace-nowrap self-center text-xl dark:text-white">OSL Member Directory</span>
+			<span class="self-center text-xl whitespace-nowrap">OSL Member Directory</span>
 		</NavBrand>
-		<NavHamburger></NavHamburger>
+		<NavHamburger />
 		<NavUl>
-			<NavLi href="#/me">Me</NavLi>
-			<NavLi href="#/chapterbrowser">Chapters</NavLi>
-			<NavLi href="#/localitybrowser">Localities</NavLi>
-			<NavLi href="#/leadership">Leadership</NavLi>
-			{#if $me && $me.level >= 1}
-				<NavLi href="#/reports">Reports</NavLi>{/if}
-			{#if $me && $me.level == 2}
-				<NavLi href="#/email">Email</NavLi>
+			{#if $me && $me.sub}
+				<NavLi class="cursor-pointer">
+					Me <ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
+				</NavLi>
+				<Dropdown class="z-20 w-44">
+					<DropdownItem href="#/me">{$me.sub}</DropdownItem>
+					<DropdownItem href="#/Login">Log out</DropdownItem>
+				</Dropdown>
 			{/if}
-			{#if $me}<NavLi href="#/Login">Log out</NavLi>{/if}
+
+			<NavLi class="cursor-pointer">
+				Lists <ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
+			</NavLi>
+			<Dropdown class="z-20 w-44">
+				<DropdownItem href="#/chapterbrowser">Chapters</DropdownItem>
+				<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
+				<DropdownItem href="#/leadership">Leadership</DropdownItem>
+			</Dropdown>
+
+			{#if $me && $me.level >= 1}
+				<NavLi href="#/reports">Reports</NavLi>
+			{/if}
+
+			{#if $me && $me.level == 2}
+				<NavLi class="cursor-pointer">
+					Admin Tools<ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
+				</NavLi>
+				<Dropdown>
+					<DropdownItem href="#/email">Email membership</DropdownItem>
+					<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
+				</Dropdown>
+			{/if}
 		</NavUl>
 	</Navbar>
-	<div class="flex gap-10"></div>
 	<SvelteToast />
 </header>
 
@@ -94,6 +120,5 @@
 </main>
 
 <Footer class="start-0 bottom-0 border-t py-2.5 sm:px-4">
-	<FooterCopyright href="/" by="The Order of St. Luke ®" year={2025} />
-	<!-- <DarkMode /> -->
+	<FooterCopyright href="https://saint-luke.net/" by="The Order of St. Luke ®" year={2025} />
 </Footer>

@@ -183,11 +183,3 @@
 		{/if}
 	</TableBody>
 </Table>
-
-{#if $me && $me.level > 1}
-	<div>
-		<p>
-			<a href="#/subsearch">Subscriber Search</a>
-		</p>
-	</div>
-{/if}
