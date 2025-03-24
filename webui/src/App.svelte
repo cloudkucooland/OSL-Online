@@ -29,7 +29,6 @@
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
 	import Leadership from './routes/Leadership.svelte';
-	import SearchEmail from './routes/SearchEmail.svelte';
 	import { getMe, getChapters } from './oo';
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
 	import Email from './routes/Email.svelte';
@@ -59,8 +58,6 @@
 		'/chapterbrowser/:id': ChapterBrowser,
 		'/leadership/': Leadership,
 		'/leadership/:id': Leadership,
-		'/searchemail': SearchEmail,
-		'/searchemail/:query': SearchEmail,
 		'/localitybrowser/': LocalityBrowser,
 		'/localitybrowser/:loc': LocalityBrowser,
 		'/email/': Email,
@@ -83,7 +80,9 @@
 			{#if $me && $me.level >= 1}
 				<NavLi href="#/reports">Reports</NavLi>{/if}
 			{#if $me && $me.level == 2}
-				<NavLi href="#/email">Email</NavLi>{/if}
+				<NavLi href="#/email">Email</NavLi>
+			{/if}
+			{#if $me}<NavLi href="#/Login">Log out</NavLi>{/if}
 		</NavUl>
 	</Navbar>
 	<div class="flex gap-10"></div>
@@ -96,6 +95,5 @@
 
 <Footer class="start-0 bottom-0 border-t py-2.5 sm:px-4">
 	<FooterCopyright href="/" by="The Order of St. Luke ®" year={2025} />
-	{#if $me}<FooterLink href="#/Login">Log out</FooterLink>{/if}
-	<DarkMode />
+	<!-- <DarkMode /> -->
 </Footer>
