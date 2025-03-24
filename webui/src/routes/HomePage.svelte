@@ -12,6 +12,7 @@
 	} from 'flowbite-svelte';
 	import { updateMember, search, searchemail, vcard } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
+	import { SearchOutline } from 'flowbite-svelte-icons';
 
 	let { params = {} } = $props();
 	const { me } = getContext('oo');
@@ -21,7 +22,7 @@
 
 	let query = $state();
 	let result = $state();
-	let mode = $state();
+	let mode = $state('name');
 
 	const modes = [
 		{ value: 'name', name: 'Name', selected: true },
@@ -136,7 +137,10 @@
 				<TableBodyCell>
 					<Input type="text" name="query" bind:value={query} oninput={(e) => newinput(e)} />
 				</TableBodyCell>
-				<TableBodyCell><Button color="green" type="submit">Search</Button></TableBodyCell>
+				<TableBodyCell
+					><Button color="green" type="submit"><SearchOutline class="h-6 w-6" /> Search</Button
+					></TableBodyCell
+				>
 			</TableBodyRow>
 		</TableBody>
 	</Table>
