@@ -47,7 +47,7 @@
 				</TableBodyRow>
 				<TableBodyRow>
 					<TableBodyCell>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button type="submit">Search</Button></TableBodyCell>
+					<TableBodyCell><Button type="submit" color="green">Search</Button></TableBodyCell>
 				</TableBodyRow>
 			</TableBody>
 		</Table>
@@ -58,7 +58,7 @@
 			<TableBody>
 				<TableBodyRow>
 					<TableBodyCell colspan={2}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button type="submit">Reset</Button></TableBodyCell>
+					<TableBodyCell><Button type="submit" color="red">Reset</Button></TableBodyCell>
 				</TableBodyRow>
 				{#each result as r, i}
 					<TableBodyRow>

@@ -60,6 +60,6 @@
 		<div class="col-span-6"><Input type="password" name="password" bind:value={password} /></div>
 		<div class="col-span-4">&nbsp;</div>
 		<div class="col-span-2"><a href="#/register">Register/Lost Password</a></div>
-		<div class="col-span-2"><Button type="submit">Login</Button></div>
+		<div class="col-span-2"><Button type="submit" color="green">Login</Button></div>
 	</div>
 </form>

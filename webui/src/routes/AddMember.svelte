@@ -45,7 +45,7 @@
 				<Input id="LastName" bind:value={lastname} />
 			</div>
 			<div class="col-span-2">
-				<Button type="submit">Add</Button>
+				<Button type="submit" color="green">Add</Button>
 			</div>
 		</div>
 	</section>

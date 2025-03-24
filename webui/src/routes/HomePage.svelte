@@ -1,8 +1,16 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { push } from 'svelte-spa-router';
-	import { Table, TableBody, TableBodyCell, TableBodyRow, Button, Input } from 'flowbite-svelte';
-	import { updateMember, search, vcard } from '../oo';
+	import {
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		Button,
+		Input,
+		Select
+	} from 'flowbite-svelte';
+	import { updateMember, search, searchemail, vcard } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 
 	let { params = {} } = $props();
@@ -13,9 +21,15 @@
 
 	let query = $state();
 	let result = $state();
+	let mode = $state();
+
+	const modes = [
+		{ value: 'name', name: 'Name', selected: true },
+		{ value: 'email', name: 'Full/Exact Email Address' }
+	];
 
 	if (params.query) {
-		console.log("query params: " + params.query);
+		console.log('query params: ' + params.query);
 		query = params.query;
 		const event = new Event('search', { bubbles: true, cancelable: true });
 		doSearch(event);
@@ -38,11 +52,16 @@
 		}
 
 		try {
-			result = await search(query);
+			switch (mode) {
+				case 'email':
+					result = await searchemail(query);
+					break;
+				default:
+					result = await search(query);
+					break;
+			}
 			if (result == null || result.length == 0) {
-				result = [
-					{ id: 0, FirstName: 'no results', LastName: '', PreferredName: '', MemberStatus: '' }
-				];
+				result = [];
 			}
 			push(`/search/${query}`);
 		} catch (err) {
@@ -54,8 +73,9 @@
 	async function resetSearch(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		result = '';
+		result = [];
 		query = '';
+		mode = 'name';
 		push(`/`);
 	}
 
@@ -71,77 +91,99 @@
 			toast.push(err.message);
 		}
 	}
+
+	async function newinput(event) {
+		return; // for now, it's kinda annoying IMO
+		if (mode != 'name') return;
+		if (query.length >= 6) {
+			doSearch(event);
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>OSL Member Manager : {query}</title>
 </svelte:head>
 
-{#if !result}
-	<form onsubmit={doSearch}>
-		<Table>
-			<TableBody>
+<form onsubmit={doSearch}>
+	<Table>
+		<TableBody>
+			{#if !result}
 				<TableBodyRow>
-					<TableBodyCell colspan={2}>
-						This searches first, last, life-vow, and preferred name as individual fields.<br />
-						Do <b>not</b> type full names (e.g. "Bob Smith"), they will not match the individual
-						fields.<br />
-						Use <b>one</b> name or, better still, a partial name to search.<br />
-						A minimum of 3 letters are required.<br />
-						Case is ignored.<br />
-						<i>e.g. <b>"sMi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob <b>Smi</b>th".</i
-						><br />
-					</TableBodyCell>
-				</TableBodyRow>
-				<TableBodyRow>
-					<TableBodyCell>Member Search:</TableBodyCell>
-					<TableBodyCell>
-						<Input type="text" name="query" bind:value={query} />
-					</TableBodyCell>
-				</TableBodyRow>
-				<TableBodyRow>
-					<TableBodyCell>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button color="green" type="submit">Search</Button></TableBodyCell>
-				</TableBodyRow>
-			</TableBody>
-		</Table>
-	</form>
-{:else}
-	<form onsubmit={resetSearch}>
-		<Table>
-			<TableBody>
-				{#each result as r, i}
-					<TableBodyRow>
-						<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
-						<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
-						<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
-						<TableBodyCell>{r.MemberStatus}</TableBodyCell>
-						<TableBodyCell
-							><Button color="green" onclick={() => vcard(r.ID)}>Add to Contacts</Button
-							></TableBodyCell
-						>
-						{#if $me && $me.level > 1}
-							<TableBodyCell
-								><Button color="purple" onclick={(e) => quickRenew(e, r)}>Quick Renew</Button
-								></TableBodyCell
-							>
+					<TableBodyCell colspan={3}>
+						{#if mode != 'email'}
+							This searches first, last, life-vow, and preferred name as individual fields.<br />
+							Do <b>not</b> type full names (e.g. "Bob Smith"), they will not match the individual
+							fields.<br />
+							Use <b>one</b> name or, better still, a partial name to search.<br />
+							A minimum of 3 letters are required.<br />
+							Case is ignored.<br />
+							<i>
+								e.g. <b>"sMi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob
+								<b>Smi</b>th".
+							</i> <br />
 						{/if}
-					</TableBodyRow>
-				{/each}
-				<TableBodyRow>
-					<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-					<TableBodyCell><Button color="red" type="submit">Reset</Button></TableBodyCell>
+						{#if mode == 'email'}
+							This searches by EXACT and FULL email address, not partial matches.
+						{/if}
+					</TableBodyCell>
 				</TableBodyRow>
-			</TableBody>
-		</Table>
-	</form>
-{/if}
+			{/if}
+			<TableBodyRow>
+				<TableBodyCell>
+					<Select class="mt-2" items={modes} bind:value={mode} />
+				</TableBodyCell>
+				<TableBodyCell>
+					<Input type="text" name="query" bind:value={query} oninput={(e) => newinput(e)} />
+				</TableBodyCell>
+				<TableBodyCell><Button color="green" type="submit">Search</Button></TableBodyCell>
+			</TableBodyRow>
+		</TableBody>
+	</Table>
+</form>
+<Table>
+	<TableBody>
+		{#each result as r, i}
+			<TableBodyRow>
+				<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
+				<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
+				<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
+				<TableBodyCell>{r.MemberStatus}</TableBodyCell>
+				<TableBodyCell>
+					<Button color="green" onclick={() => vcard(r.ID)}>Add to Contacts</Button>
+				</TableBodyCell>
+				<TableBodyCell>
+					{#if $me && $me.level > 1}
+						<Button color="purple" onclick={(e) => quickRenew(e, r)}>Quick Renew</Button>
+					{/if}
+				</TableBodyCell>
+			</TableBodyRow>
+		{/each}
+		<TableBodyRow>
+			<TableBodyCell colspan={5}>&nbsp;</TableBodyCell>
+			<TableBodyCell>
+				{#if result}
+					<form onsubmit={resetSearch}>
+						<Button color="red" type="submit">Reset</Button>
+					</form>
+				{/if}
+			</TableBodyCell>
+		</TableBodyRow>
+		{#if result == '' && query.length > 3}
+			<TableBodyRow>
+				<TableBodyCell colspan={5}>No results for query : {query}</TableBodyCell>
+				<TableBodyCell>
+					<Button color="purple" onclick={() => push('#/addmember')}>Add Member</Button>
+				</TableBodyCell>
+			</TableBodyRow>
+		{/if}
+	</TableBody>
+</Table>
 
 {#if $me && $me.level > 1}
 	<div>
 		<p>
-			<a href="#/subsearch">Subscriber Search</a> | <a href="#/searchemail">Email Search</a> |
-			<a href="#/addmember">Add Member</a>
+			<a href="#/subsearch">Subscriber Search</a>
 		</p>
 	</div>
 {/if}

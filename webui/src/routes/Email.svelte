@@ -61,7 +61,7 @@
 			</div>
 			<div class="col-span-3"></div>
 			<div class="col-span-1">
-				<Button type="submit">Send</Button>
+				<Button type="submit" color="red">Send</Button>
 			</div>
 		</div>
 	</section>

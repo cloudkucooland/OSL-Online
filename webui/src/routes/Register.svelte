@@ -24,6 +24,7 @@
 			console.log(e.message);
 			toast.push(e.message);
 		}
+		return true;
 	}
 </script>
 
@@ -39,7 +40,7 @@
 			</div>
 			<div class="col-span-6"><Input type="text" name="username" bind:value={username} /></div>
 			<div class="col-span-6">&nbsp;</div>
-			<div class="col-span-2"><Button type="submit">Register/Recover</Button></div>
+			<div class="col-span-2"><Button type="submit" color="green">Register/Recover</Button></div>
 		{:else}
 			<div class="col-span-8">Request submitted. Please check your email for your password.</div>
 		{/if}

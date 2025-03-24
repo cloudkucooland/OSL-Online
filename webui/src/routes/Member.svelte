@@ -378,7 +378,7 @@
 			</section>
 
 			<section>
-				<Button onclick={() => vcard(r.ID)}>Add to Address Book</Button>
+				<Button onclick={() => vcard(r.ID)} color="purple">Add to Address Book</Button>
 			</section>
 		</form>
 	{:else}
