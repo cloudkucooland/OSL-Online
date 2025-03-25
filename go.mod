@@ -8,12 +8,12 @@ require (
 	github.com/Boostport/address v0.12.0
 	github.com/aureum/usps-go v0.0.0-20150402201426-2f34ab376853
 	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff
-	github.com/go-sql-driver/mysql v1.9.0
+	github.com/go-sql-driver/mysql v1.9.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/jwx/v2 v2.1.4
 	github.com/matcornic/hermes/v2 v2.1.0
-	github.com/nyaruka/phonenumbers v1.5.0
+	github.com/nyaruka/phonenumbers v1.6.0
 	github.com/sethvargo/go-password v0.3.1
 	golang.org/x/crypto v0.36.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
@@ -47,12 +47,12 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/vanng822/css v1.0.1 // indirect
-	github.com/vanng822/go-premailer v1.23.0 // indirect
+	github.com/vanng822/go-premailer v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
