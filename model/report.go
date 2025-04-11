@@ -150,54 +150,6 @@ func ReportBarb(w io.Writer) error {
 	return nil
 }
 
-// ReportFontEmail writes a report structured for Google Groups CSV upload
-func ReportFontEmailed(w io.Writer) error {
-	r := csv.NewWriter(w)
-	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
-
-	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND PrimaryEmail IS NOT NULL AND Newsletter != 'none' ORDER BY LastName, FirstName")
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var e string
-		if err := rows.Scan(&e); err != nil {
-			slog.Error(err.Error())
-			// return err
-			continue
-		}
-		_ = r.Write([]string{"font@saint-luke.net", e, "USER", "MEMBER"})
-	}
-	r.Flush()
-	return nil
-}
-
-/* func ReportSubscriber() ([]*Subscriber, error) {
-	subscribers := make([]*Subscriber, 0)
-
-	rows, err := db.Query("SELECT id FROM subscriber ORDER BY Name")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var id SubscriberID
-		if err := rows.Scan(&id); err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-
-		sub, _ := id.Get()
-		subscribers = append(subscribers, sub)
-	}
-	return subscribers, nil
-} */
-
 // ActiveMemberIDs returns All Annual Vows, Life Vows and Friends
 func ActiveMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') ORDER BY LastName, FirstName")
@@ -364,49 +316,6 @@ func DoxologyPrinted(w io.Writer) error {
 		}
 		subscriber := []string{s.Name, s.Attn, s.Address, s.City, s.State, s.PostalCode, s.Country}
 		_ = r.Write(subscriber)
-	}
-	r.Flush()
-	return nil
-}
-
-// DoxologyEmailed writes a report that is structured for Google Groups CSV upload
-func DoxologyEmailed(w io.Writer) error {
-	r := csv.NewWriter(w)
-	_ = r.Write([]string{"Group Email [Required]", "Member Email", "Member Type", "Member Role"})
-
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology != 'none' AND PrimaryEmail IS NOT NULL ORDER BY LastName, FirstName")
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	for _, id := range members {
-		m, err := id.Get()
-		if err != nil {
-			continue
-		}
-		if strings.TrimSpace(m.PrimaryEmail) == "" {
-			continue
-		}
-		_ = r.Write([]string{"doxology@saint-luke.net", m.PrimaryEmail, "USER", "MEMBER"})
-	}
-
-	// subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL ORDER BY Name")
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	for _, id := range subscribers {
-		s, err := id.Get()
-		if err != nil {
-			continue
-		}
-		if strings.TrimSpace(s.PrimaryEmail) == "" {
-			continue
-		}
-		_ = r.Write([]string{"doxology@saint-luke.net", s.PrimaryEmail, "USER", "MEMBER"})
 	}
 	r.Flush()
 	return nil

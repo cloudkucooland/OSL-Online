@@ -49,12 +49,6 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	case "doxprint":
 		w.Header().Set(contentType, csvMime)
 		err = model.DoxologyPrinted(w)
-	case "doxemail":
-		w.Header().Set(contentType, csvMime)
-		err = model.DoxologyEmailed(w)
-	case "fontemail":
-		w.Header().Set(contentType, csvMime)
-		err = model.ReportFontEmailed(w)
 	case "allsubscribers":
 		w.Header().Set(contentType, csvMime)
 		err = model.ReportAllSubscribers(w)

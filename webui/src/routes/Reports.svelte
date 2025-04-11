@@ -29,16 +29,6 @@
 		>
 	</li>
 	<li>
-		<a href="#/reports" onclick={() => report('doxemail')}
-			>Doxology Email List (member + subscriber)</a
-		>
-	</li>
-	<li>
-		<a href="#/reports" onclick={() => report('fontemail')}
-			>Font Email List (for google groups update)</a
-		>
-	</li>
-	<li>
 		<a href="#/reports" onclick={() => report('allsubscribers')}>All Subscribers</a>
 	</li>
 	<li><a href="#/reports" onclick={() => report('barb')}>Sr. Barb's Monthly Prayer list</a></li>
