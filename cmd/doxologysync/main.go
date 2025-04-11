@@ -85,7 +85,7 @@ func checkDoxology(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if member.Doxology == "none" {
+	if strings.ToLower(member.Doxology) == "none" {
 		return false, nil
 	}
 
@@ -104,7 +104,7 @@ func checkDoxologySubscriber(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if subscriber.Doxology == "none" {
+	if strings.ToLower(subscriber.Doxology) == "none" {
 		return false, nil
 	}
 

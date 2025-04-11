@@ -60,7 +60,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	toadd, err := model.DoxologyEmailedDirect()
+	toadd, err := model.FontEmailedDirect()
 	for _, m := range toadd {
 		m = strings.ToLower(m)
 		if _, ok := known[m]; !ok {
@@ -79,32 +79,13 @@ func checkFont(email string) (bool, error) {
 		return false, err
 	}
 	if len(found) == 0 { // should be != 1 but Br Dan and Sr. Mary-O share an address
-		return checkFontSubscriber(email)
+		return false, nil
 	}
 	member, err := found[0].ID.Get()
 	if err != nil {
 		return false, err
 	}
 	if strings.ToLower(member.Newsletter) == "none" {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func checkFontSubscriber(email string) (bool, error) {
-	found, err := model.SubscriberSearchEmail(email)
-	if err != nil {
-		return false, err
-	}
-	if len(found) == 0 {
-		return false, nil
-	}
-	subscriber, err := found[0].ID.Get()
-	if err != nil {
-		return false, err
-	}
-	if strings.ToLower(subscriber.Newsletter) == "none" {
 		return false, nil
 	}
 
