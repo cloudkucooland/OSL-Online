@@ -34,20 +34,20 @@ func main() {
 		panic(err.Error())
 	}
 
-	call := adminService.Members.List("doxology@saint-luke.net")
+	call := adminService.Members.List("font@saint-luke.net")
 	known := make(map[string]bool, 0)
 	err = call.Pages(ctx, func(members *admin.Members) error {
 		for _, m := range members.Members {
 			e := strings.ToLower(m.Email)
-			ok, err := checkDoxology(e)
+			ok, err := checkFont(e)
 			if err != nil {
-				slog.Error("doxology", "error", err.Error())
+				slog.Error("font", "error", err.Error())
 				continue
 			}
 			if !ok {
-				slog.Info("doxology", "message", "removing", "user", e)
-				if err := adminService.Members.Delete("doxology@saint-luke.net", e).Do(); err != nil {
-					slog.Error("doxology", "error", err.Error())
+				slog.Info("font", "message", "removing", "user", e)
+				if err := adminService.Members.Delete("font@saint-luke.net", e).Do(); err != nil {
+					slog.Error("font", "error", err.Error())
 					continue
 				}
 			} else {
@@ -64,35 +64,35 @@ func main() {
 	for _, m := range toadd {
 		m = strings.ToLower(m)
 		if _, ok := known[m]; !ok {
-			slog.Info("doxology", "message", "adding user", "email", m)
-			if _, err := adminService.Members.Insert("doxology@saint-luke.net", &admin.Member{Email: m}).Do(); err != nil {
-				slog.Error("doxology", "error", err.Error())
+			slog.Info("font", "message", "adding user", "email", m)
+			if _, err := adminService.Members.Insert("font@saint-luke.net", &admin.Member{Email: m}).Do(); err != nil {
+				slog.Error("font", "error", err.Error())
 				continue
 			}
 		}
 	}
 }
 
-func checkDoxology(email string) (bool, error) {
+func checkFont(email string) (bool, error) {
 	found, err := model.SearchEmail(email, true)
 	if err != nil {
 		return false, err
 	}
 	if len(found) == 0 { // should be != 1 but Br Dan and Sr. Mary-O share an address
-		return checkDoxologySubscriber(email)
+		return checkFontSubscriber(email)
 	}
 	member, err := found[0].ID.Get()
 	if err != nil {
 		return false, err
 	}
-	if member.Doxology == "none" {
+	if strings.ToLower(member.Newsletter) == "none" {
 		return false, nil
 	}
 
 	return true, nil
 }
 
-func checkDoxologySubscriber(email string) (bool, error) {
+func checkFontSubscriber(email string) (bool, error) {
 	found, err := model.SubscriberSearchEmail(email)
 	if err != nil {
 		return false, err
@@ -104,7 +104,7 @@ func checkDoxologySubscriber(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if subscriber.Doxology == "none" {
+	if strings.ToLower(subscriber.Newsletter) == "none" {
 		return false, nil
 	}
 

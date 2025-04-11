@@ -40,8 +40,6 @@
 	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });
 	const { me, chapters } = getContext('oo');
 
-	console.log($me.sub);
-
 	const routes = {
 		'/': HomePage,
 		'/search/:query': HomePage,
@@ -86,29 +84,30 @@
 					<DropdownItem href="#/me">{$me.sub}</DropdownItem>
 					<DropdownItem href="#/Login">Log out</DropdownItem>
 				</Dropdown>
-			{/if}
 
-			<NavLi class="cursor-pointer">
-				Lists <ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
-			</NavLi>
-			<Dropdown class="z-20 w-44">
-				<DropdownItem href="#/chapterbrowser">Chapters</DropdownItem>
-				<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
-				<DropdownItem href="#/leadership">Leadership</DropdownItem>
-			</Dropdown>
-
-			{#if $me && $me.level >= 1}
-				<NavLi href="#/reports">Reports</NavLi>
-			{/if}
-
-			{#if $me && $me.level == 2}
 				<NavLi class="cursor-pointer">
-					Admin Tools<ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
+					Lists <ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
 				</NavLi>
-				<Dropdown>
-					<DropdownItem href="#/email">Email membership</DropdownItem>
-					<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
+				<Dropdown class="z-20 w-44">
+					<DropdownItem href="#/chapterbrowser">Chapters</DropdownItem>
+					<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
+					<DropdownItem href="#/leadership">Leadership</DropdownItem>
 				</Dropdown>
+
+				{#if $me.level >= 1}
+					<NavLi href="#/reports">Reports</NavLi>
+				{/if}
+
+				{#if $me.level >= 2}
+					<NavLi class="cursor-pointer">
+						Admin Tools<ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
+					</NavLi>
+					<Dropdown>
+						<DropdownItem href="#/email">Email membership</DropdownItem>
+						<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
+						<DropdownItem href="#/addmember">Add Member/Friend</DropdownItem>
+					</Dropdown>
+				{/if}
 			{/if}
 		</NavUl>
 	</Navbar>

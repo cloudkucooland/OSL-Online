@@ -411,3 +411,43 @@ func DoxologyEmailed(w io.Writer) error {
 	r.Flush()
 	return nil
 }
+
+// DoxologyEmailedDirect returns a list of addresses for direct API processing, so we can dump the CSV stuff
+func DoxologyEmailedDirect() ([]string, error) {
+	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	out := make([]string, 0)
+
+	for _, id := range members {
+		m, err := id.Get()
+		if err != nil {
+			continue
+		}
+		if strings.TrimSpace(m.PrimaryEmail) == "" {
+			continue
+		}
+		out = append(out, m.PrimaryEmail)
+	}
+
+	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
+	if err != nil {
+		slog.Error(err.Error())
+		return out, err
+	}
+
+	for _, id := range subscribers {
+		s, err := id.Get()
+		if err != nil {
+			continue
+		}
+		if strings.TrimSpace(s.PrimaryEmail) == "" {
+			continue
+		}
+		out = append(out, s.PrimaryEmail)
+	}
+	return out, nil
+}
+
