@@ -24,5 +24,7 @@ func main() {
 		panic("GOOGLE_APPLICATION_CREDENTIALS enviornment var not set.")
 	}
 
-	model.FontSync(ctx)
+	if err := model.FontSync(ctx); err != nil {
+		panic(err.Error())
+	}
 }

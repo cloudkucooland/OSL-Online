@@ -24,5 +24,7 @@ func main() {
 		panic("GOOGLE_APPLICATION_CREDENTIALS enviornment var not set.")
 	}
 
-	model.DoxologySync(ctx)
+	if err := model.DoxologySync(ctx); err != nil {
+		panic(err.Error())
+	}
 }

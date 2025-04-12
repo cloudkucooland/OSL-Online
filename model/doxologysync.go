@@ -8,11 +8,11 @@ import (
 	"google.golang.org/api/admin/directory/v1"
 )
 
-func DoxologySync(ctx context.Context) {
+func DoxologySync(ctx context.Context) error {
 	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
 	adminService, err := admin.NewService(ctx)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	call := adminService.Members.List("doxology@saint-luke.net")
@@ -38,7 +38,7 @@ func DoxologySync(ctx context.Context) {
 		return nil
 	})
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	toadd, err := DoxologyEmailedDirect()
@@ -52,6 +52,7 @@ func DoxologySync(ctx context.Context) {
 			}
 		}
 	}
+	return nil
 }
 
 func checkDoxology(email string) (bool, error) {

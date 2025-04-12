@@ -8,12 +8,12 @@ import (
 	"google.golang.org/api/admin/directory/v1"
 )
 
-func FontSync(ctx context.Context) {
+func FontSync(ctx context.Context) error {
 	// assumes that GOOGLE_APPLICATION_CREDENTIALS enviornment is set
 
 	adminService, err := admin.NewService(ctx)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	call := adminService.Members.List("font@saint-luke.net")
@@ -39,7 +39,7 @@ func FontSync(ctx context.Context) {
 		return nil
 	})
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	toadd, err := FontEmailedDirect()
@@ -53,6 +53,7 @@ func FontSync(ctx context.Context) {
 			}
 		}
 	}
+	return nil
 }
 
 func checkFont(email string) (bool, error) {

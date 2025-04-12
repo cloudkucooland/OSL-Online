@@ -27,6 +27,11 @@ func main() {
 		panic(err)
 	}
 
+	gac := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	if gac == "" {
+		panic("GOOGLE_APPLICATION_CREDENTIALS enviornment var not set.")
+	}
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
