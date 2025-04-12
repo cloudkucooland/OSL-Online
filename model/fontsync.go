@@ -1,33 +1,15 @@
-package main
+package model
 
 import (
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 
 	"google.golang.org/api/admin/directory/v1"
-
-	"github.com/cloudkucooland/OSL-Online/model"
 )
 
-func main() {
-	ctx := context.Background()
-
-	dbpath := os.Getenv("OO_DB")
-	if dbpath == "" {
-		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
-	}
-
-	if err := model.Connect(ctx, dbpath); err != nil {
-		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
-		panic(err)
-	}
-
-	gac := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-	if gac == "" {
-		panic("GOOGLE_APPLICATION_CREDENTIALS enviornment var not set.")
-	}
+func FontSync(ctx context.Context) {
+	// assumes that GOOGLE_APPLICATION_CREDENTIALS enviornment is set
 
 	adminService, err := admin.NewService(ctx)
 	if err != nil {
@@ -60,7 +42,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	toadd, err := model.FontEmailedDirect()
+	toadd, err := FontEmailedDirect()
 	for _, m := range toadd {
 		m = strings.ToLower(m)
 		if _, ok := known[m]; !ok {
@@ -74,7 +56,7 @@ func main() {
 }
 
 func checkFont(email string) (bool, error) {
-	found, err := model.SearchEmail(email, true)
+	found, err := SearchEmail(email, true)
 	if err != nil {
 		return false, err
 	}

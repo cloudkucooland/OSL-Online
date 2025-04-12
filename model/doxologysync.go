@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 
 	"google.golang.org/api/admin/directory/v1"
