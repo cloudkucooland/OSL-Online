@@ -381,4 +381,3 @@ func FontEmailedDirect() ([]string, error) {
 	}
 	return out, nil
 }
-
