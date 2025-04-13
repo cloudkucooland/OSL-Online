@@ -231,7 +231,7 @@ func ReportAllSubscribers(w io.Writer) error {
 		if err != nil {
 			continue
 		}
-		subscriber := []string{fmt.Sprintf("%d", s.ID), s.Name, s.Attn, s.Address, s.AddressLine2, s.City, s.State, s.Country, s.PostalCode, s.PrimaryPhone, s.SecondaryPhone, s.PrimaryEmail, s.SecondaryEmail, s.DateRecordCreated.Format(time.DateOnly), s.DatePaid.Format(time.DateOnly), s.Doxology, s.Newsletter, s.Communication}
+		subscriber := []string{fmt.Sprintf("%d", s.ID), s.Name, s.Attn, s.Address, s.AddressLine2, s.City, s.State, s.Country, s.PostalCode, s.PrimaryPhone, s.SecondaryPhone, s.PrimaryEmail, s.SecondaryEmail, s.DateRecordCreated.Format(time.DateOnly), s.DatePaid.Format(time.DateOnly), string(s.Doxology), string(s.Newsletter), string(s.Communication)}
 		_ = r.Write(subscriber)
 	}
 	r.Flush()

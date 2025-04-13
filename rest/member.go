@@ -119,7 +119,7 @@ func setMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	if err := model.MemberID(id).SetMemberField(field, value, model.MemberID(changer)); err != nil {
+	if err := model.MemberID(id).SetMemberField(r.Context(), field, value, model.MemberID(changer)); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

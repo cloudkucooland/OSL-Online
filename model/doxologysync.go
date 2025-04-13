@@ -55,6 +55,46 @@ func DoxologySync(ctx context.Context) error {
 	return nil
 }
 
+func (id MemberID) UnsubscribeDoxology(ctx context.Context) error {
+	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
+	adminService, err := admin.NewService(ctx)
+	if err != nil {
+		return err
+	}
+
+	m, err := id.Get()
+	if err != nil {
+		return err
+	}
+
+	slog.Info("doxology", "message", "removing", "user", m.PrimaryEmail)
+	if err := adminService.Members.Delete("doxology@saint-luke.net", m.PrimaryEmail).Do(); err != nil {
+		slog.Error("doxology", "error", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (id MemberID) SubscribeDoxology(ctx context.Context) error {
+	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
+	adminService, err := admin.NewService(ctx)
+	if err != nil {
+		return err
+	}
+
+	m, err := id.Get()
+	if err != nil {
+		return err
+	}
+
+	slog.Info("doxology", "message", "adding user", "email", m.PrimaryEmail)
+	if _, err := adminService.Members.Insert("doxology@saint-luke.net", &admin.Member{Email: m.PrimaryEmail}).Do(); err != nil {
+		slog.Error("doxology", "error", err.Error())
+		return err
+	}
+	return nil
+}
+
 func checkDoxology(email string) (bool, error) {
 	found, err := SearchEmail(email, true)
 	if err != nil {
@@ -67,7 +107,7 @@ func checkDoxology(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if strings.ToLower(member.Doxology) == "none" {
+	if member.Doxology == NONE {
 		return false, nil
 	}
 
@@ -86,7 +126,7 @@ func checkDoxologySubscriber(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if strings.ToLower(subscriber.Doxology) == "none" {
+	if subscriber.Doxology == NONE {
 		return false, nil
 	}
 

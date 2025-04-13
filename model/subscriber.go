@@ -26,9 +26,9 @@ type Subscriber struct {
 	SecondaryEmail    string
 	DateRecordCreated time.Time
 	DatePaid          time.Time
-	Doxology          string
-	Newsletter        string
-	Communication     string
+	Doxology          communicationPref
+	Newsletter        communicationPref
+	Communication     communicationPref
 	FormattedAddr     string
 }
 
@@ -88,9 +88,9 @@ func (n *subNulls) toSubscriber() *Subscriber {
 		SecondaryEmail:    n.SecondaryEmail.String,
 		DateRecordCreated: n.DateRecordCreated.Time,
 		DatePaid:          n.DatePaid.Time,
-		Doxology:          n.Doxology.String,
-		Newsletter:        n.Newsletter.String,
-		Communication:     n.Communication.String,
+		Doxology:          communicationPref(n.Doxology.String),
+		Newsletter:        communicationPref(n.Newsletter.String),
+		Communication:     communicationPref(n.Communication.String),
 	}
 }
 

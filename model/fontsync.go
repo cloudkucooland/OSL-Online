@@ -68,9 +68,49 @@ func checkFont(email string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if strings.ToLower(member.Newsletter) == "none" {
+	if member.Newsletter == NONE {
 		return false, nil
 	}
 
 	return true, nil
+}
+
+func (id MemberID) UnsubscribeFont(ctx context.Context) error {
+	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
+	adminService, err := admin.NewService(ctx)
+	if err != nil {
+		return err
+	}
+
+	m, err := id.Get()
+	if err != nil {
+		return err
+	}
+
+	slog.Info("font", "message", "removing", "user", m.PrimaryEmail)
+	if err := adminService.Members.Delete("font@saint-luke.net", m.PrimaryEmail).Do(); err != nil {
+		slog.Error("font", "error", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (id MemberID) SubscribeFont(ctx context.Context) error {
+	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
+	adminService, err := admin.NewService(ctx)
+	if err != nil {
+		return err
+	}
+
+	m, err := id.Get()
+	if err != nil {
+		return err
+	}
+
+	slog.Info("font", "message", "adding user", "email", m.PrimaryEmail)
+	if _, err := adminService.Members.Insert("font@saint-luke.net", &admin.Member{Email: m.PrimaryEmail}).Do(); err != nil {
+		slog.Error("font", "error", err.Error())
+		return err
+	}
+	return nil
 }

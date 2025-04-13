@@ -99,7 +99,7 @@ func setMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	value := r.PostFormValue("value")
-	if err := model.SetMeField(id, field, value); err != nil {
+	if err := model.SetMeField(r.Context(), id, field, value); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

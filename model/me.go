@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -8,7 +9,7 @@ import (
 	"time"
 )
 
-func SetMeField(id MemberID, field string, value string) error {
+func SetMeField(ctx context.Context, id MemberID, field string, value string) error {
 	slog.Info("self-updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -64,18 +65,64 @@ func SetMeField(id MemberID, field string, value string) error {
 			return err
 		}
 	case "Communication": // users can do printed even if not donated this year
-		value = strings.TrimSpace(value)
-		if _, err := db.Exec(q, value, id); err != nil {
+		cp := communicationPref(strings.TrimSpace(value))
+		switch cp {
+		case ELECTRONIC, MAILED:
+		default:
+			cp = NONE
+		}
+
+		if _, err := db.Exec(q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
-	case "Newsletter", "Doxology": // only allow printed if donated this year
-		value = strings.TrimSpace(value)
-		if value == "mailed" && !id.allowPrinted() {
-			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Doxology or Newsletter")
+	case "Newsletter":
+		cp := communicationPref(strings.TrimSpace(value))
+		if cp == MAILED && !id.allowPrinted() {
+			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Newsletter")
 			return err
 		}
-		if _, err := db.Exec(q, value, id); err != nil {
+
+		switch cp {
+		case ELECTRONIC, MAILED:
+			if err := id.SubscribeFont(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		default:
+			cp = NONE
+			if err := id.UnsubscribeFont(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		}
+
+		if _, err := db.Exec(q, cp, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	case "Doxology": // only allow printed if donated this year
+		cp := communicationPref(strings.TrimSpace(value))
+		if cp == MAILED && !id.allowPrinted() {
+			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Doxology")
+			return err
+		}
+
+		switch cp {
+		case ELECTRONIC, MAILED:
+			if err := id.SubscribeDoxology(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		default:
+			cp = NONE
+			if err := id.UnsubscribeDoxology(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		}
+
+		if _, err := db.Exec(q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}

@@ -1,11 +1,12 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 )
 
-const friendzoneMinDays = 365 * 5 // 5 years
+const friendzoneMinDays = 365 * 3 // 3 years
 
 // Friendzone moves all members who have not reaffirmed vows in the past friendzoneMinDays and converts
 // them to friends
@@ -44,5 +45,5 @@ func Friendzone() error {
 
 // the logic for moving to friend is already in SetMemberField, use that
 func (id MemberID) makeFriend() error {
-	return id.SetMemberField("MemberStatus", "Friend", MemberID(0))
+	return id.SetMemberField(context.Background(), "MemberStatus", "Friend", MemberID(0))
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -96,9 +97,9 @@ type Member struct {
 	ListSecondaryPhone bool
 	ListPrimaryEmail   bool
 	ListSecondaryEmail bool
-	Doxology           string
-	Newsletter         string
-	Communication      string
+	Doxology           communicationPref
+	Newsletter         communicationPref
+	Communication      communicationPref
 	Occupation         string
 	Employer           string
 	Denomination       string
@@ -163,9 +164,9 @@ func (n *memberNulls) toMember() *Member {
 		ListSecondaryPhone: n.ListSecondaryPhone.Bool,
 		ListPrimaryEmail:   n.ListPrimaryEmail.Bool,
 		ListSecondaryEmail: n.ListSecondaryEmail.Bool,
-		Doxology:           n.Doxology.String,
-		Newsletter:         n.Newsletter.String,
-		Communication:      n.Communication.String,
+		Doxology:           communicationPref(n.Doxology.String),
+		Newsletter:         communicationPref(n.Newsletter.String),
+		Communication:      communicationPref(n.Communication.String),
 		Occupation:         n.Occupation.String,
 		Employer:           n.Employer.String,
 		Denomination:       n.Denomination.String,
@@ -235,7 +236,7 @@ func (n *Member) Store() error {
 	return nn.Store()
 }
 
-func (id MemberID) SetMemberField(field string, value string, changer MemberID) error {
+func (id MemberID) SetMemberField(ctx context.Context, field string, value string, changer MemberID) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -280,11 +281,15 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 				slog.Error(err.Error())
 				return err
 			}
+			id.UnsubscribeDoxology(ctx)
+			id.UnsubscribeFont(ctx)
 		case "Deceased":
 			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = 'Deceased', `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
+			id.UnsubscribeDoxology(ctx)
+			id.UnsubscribeFont(ctx)
 		case "Annual Vows", "Friend", "Life Vows":
 			if _, err := db.Exec(q, value, id); err != nil {
 				slog.Error(err.Error())
@@ -321,6 +326,74 @@ func (id MemberID) SetMemberField(field string, value string, changer MemberID) 
 			return err
 		}
 		value = pn // for logging
+	case "Doxology":
+		cp := communicationPref(value)
+		switch cp {
+		case ELECTRONIC, MAILED:
+			if err := id.SubscribeDoxology(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		default:
+			cp = NONE
+			if err := id.UnsubscribeDoxology(ctx); err != nil {
+				slog.Error(err.Error())
+				// continue
+			}
+		}
+
+		if _, err := db.Exec(q, cp, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	case "Newsletter":
+		cp := communicationPref(value)
+		switch cp {
+		case ELECTRONIC, MAILED:
+			// XXX finish me
+			_ = id.SubscribeFont(ctx)
+		default:
+			value = "none"
+			_ = id.UnsubscribeFont(ctx)
+		}
+
+		if _, err := db.Exec(q, cp, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+	case "PrimaryEmail":
+		id.UnsubscribeDoxology(ctx)
+		id.UnsubscribeFont(ctx)
+
+		var ns sql.NullString
+		value = strings.TrimSpace(value)
+		if value == "" {
+			ns.Valid = false
+			ns.String = ""
+		} else {
+			ns.Valid = true
+			ns.String = value
+		}
+		if _, err := db.Exec(q, ns, id); err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+
+		if value == "" {
+			break
+		}
+		m, err := id.Get()
+		if err != nil {
+			slog.Error(err.Error())
+			return err
+		}
+
+		if m.Doxology != NONE {
+			id.SubscribeDoxology(ctx)
+		}
+		if m.Newsletter != NONE {
+			id.SubscribeFont(ctx)
+		}
 	default:
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
