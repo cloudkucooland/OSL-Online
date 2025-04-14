@@ -14,6 +14,7 @@
 	import { getJWT } from '../oo';
 
 	const { me } = getContext('oo');
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 	const jwt = localStorage.getItem('jwt');
 	if (jwt) {
@@ -31,6 +32,11 @@
 
 		if (!username || !password) {
 			toast.push('Fill in both username and password');
+			return;
+		}
+
+		if (!emailRegex.test(email)) {
+			toast.push('Please read the directions: use your email address for your username');
 			return;
 		}
 
