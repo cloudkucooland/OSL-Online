@@ -35,7 +35,7 @@
 			return;
 		}
 
-		if (!emailRegex.test(email)) {
+		if (!emailRegex.test(username)) {
 			toast.push('Please read the directions: use your email address for your username');
 			return;
 		}
