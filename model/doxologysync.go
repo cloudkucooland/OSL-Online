@@ -17,7 +17,7 @@ func DoxologySync(ctx context.Context) error {
 
 	call := adminService.Members.List("doxology@saint-luke.net")
 	known := make(map[string]bool, 0)
-	err = call.Pages(ctx, func(members *admin.Members) error {
+	_ = call.Pages(ctx, func(members *admin.Members) error {
 		for _, m := range members.Members {
 			e := strings.ToLower(m.Email)
 			ok, err := checkDoxology(e)
@@ -37,11 +37,11 @@ func DoxologySync(ctx context.Context) error {
 		}
 		return nil
 	})
+
+	toadd, err := DoxologyEmailedDirect()
 	if err != nil {
 		return err
 	}
-
-	toadd, err := DoxologyEmailedDirect()
 	for _, m := range toadd {
 		m = strings.ToLower(m)
 		if _, ok := known[m]; !ok {
