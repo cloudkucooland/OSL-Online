@@ -21,6 +21,12 @@ func FontSync(ctx context.Context) error {
 	_ = call.Pages(ctx, func(members *admin.Members) error {
 		for _, m := range members.Members {
 			e := strings.ToLower(m.Email)
+
+			if strings.Contains(e, "@saint-luke.net") { // leave these alone
+				known[e] = true
+				continue
+			}
+
 			ok, err := checkFont(e)
 			if err != nil {
 				slog.Error("font", "error", err.Error())
@@ -32,9 +38,8 @@ func FontSync(ctx context.Context) error {
 					slog.Error("font", "error", err.Error())
 					continue
 				}
-			} else {
-				known[e] = true
 			}
+			known[e] = true
 		}
 		return nil
 	})
@@ -86,6 +91,9 @@ func (id MemberID) UnsubscribeFont(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if m.PrimaryEmail == "" {
+		return nil
+	}
 
 	slog.Info("font", "message", "removing", "user", m.PrimaryEmail)
 	if err := adminService.Members.Delete("font@saint-luke.net", m.PrimaryEmail).Do(); err != nil {
@@ -105,6 +113,9 @@ func (id MemberID) SubscribeFont(ctx context.Context) error {
 	m, err := id.Get()
 	if err != nil {
 		return err
+	}
+	if m.PrimaryEmail == "" {
+		return nil
 	}
 
 	slog.Info("font", "message", "adding user", "email", m.PrimaryEmail)

@@ -20,6 +20,12 @@ func DoxologySync(ctx context.Context) error {
 	_ = call.Pages(ctx, func(members *admin.Members) error {
 		for _, m := range members.Members {
 			e := strings.ToLower(m.Email)
+
+			if strings.Contains(e, "@saint-luke.net") {
+				known[e] = true
+				continue
+			}
+
 			ok, err := checkDoxology(e)
 			if err != nil {
 				slog.Error("doxology", "error", err.Error())
@@ -31,9 +37,8 @@ func DoxologySync(ctx context.Context) error {
 					slog.Error("doxology", "error", err.Error())
 					continue
 				}
-			} else {
-				known[e] = true
 			}
+			known[e] = true
 		}
 		return nil
 	})
@@ -66,6 +71,9 @@ func (id MemberID) UnsubscribeDoxology(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if m.PrimaryEmail == "" {
+		return nil
+	}
 
 	slog.Info("doxology", "message", "removing", "user", m.PrimaryEmail)
 	if err := adminService.Members.Delete("doxology@saint-luke.net", m.PrimaryEmail).Do(); err != nil {
@@ -85,6 +93,9 @@ func (id MemberID) SubscribeDoxology(ctx context.Context) error {
 	m, err := id.Get()
 	if err != nil {
 		return err
+	}
+	if m.PrimaryEmail == "" {
+		return nil
 	}
 
 	slog.Info("doxology", "message", "adding user", "email", m.PrimaryEmail)
