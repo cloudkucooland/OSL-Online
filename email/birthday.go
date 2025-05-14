@@ -15,6 +15,7 @@ type BirthdayEmailEntry struct {
 
 func SendBirthdayMail(members []*BirthdayEmailEntry, month time.Month, day int) error {
 	if len(members) == 0 {
+		slog.Info("no birthdays today")
 		return nil
 	}
 

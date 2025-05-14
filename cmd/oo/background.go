@@ -14,8 +14,10 @@ func background(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
+			slog.Info("daily tasks")
 			doDaily()
 		case <-ctx.Done():
+			slog.Info("stopping background tasks")
 			return
 		}
 	}
