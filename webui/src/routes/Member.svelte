@@ -28,6 +28,12 @@
 		{ value: 'electronic', name: 'Electronic' }
 	];
 
+	// The newsletter is now digital-only
+	const newsletteritems = [
+		{ value: 'none', name: 'None' },
+		{ value: 'electronic', name: 'Electronic' }
+	];
+
 	const memberstatus = [
 		{ value: 'Annual Vows', name: 'Annual Vows' },
 		{ value: 'Life Vows', name: 'Life Vows' },
@@ -59,6 +65,7 @@
 	];
 
 	const leadership = [
+		{ value: ' ', name: '' },
 		{ value: 'member', name: 'Member' },
 		{ value: 'prior', name: 'Prior' },
 		{ value: 'council', name: 'General Council Officer' },
@@ -67,6 +74,10 @@
 	];
 
 	async function load(id) {
+		// XXX testing to see if this removes the double-requests to the server
+		event.preventDefault();
+		event.stopPropagation();
+
 		const m = await getMember(id);
 		chaps = await getChapters();
 		selectedchapters = await getMemberChapters(id);
@@ -84,6 +95,22 @@
 	async function change(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		try {
+			await updateMember(params.id, e.target.id, e.target.value);
+			toast.push(`Changed ${e.target.id}`);
+		} catch (err) {
+			toast.push('failed to change: ' + err.message);
+			console.log(err.message);
+		}
+		return true;
+	}
+
+	async function changeDate(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		// XXX validate the format
+
 		try {
 			await updateMember(params.id, e.target.id, e.target.value);
 			toast.push(`Changed ${e.target.id}`);
@@ -177,7 +204,7 @@
 					</div>
 					<div class="col-span-2">
 						<Label for="DateReaffirmation" class="block">Last Reffirmation</Label>
-						<Input id="DateReaffirmation" value={r.DateReaffirmation} on:change={change} />
+						<Input id="DateReaffirmation" value={r.DateReaffirmation} on:change={changeDate} />
 					</div>
 					<div class="col-span-1">
 						<Label for="MemberStatus" class="block">Member Status</Label>
@@ -282,31 +309,31 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-2">
 						<Label for="DateFirstVows" class="block">First Vows</Label>
-						<Input id="DateFirstVows" value={r.DateFirstVows} on:change={change} />
+						<Input id="DateFirstVows" value={r.DateFirstVows} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateNovitiate" class="block">Novitiate</Label>
-						<Input id="DateNovitiate" value={r.DateNovitiate} on:change={change} />
+						<Input id="DateNovitiate" value={r.DateNovitiate} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="BirthDate" class="block">Birth Day</Label>
-						<Input id="BirthDate" value={r.BirthDate} on:change={change} />
+						<Input id="BirthDate" value={r.BirthDate} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateDeceased" class="block">Deceased</Label>
-						<Input id="DateDeceased" value={r.DateDeceased} on:change={change} />
+						<Input id="DateDeceased" value={r.DateDeceased} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateLifeVows" class="block">Life Vows</Label>
-						<Input id="DateLifeVows" value={r.DateLifeVows} on:change={change} />
+						<Input id="DateLifeVows" value={r.DateLifeVows} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateRecordCreated" class="block">Record Created</Label>
-						<Input id="DateRecordCreated" value={r.DateRecordCreated} on:change={change} />
+						<Input id="DateRecordCreated" value={r.DateRecordCreated} on:change={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateRemoved" class="block">Removed</Label>
-						<Input id="DateRemoved" value={r.DateRemoved} on:change={change} />
+						<Input id="DateRemoved" value={r.DateRemoved} on:change={changeDate} />
 					</div>
 				</div>
 			</section>
@@ -359,7 +386,12 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-1">
 						<Label for="Newsletter" class="block">Newsletter</Label>
-						<Select id="Newsletter" items={commitems} value={r.Newsletter} on:change={change} />
+						<Select
+							id="Newsletter"
+							items={newsletteritems}
+							value={r.Newsletter}
+							on:change={change}
+						/>
 					</div>
 					<div class="col-span-1">
 						<Label for="Doxology" class="block">Doxology</Label>
