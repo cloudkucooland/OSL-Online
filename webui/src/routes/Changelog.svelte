@@ -1,22 +1,8 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { getMember, getChangelog } from '../oo';
-	import { Label, Input, Button, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { push } from 'svelte-spa-router';
-
-	const { me } = getContext('oo');
-	if ($me === undefined) {
-		push('/Login');
-	}
 
 	let { params } = $props();
-	const dd = new Date().toISOString().split('T');
-	let postdate = dd[0];
-	let amount;
-	let description = 'Annual Reaffirmation';
-	let check = 0;
-	let transaction = 0;
 
 	async function getBoth(id) {
 		try {

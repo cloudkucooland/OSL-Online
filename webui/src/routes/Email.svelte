@@ -27,7 +27,7 @@
 		event.stopPropagation();
 		try {
 			const id = await sendemail(whom, subject, content);
-			toast.push(`Message Sent`);
+			toast.push('Message Sent: ' + id);
 			content = '';
 			subject = 'OSL Announcment';
 		} catch (err) {

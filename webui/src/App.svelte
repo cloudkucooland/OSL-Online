@@ -1,12 +1,10 @@
 <script>
-	import { setContext, getContext, onMount } from 'svelte';
+	import { setContext, getContext } from 'svelte';
 	import { writable, readable } from 'svelte/store';
 	import Router from 'svelte-spa-router';
 	import {
-		DarkMode,
 		Footer,
 		FooterCopyright,
-		FooterLink,
 		Navbar,
 		NavBrand,
 		NavLi,

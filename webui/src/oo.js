@@ -185,6 +185,8 @@ export async function updateMember(id, FieldName, Value) {
 	dataArray.append('field', FieldName);
 	dataArray.append('value', Value);
 
+	console.log(dataArray);
+
 	const request = {
 		method: 'POST',
 		mode: 'cors',
@@ -481,6 +483,8 @@ export async function updateMe(FieldName, Value) {
 	const dataArray = new FormData();
 	dataArray.append('field', FieldName);
 	dataArray.append('value', Value);
+
+	console.log(dataArray);
 
 	const request = {
 		method: 'POST',

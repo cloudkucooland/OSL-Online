@@ -2,6 +2,7 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @custom-variant dark (&:where(.dark, .dark *));
+@source "../node_modules/flowbite-svelte/dist";
 
 #app {
 	margin: 0 auto;
@@ -16,5 +17,3 @@ a:link {
 a:visited {
 	color: purple;
 }
-
-@source "../node_modules/flowbite-svelte/dist";

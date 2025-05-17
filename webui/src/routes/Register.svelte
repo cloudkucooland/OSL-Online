@@ -1,14 +1,5 @@
 <script>
-	import { getContext } from 'svelte';
-	import {
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		Button,
-		Input,
-		Label
-	} from 'flowbite-svelte';
+	import { Button, Input, Label } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { postRegister } from '../oo';
 

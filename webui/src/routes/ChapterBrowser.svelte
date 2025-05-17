@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { Label, Select } from 'flowbite-svelte';
+	import { Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 	import { oslname, getChapters, getChapterMembers } from '../oo';
-
-	const { me } = getContext('oo');
 
 	let { params = {} } = $props();
 	let chaps = $state([]);
@@ -42,7 +39,7 @@
 	<div class="grid grid-cols-8 gap-4 px-4 py-2">
 		<div class="col-span-8">Chapter Browser</div>
 		<div class="col-span-8">
-			<Select class="mt-2" items={chaps} bind:value={selected} on:change={chooseChapter} />
+			<Select class="mt-2" items={chaps} bind:value={selected} onchange={chooseChapter} />
 		</div>
 		{#each members as m}
 			<div class="col-span-8">

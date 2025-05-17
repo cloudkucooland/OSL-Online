@@ -1,16 +1,7 @@
 <script>
 	import { getContext } from 'svelte';
-	import {
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		Button,
-		Input,
-		Label
-	} from 'flowbite-svelte';
+	import { Button, Input, Label } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { push } from 'svelte-spa-router';
 	import { getJWT } from '../oo';
 
 	const { me } = getContext('oo');
@@ -42,7 +33,6 @@
 
 		try {
 			await getJWT(username, password);
-			// push('/');
 			window.location.href = '';
 		} catch (e) {
 			console.log(e);

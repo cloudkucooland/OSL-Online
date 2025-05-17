@@ -54,18 +54,16 @@
 
 		if (query.indexOf(' ') != -1) {
 			toast.push('Please read the instructions. Please.');
-			const subs = text.split(' ');
+			const subs = query.split(' ');
 			// look for a substring that is long enough
 			for (const sub of subs) {
-				if (sub.length > 3) {
+				console.log(sub);
+				if (sub.length >= 3) {
 					query = sub;
 					toast.push('Using: ' + query);
 					break;
 				}
 			}
-			// nothing long-enough found, giving up
-			toast.push('None of the substrings are long enough.');
-			return;
 		}
 
 		try {

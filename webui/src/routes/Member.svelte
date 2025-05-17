@@ -9,7 +9,7 @@
 		oslname,
 		vcard
 	} from '../oo';
-	import { Button, Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
+	import { Button, Label, Input, Select, MultiSelect, Toggle } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 
@@ -74,10 +74,6 @@
 	];
 
 	async function load(id) {
-		// XXX testing to see if this removes the double-requests to the server
-		event.preventDefault();
-		event.stopPropagation();
-
 		const m = await getMember(id);
 		chaps = await getChapters();
 		selectedchapters = await getMemberChapters(id);
@@ -89,15 +85,17 @@
 	async function reload(event) {
 		event.preventDefault();
 		event.stopPropagation();
+		console.log('Member.svelte: reload()', event);
 		load(params.id);
 	}
 
-	async function change(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function change(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		console.log('Member.svelte: change()', event);
 		try {
-			await updateMember(params.id, e.target.id, e.target.value);
-			toast.push(`Changed ${e.target.id}`);
+			await updateMember(params.id, event.target.id, event.target.value);
+			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err.message);
@@ -105,15 +103,13 @@
 		return true;
 	}
 
-	async function changeDate(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		// XXX validate the format
-
+	async function changeDate(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		console.log('Member.svelte: changeDate()', event);
 		try {
-			await updateMember(params.id, e.target.id, e.target.value);
-			toast.push(`Changed ${e.target.id}`);
+			await updateMember(params.id, event.target.id, event.target.value);
+			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err.message);
@@ -121,12 +117,13 @@
 		return true;
 	}
 
-	async function changeCheck(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function changeCheck(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		console.log('Member.svelte changeCheck()', event);
 		try {
-			await updateMember(params.id, e.target.id, e.target.checked);
-			toast.push(`Changed ${e.target.id}`);
+			await updateMember(params.id, event.target.id, event.target.checked);
+			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err.message);
@@ -134,12 +131,13 @@
 		return true;
 	}
 
-	async function setchapters(e) {
-		e.preventDefault();
-		e.stopPropagation();
+	async function setchapters(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		console.log('Member.svelte setchapters()', event);
 		try {
 			await updateMemberChapters(params.id, selectedchapters);
-			toast.push(`Updated Chapters`);
+			toast.push('Updated Chapters');
 		} catch (err) {
 			toast.push('failed to set chapter: ' + err.message);
 			console.log(err);
@@ -162,8 +160,11 @@
 					{oslname(r)} ({r.MemberStatus})
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}
-						>List in Directory</Checkbox
+					<Toggle
+						id="ListInDirectory"
+						checked={r.ListInDirectory}
+						onchange={changeCheck}
+						color="red">List in Directory</Toggle
 					>
 				</div>
 				<div class="col-span-1">
@@ -180,31 +181,31 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-3">
 						<Label for="FirstName" class="block">First Name</Label>
-						<Input id="FirstName" value={r.FirstName} on:change={change} />
+						<Input id="FirstName" value={r.FirstName} onchange={change} />
 					</div>
 					<div class="col-span-1">
 						<Label for="MiddleName" class="block">Middle Name</Label>
-						<Input id="MiddleName" value={r.MiddleName} on:change={change} />
+						<Input id="MiddleName" value={r.MiddleName} onchange={change} />
 					</div>
 					<div class="col-span-3">
 						<Label for="LastName" class="block">Last Name</Label>
-						<Input id="LastName" value={r.LastName} on:change={change} />
+						<Input id="LastName" value={r.LastName} onchange={change} />
 					</div>
 					<div class="col-span-1">
 						<Label for="Suffix" class="block">Suffix</Label>
-						<Input id="Suffix" value={r.Suffix} on:change={change} />
+						<Input id="Suffix" value={r.Suffix} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="LifevowName" class="block">Life Vow Name</Label>
-						<Input id="LifevowName" value={r.LifevowName} on:change={change} />
+						<Input id="LifevowName" value={r.LifevowName} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="PreferedName" class="block">Preferred Name</Label>
-						<Input id="PreferredName" value={r.PreferredName} on:change={change} />
+						<Input id="PreferredName" value={r.PreferredName} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateReaffirmation" class="block">Last Reffirmation</Label>
-						<Input id="DateReaffirmation" value={r.DateReaffirmation} on:change={changeDate} />
+						<Input id="DateReaffirmation" value={r.DateReaffirmation} onchange={changeDate} />
 					</div>
 					<div class="col-span-1">
 						<Label for="MemberStatus" class="block">Member Status</Label>
@@ -212,12 +213,12 @@
 							id="MemberStatus"
 							items={memberstatus}
 							value={r.MemberStatus}
-							on:change={change}
+							onchange={change}
 						/>
 					</div>
 					<div class="col-span-1">
 						<Label for="Title" class="block">Title</Label>
-						<Select id="Title" items={titles} value={r.Title} on:change={change} />
+						<Select id="Title" items={titles} value={r.Title} onchange={change} />
 					</div>
 				</div>
 			</section>
@@ -227,37 +228,37 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-7">
 						<Label for="Address" class="block">Address</Label>
-						<Input id="Address" value={r.Address} on:change={change} />
+						<Input id="Address" value={r.Address} onchange={change} />
 					</div>
 					<div class="col-span-1">
-						<Checkbox id="ListAddress" checked={r.ListAddress} on:change={changeCheck}
-							>Listed</Checkbox
+						<Toggle id="ListAddress" checked={r.ListAddress} onchange={changeCheck} color="red"
+							>Listed</Toggle
 						>
 					</div>
 					<div class="col-span-8">
-						<Input id="AddressLine2" value={r.AddressLine2} on:change={change} />
+						<Input id="AddressLine2" value={r.AddressLine2} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="City" class="block">City</Label>
-						<Input id="City" value={r.City} on:change={change} />
+						<Input id="City" value={r.City} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="State" class="block"
 							>State/Locality <a href="https://en.wikipedia.org/wiki/ISO_3166-2">3166-2 code</a
 							></Label
 						>
-						<Input id="State" value={r.State} on:change={change} />
+						<Input id="State" value={r.State} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Country" class="block"
 							>Country <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">2-letter code</a
 							></Label
 						>
-						<Input id="Country" value={r.Country} on:change={change} />
+						<Input id="Country" value={r.Country} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="PostalCode" class="block">Postal Code</Label>
-						<Input id="PostalCode" value={r.PostalCode} on:change={change} />
+						<Input id="PostalCode" value={r.PostalCode} onchange={change} />
 					</div>
 				</div>
 			</section>
@@ -267,38 +268,50 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-3">
 						<Label for="PrimaryPhone" class="block">Primary Phone</Label>
-						<Input id="PrimaryPhone" value={r.PrimaryPhone} on:change={change} />
+						<Input id="PrimaryPhone" value={r.PrimaryPhone} onchange={change} />
 					</div>
 					<div class="col-span-1">
-						<Checkbox id="ListPrimaryPhone" checked={r.ListPrimaryPhone} on:change={changeCheck}
-							>Listed</Checkbox
+						<Toggle
+							id="ListPrimaryPhone"
+							checked={r.ListPrimaryPhone}
+							onchange={changeCheck}
+							color="red">Listed</Toggle
 						>
 					</div>
 					<div class="col-span-3">
 						<Label for="SecondaryPhone" class="block">Secondary Phone</Label>
-						<Input id="SecondaryPhone" value={r.SecondaryPhone} on:change={change} />
+						<Input id="SecondaryPhone" value={r.SecondaryPhone} onchange={change} />
 					</div>
 					<div class="col-span-1">
-						<Checkbox id="ListSecondaryPhone" checked={r.ListSecondaryPhone} on:change={changeCheck}
-							>Listed</Checkbox
+						<Toggle
+							id="ListSecondaryPhone"
+							checked={r.ListSecondaryPhone}
+							onchange={changeCheck}
+							color="red">Listed</Toggle
 						>
 					</div>
 					<div class="col-span-3">
 						<Label for="PrimaryEmail" class="block">Primary Email</Label>
-						<Input id="PrimaryEmail" value={r.PrimaryEmail} on:change={change} />
+						<Input id="PrimaryEmail" value={r.PrimaryEmail} onchange={change} />
 					</div>
 					<div class="col-span-1">
-						<Checkbox id="ListPrimaryEmail" checked={r.ListPrimaryEmail} on:change={changeCheck}
-							>Listed</Checkbox
+						<Toggle
+							id="ListPrimaryEmail"
+							checked={r.ListPrimaryEmail}
+							onchange={changeCheck}
+							color="red">Listed</Toggle
 						>
 					</div>
 					<div class="col-span-3">
 						<Label for="SecondaryEmail" class="block">Secondary Email</Label>
-						<Input id="SecondaryEmail" value={r.SecondaryEmail} on:change={change} />
+						<Input id="SecondaryEmail" value={r.SecondaryEmail} onchange={change} />
 					</div>
 					<div class="col-span-1">
-						<Checkbox id="ListSecondaryEmail" checked={r.ListSecondaryEmail} on:change={changeCheck}
-							>Listed</Checkbox
+						<Toggle
+							id="ListSecondaryEmail"
+							checked={r.ListSecondaryEmail}
+							onchange={changeCheck}
+							color="red">Listed</Toggle
 						>
 					</div>
 				</div>
@@ -309,31 +322,31 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-2">
 						<Label for="DateFirstVows" class="block">First Vows</Label>
-						<Input id="DateFirstVows" value={r.DateFirstVows} on:change={changeDate} />
+						<Input id="DateFirstVows" value={r.DateFirstVows} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateNovitiate" class="block">Novitiate</Label>
-						<Input id="DateNovitiate" value={r.DateNovitiate} on:change={changeDate} />
+						<Input id="DateNovitiate" value={r.DateNovitiate} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="BirthDate" class="block">Birth Day</Label>
-						<Input id="BirthDate" value={r.BirthDate} on:change={changeDate} />
+						<Input id="BirthDate" value={r.BirthDate} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateDeceased" class="block">Deceased</Label>
-						<Input id="DateDeceased" value={r.DateDeceased} on:change={changeDate} />
+						<Input id="DateDeceased" value={r.DateDeceased} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateLifeVows" class="block">Life Vows</Label>
-						<Input id="DateLifeVows" value={r.DateLifeVows} on:change={changeDate} />
+						<Input id="DateLifeVows" value={r.DateLifeVows} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateRecordCreated" class="block">Record Created</Label>
-						<Input id="DateRecordCreated" value={r.DateRecordCreated} on:change={changeDate} />
+						<Input id="DateRecordCreated" value={r.DateRecordCreated} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateRemoved" class="block">Removed</Label>
-						<Input id="DateRemoved" value={r.DateRemoved} on:change={changeDate} />
+						<Input id="DateRemoved" value={r.DateRemoved} onchange={changeDate} />
 					</div>
 				</div>
 			</section>
@@ -343,19 +356,19 @@
 				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-2">
 						<Label for="HowJoined" class="block">How Joined</Label>
-						<Input id="HowJoined" value={r.HowJoined} on:change={change} />
+						<Input id="HowJoined" value={r.HowJoined} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="HowRemoved" class="block">How Removed</Label>
-						<Select id="HowRemoved" items={removereasons} value={r.HowRemoved} on:change={change} />
+						<Select id="HowRemoved" items={removereasons} value={r.HowRemoved} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Status" class="block">Status</Label>
-						<Select id="Status" items={stati} value={r.Status} on:change={change} />
+						<Select id="Status" items={stati} value={r.Status} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Leadership" class="block">Leadership</Label>
-						<Select id="Leadership" items={leadership} value={r.Leadership} on:change={change} />
+						<Select id="Leadership" items={leadership} value={r.Leadership} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Chapters" class="block">Chapter</Label>
@@ -363,20 +376,20 @@
 							id="Chapters"
 							items={chaps}
 							bind:value={selectedchapters}
-							on:change={setchapters}
+							onchange={setchapters}
 						/>
 					</div>
 					<div class="col-span-2">
 						<Label for="Occupation" class="block">Occupation</Label>
-						<Input id="Occupation" value={r.Occupation} on:change={change} />
+						<Input id="Occupation" value={r.Occupation} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Employer" class="block">Employer</Label>
-						<Input id="Employer" value={r.Employer} on:change={change} />
+						<Input id="Employer" value={r.Employer} onchange={change} />
 					</div>
 					<div class="col-span-2">
 						<Label for="Denomination" class="block">Denomination</Label>
-						<Input id="Denomination" value={r.Denomination} on:change={change} />
+						<Input id="Denomination" value={r.Denomination} onchange={change} />
 					</div>
 				</div>
 			</section>
@@ -390,12 +403,12 @@
 							id="Newsletter"
 							items={newsletteritems}
 							value={r.Newsletter}
-							on:change={change}
+							onchange={change}
 						/>
 					</div>
 					<div class="col-span-1">
 						<Label for="Doxology" class="block">Doxology</Label>
-						<Select id="Doxology" items={commitems} value={r.Doxology} on:change={change} />
+						<Select id="Doxology" items={commitems} value={r.Doxology} onchange={change} />
 					</div>
 					<div class="col-span-1">
 						<Label for="Communication" class="block">Communication</Label>
@@ -403,7 +416,7 @@
 							id="Communication"
 							items={commitems}
 							value={r.Communication}
-							on:change={change}
+							onchange={change}
 						/>
 					</div>
 				</div>

@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { Label, Select } from 'flowbite-svelte';
+	import { Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 	import { oslname, getLocalities, getLocalityMembers } from '../oo';
-
-	const { me } = getContext('oo');
 
 	let { params = {} } = $props();
 	let locs = $state([]);
@@ -45,7 +42,7 @@
 			not as easy as you think.
 		</div>
 		<div class="col-span-8">
-			<Select class="mt-2" items={locs} bind:value={selected} on:change={chooseLocality} />
+			<Select class="mt-2" items={locs} bind:value={selected} onchange={chooseLocality} />
 		</div>
 		{#each members as m}
 			<div class="col-span-8">

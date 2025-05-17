@@ -8,7 +8,7 @@
 		getMeChapters,
 		oslname
 	} from '../oo';
-	import { Label, Input, Checkbox, Select, MultiSelect } from 'flowbite-svelte';
+	import { Label, Input, Toggle, Select, MultiSelect } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 
@@ -81,10 +81,10 @@
 		return await load();
 	}
 
-	async function change(e) {
+	async function change(event) {
 		try {
-			await updateMe(e.target.id, e.target.value);
-			toast.push(`Changed ${e.target.id}`);
+			await updateMe(event.target.id, event.target.value);
+			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
@@ -92,10 +92,10 @@
 		return true;
 	}
 
-	async function changeCheck(e) {
+	async function changeCheck(event) {
 		try {
-			await updateMe(e.target.id, e.target.checked);
-			toast.push(`Changed ${e.target.id}`);
+			await updateMe(event.target.id, event.target.checked);
+			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
 			console.log(err);
@@ -124,8 +124,8 @@
 {:then r}
 	<div>
 		{oslname(r)}
-		<Checkbox id="ListInDirectory" checked={r.ListInDirectory} on:change={changeCheck}
-			><span style="color: red">List in Directory</span></Checkbox
+		<Toggle id="ListInDirectory" checked={r.ListInDirectory} onchange={changeCheck} color="red"
+			><span style="color: red">List in Directory</span></Toggle
 		>
 	</div>
 
@@ -139,29 +139,29 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
 					<Label for="FirstName" class="block">First Name</Label>
-					<Input id="FirstName" value={r.FirstName} on:change={change} disabled={cannotedit} />
+					<Input id="FirstName" value={r.FirstName} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
 					<Label for="MiddleName" class="block">Middle Name</Label>
-					<Input id="MiddleName" value={r.MiddleName} on:change={change} disabled={cannotedit} />
+					<Input id="MiddleName" value={r.MiddleName} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-3">
 					<Label for="LastName" class="block">Last Name</Label>
-					<Input id="LastName" value={r.LastName} on:change={change} disabled={cannotedit} />
+					<Input id="LastName" value={r.LastName} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
 					<Label for="Suffix" class="block">Suffix</Label>
-					<Input id="Suffix" value={r.Suffix} on:change={change} disabled={cannotedit} />
+					<Input id="Suffix" value={r.Suffix} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="LifeVowName" class="block">Life Vow Name</Label>
-					<Input id="LifeVowName" value={r.LifeVowName} on:change={change} disabled={cannotedit} />
+					<Input id="LifeVowName" value={r.LifeVowName} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="PreferedName" class="block" style="color: red"
 						>Preferred Name (If different from First Name)</Label
 					>
-					<Input id="PreferredName" value={r.PreferredName} on:change={change} />
+					<Input id="PreferredName" value={r.PreferredName} onchange={change} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateReaffirmation" class="block">Last Reffirmation</Label>
@@ -177,7 +177,7 @@
 						id="Title"
 						items={titles}
 						value={r.Title}
-						on:change={change}
+						onchange={change}
 						disabled={r.MemberStatus == 'Friend'}
 					/>
 				</div>
@@ -189,36 +189,31 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-7">
 					<Label for="Address" class="block">Address</Label>
-					<Input id="Address" value={r.Address} on:change={change} disabled={cannotedit} />
+					<Input id="Address" value={r.Address} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListAddress" checked={r.ListAddress} on:change={changeCheck}
-						><span style="color: red">Listed</span></Checkbox
+					<Toggle id="ListAddress" checked={r.ListAddress} onchange={changeCheck} color="red"
+						><span style="color: red">Listed</span></Toggle
 					>
 				</div>
 				<div class="col-span-8">
-					<Input
-						id="AddressLine2"
-						value={r.AddressLine2}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Input id="AddressLine2" value={r.AddressLine2} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="City" class="block">City</Label>
-					<Input id="City" value={r.City} on:change={change} disabled={cannotedit} />
+					<Input id="City" value={r.City} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="State" class="block">State/Locality</Label>
-					<Input id="State" value={r.State} on:change={change} disabled={cannotedit} />
+					<Input id="State" value={r.State} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Country" class="block">Country</Label>
-					<Input id="Country" value={r.Country} on:change={change} disabled={cannotedit} />
+					<Input id="Country" value={r.Country} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="PostalCode" class="block">Postal Code</Label>
-					<Input id="PostalCode" value={r.PostalCode} on:change={change} disabled={cannotedit} />
+					<Input id="PostalCode" value={r.PostalCode} onchange={change} disabled={cannotedit} />
 				</div>
 			</div>
 		</section>
@@ -228,16 +223,14 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
 					<Label for="PrimaryPhone" class="block">Primary Phone</Label>
-					<Input
-						id="PrimaryPhone"
-						value={r.PrimaryPhone}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Input id="PrimaryPhone" value={r.PrimaryPhone} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListPrimaryPhone" checked={r.ListPrimaryPhone} on:change={changeCheck}
-						><span style="color: red">Listed</span></Checkbox
+					<Toggle
+						id="ListPrimaryPhone"
+						checked={r.ListPrimaryPhone}
+						onchange={changeCheck}
+						color="red"><span style="color: red">Listed</span></Toggle
 					>
 				</div>
 				<div class="col-span-3">
@@ -245,27 +238,28 @@
 					<Input
 						id="SecondaryPhone"
 						value={r.SecondaryPhone}
-						on:change={change}
+						onchange={change}
 						disabled={cannotedit}
 					/>
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListSecondaryPhone" checked={r.ListSecondaryPhone} on:change={changeCheck}
-						><span style="color: red">Listed</span></Checkbox
+					<Toggle
+						id="ListSecondaryPhone"
+						checked={r.ListSecondaryPhone}
+						onchange={changeCheck}
+						color="red"><span style="color: red">Listed</span></Toggle
 					>
 				</div>
 				<div class="col-span-3">
 					<Label for="PrimaryEmail" class="block">Primary Email</Label>
-					<Input
-						id="PrimaryEmail"
-						value={r.PrimaryEmail}
-						on:change={change}
-						disabled={cannotedit}
-					/>
+					<Input id="PrimaryEmail" value={r.PrimaryEmail} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListPrimaryEmail" checked={r.ListPrimaryEmail} on:change={changeCheck}
-						><span style="color: red">Listed</span></Checkbox
+					<Toggle
+						id="ListPrimaryEmail"
+						checked={r.ListPrimaryEmail}
+						onchange={changeCheck}
+						color="red"><span style="color: red">Listed</span></Toggle
 					>
 				</div>
 				<div class="col-span-3">
@@ -273,13 +267,16 @@
 					<Input
 						id="SecondaryEmail"
 						value={r.SecondaryEmail}
-						on:change={change}
+						onchange={change}
 						disabled={cannotedit}
 					/>
 				</div>
 				<div class="col-span-1">
-					<Checkbox id="ListSecondaryEmail" checked={r.ListSecondaryEmail} on:change={changeCheck}
-						><span style="color: red">Listed</span></Checkbox
+					<Toggle
+						id="ListSecondaryEmail"
+						checked={r.ListSecondaryEmail}
+						onchange={changeCheck}
+						color="red"><span style="color: red">Listed</span></Toggle
 					>
 				</div>
 			</div>
@@ -298,7 +295,7 @@
 				</div>
 				<div class="col-span-2">
 					<Label for="BirthDate" class="block">Birth Day</Label>
-					<Input id="BirthDate" value={r.BirthDate} on:change={change} disabled={cannotedit} />
+					<Input id="BirthDate" value={r.BirthDate} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateDeceased" class="block">Deceased</Label>
@@ -336,7 +333,7 @@
 						id="Status"
 						items={stati}
 						value={r.Status}
-						on:change={change}
+						onchange={change}
 						disabled={cannotedit}
 					/>
 				</div>
@@ -350,20 +347,20 @@
 						id="Chapters"
 						items={chaps}
 						bind:value={selectedchapters}
-						on:change={setchapters}
+						onchange={setchapters}
 					/>
 				</div>
 				<div class="col-span-2">
 					<Label for="Occupation" class="block" style="color: red">Occupation</Label>
-					<Input id="Occupation" value={r.Occupation} on:change={change} />
+					<Input id="Occupation" value={r.Occupation} onchange={change} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Employer" class="block" style="color: red">Employer</Label>
-					<Input id="Employer" value={r.Employer} on:change={change} />
+					<Input id="Employer" value={r.Employer} onchange={change} />
 				</div>
 				<div class="col-span-2">
 					<Label for="Denomination" class="block" style="color: red">Denomination</Label>
-					<Input id="Denomination" value={r.Denomination} on:change={change} />
+					<Input id="Denomination" value={r.Denomination} onchange={change} />
 				</div>
 			</div>
 		</section>
@@ -377,15 +374,15 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-1">
 					<Label for="Newsletter" class="block" style="color: red">Newsletter</Label>
-					<Select id="Newsletter" items={commitems} value={r.Newsletter} on:change={change} />
+					<Select id="Newsletter" items={commitems} value={r.Newsletter} onchange={change} />
 				</div>
 				<div class="col-span-1">
 					<Label for="Doxology" class="block" style="color: red">Doxology</Label>
-					<Select id="Doxology" items={commitems} value={r.Doxology} on:change={change} />
+					<Select id="Doxology" items={commitems} value={r.Doxology} onchange={change} />
 				</div>
 				<div class="col-span-1">
 					<Label for="Communication" class="block" style="color: red">Communication</Label>
-					<Select id="Communication" items={commitems} value={r.Communication} on:change={change} />
+					<Select id="Communication" items={commitems} value={r.Communication} onchange={change} />
 				</div>
 			</div>
 		</section>
