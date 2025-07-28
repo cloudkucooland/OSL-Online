@@ -10,7 +10,7 @@
 		Input,
 		Select
 	} from 'flowbite-svelte';
-	import { updateMember, search, searchemail, vcard } from '../oo';
+	import { updateMember, search, searchemail } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { SearchOutline } from 'flowbite-svelte-icons';
 
@@ -159,7 +159,7 @@
 		</TableBody>
 	</Table>
 </form>
-<Table>
+<Table class="w-full">
 	<TableBody>
 		{#each result as r, i}
 			<TableBodyRow>
@@ -167,9 +167,6 @@
 				<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
 				<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
 				<TableBodyCell>{r.MemberStatus}</TableBodyCell>
-				<TableBodyCell>
-					<Button color="green" onclick={() => vcard(r.ID)}>Add to Contacts</Button>
-				</TableBodyCell>
 				<TableBodyCell>
 					{#if $me && $me.level > 1}
 						<Button color="purple" onclick={(e) => quickRenew(e, r)}>Quick Renew</Button>

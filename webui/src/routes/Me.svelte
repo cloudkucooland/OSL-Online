@@ -132,9 +132,9 @@
 	<form onsubmit={reload}>
 		<section>
 			<h3>
-				If any data is out-of date please use the <a href="https://saint-luke.net/reaffirmation"
-					>reaffirmation form</a
-				> to have the Chancellor-General update it.
+				You can adjust the items which have a red label. If any other data is out-of date please use
+				the <a href="https://saint-luke.net/reaffirmation">reaffirmation form</a> to have the Chancellor-General
+				update it.
 			</h3>
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-3">
@@ -294,20 +294,12 @@
 					<Input id="DateNovitiate" value={r.DateNovitiate} disabled={true} />
 				</div>
 				<div class="col-span-2">
-					<Label for="BirthDate" class="block">Birth Day</Label>
-					<Input id="BirthDate" value={r.BirthDate} onchange={change} disabled={cannotedit} />
-				</div>
-				<div class="col-span-2">
-					<Label for="DateDeceased" class="block">Deceased</Label>
-					<Input id="DateDeceased" value={r.DateDeceased} disabled={true} />
-				</div>
-				<div class="col-span-2">
 					<Label for="DateLifeVows" class="block">Life Vows</Label>
 					<Input id="DateLifeVows" value={r.DateLifeVows} disabled={true} />
 				</div>
 				<div class="col-span-2">
-					<Label for="DateRecordCreated" class="block">Record Created</Label>
-					<Input id="DateRecordCreated" value={r.DateRecordCreated} disabled={true} />
+					<Label for="BirthDate" class="block">Birth Day</Label>
+					<Input id="BirthDate" value={r.BirthDate} onchange={change} disabled={cannotedit} />
 				</div>
 				<div class="col-span-2">
 					<Label for="DateRemoved" class="block">Removed</Label>

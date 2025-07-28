@@ -329,20 +329,16 @@
 						<Input id="DateNovitiate" value={r.DateNovitiate} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
+						<Label for="DateLifeVows" class="block">Life Vows</Label>
+						<Input id="DateLifeVows" value={r.DateLifeVows} onchange={changeDate} />
+					</div>
+					<div class="col-span-2">
 						<Label for="BirthDate" class="block">Birth Day</Label>
 						<Input id="BirthDate" value={r.BirthDate} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateDeceased" class="block">Deceased</Label>
 						<Input id="DateDeceased" value={r.DateDeceased} onchange={changeDate} />
-					</div>
-					<div class="col-span-2">
-						<Label for="DateLifeVows" class="block">Life Vows</Label>
-						<Input id="DateLifeVows" value={r.DateLifeVows} onchange={changeDate} />
-					</div>
-					<div class="col-span-2">
-						<Label for="DateRecordCreated" class="block">Record Created</Label>
-						<Input id="DateRecordCreated" value={r.DateRecordCreated} onchange={changeDate} />
 					</div>
 					<div class="col-span-2">
 						<Label for="DateRemoved" class="block">Removed</Label>
