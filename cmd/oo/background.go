@@ -28,18 +28,19 @@ func doDaily() {
 	day := now.Day()
 	month := now.Month()
 
-	members, err := model.SearchBirthday(month, day)
+	todaybdays, err := model.SearchBirthday(month, day)
 	if err != nil {
 		slog.Error(err.Error())
 		return
 	}
+	if len(todaybdays) > 0 {
+		bdayemails := make([]*email.BirthdayEmailEntry, 0)
+		for _, m := range todaybdays {
+			bdayemails = append(bdayemails, &email.BirthdayEmailEntry{ID: int(m.ID), Name: m.OSLName()})
+		}
 
-	bdays := make([]*email.BirthdayEmailEntry, 0)
-	for _, m := range members {
-		bdays = append(bdays, &email.BirthdayEmailEntry{ID: int(m.ID), Name: m.OSLName()})
-	}
-
-	if err := email.SendBirthdayMail(bdays, month, day); err != nil {
-		panic(err)
+		if err := email.SendBirthdayMail(bdayemails, month, day); err != nil {
+			panic(err)
+		}
 	}
 }
