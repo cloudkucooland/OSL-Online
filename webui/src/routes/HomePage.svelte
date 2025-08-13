@@ -161,7 +161,7 @@
 </form>
 <Table class="w-full">
 	<TableBody>
-		{#each result as r, i}
+		{#each result as r}
 			<TableBodyRow>
 				<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
 				<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>

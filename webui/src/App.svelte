@@ -1,6 +1,6 @@
 <script>
 	import { setContext, getContext } from 'svelte';
-	import { writable, readable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import Router from 'svelte-spa-router';
 	import {
 		Footer,
@@ -30,13 +30,13 @@
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
 	import Leadership from './routes/Leadership.svelte';
-	import { getMe, getChapters } from './oo';
+	import { getMe } from './oo';
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
 	import Email from './routes/Email.svelte';
 
 	const _init = getMe();
-	setContext('oo', { me: writable(_init), chapters: readable(getChapters()) });
-	const { me, chapters } = getContext('oo');
+	setContext('oo', { me: writable(_init) });
+	const { me } = getContext('oo');
 
 	const routes = {
 		'/': HomePage,
