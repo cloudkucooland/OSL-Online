@@ -34,17 +34,8 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func(ctx context.Context) {
-		rest.Start(ctx)
-		wg.Done()
-	}(ctx)
-
-	wg.Add(1)
-	go func(ctx context.Context) {
-		background(ctx)
-		wg.Done()
-	}(ctx)
+	wg.Go(func() { rest.Start(ctx) })
+	wg.Go(func() { background(ctx) })
 
 	sigch := make(chan os.Signal, 1)
 	signal.Notify(sigch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
