@@ -23,6 +23,10 @@ const MAILED communicationPref = "mailed"
 const ELECTRONIC communicationPref = "electronic"
 const NONE communicationPref = "none"
 
+func (c communicationPref) String() string {
+	return string(c)
+}
+
 // Connect tries to establish a connection to a MySQL/MariaDB database under the given URI and initializes the tables if they don"t exist yet.
 func Connect(ctx context.Context, uri string) error {
 	result, err := sql.Open("mysql", uri+"?parseTime=true")

@@ -72,6 +72,30 @@ func ReportAnnual(w io.Writer) error {
 	return nil
 }
 
+func yn(v bool) string {
+	if v {
+		return "Yes"
+	}
+	return "No"
+}
+
+func ReportReaffirmationFormMerge(w io.Writer) error {
+	// not reaffirmed in more than 240 days...
+	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DATE_SUB(CURDATE(),INTERVAL 240 DAY) >= DateReaffirmation ORDER BY LastName, FirstName")
+	if err != nil {
+		return err
+	}
+
+	r := csv.NewWriter(w)
+	_ = r.Write([]string{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryPhone", "PrimaryEmail", "DateFirstVows", "DateReaffirmation", "Doxology", "Newsletter", "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListPrimaryEmail"})
+
+	for _, m := range members {
+		_ = r.Write([]string{m.OSLName(), m.OSLShortName(), m.FirstName, m.LastName, m.PreferredName, m.Title, m.Address, m.AddressLine2, m.City, m.State, m.Country, m.PostalCode, m.PrimaryPhone, m.PrimaryEmail, m.DateFirstVows.Format(time.DateOnly), m.DateReaffirmation.Format(time.DateOnly), string(m.Doxology), string(m.Newsletter), yn(m.ListInDirectory), yn(m.ListAddress), yn(m.ListPrimaryPhone), yn(m.ListPrimaryEmail)})
+	}
+	r.Flush()
+	return nil
+}
+
 func ReportLife(w io.Writer) error {
 	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {

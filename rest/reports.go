@@ -37,6 +37,9 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	case "annual":
 		w.Header().Set(contentType, csvMime)
 		err = model.ReportAnnual(w)
+	case "reaffirmation":
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportReaffirmationFormMerge(w)
 	case "email":
 		w.Header().Set(contentType, csvMime)
 		err = model.ReportAllEmail(w)

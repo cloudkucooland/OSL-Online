@@ -22,6 +22,7 @@
 	<li><a href="#/reports" onclick={() => report('email')}>All Member Email List</a></li>
 	<li><a href="#/reports" onclick={() => report('avery')}>Avery Labels</a></li>
 	<li><a href="#/reports" onclick={() => report('annual')}>Annual Vows Mail Merge</a></li>
+	<li><a href="#/reports" onclick={() => report('reaffirmation')}>Reaffirmation Form Merge</a></li>
 	<li><a href="#/reports" onclick={() => report('life')}>Life Vows Mail Merge</a></li>
 	<li>
 		<a href="#/reports" onclick={() => report('doxprint')}

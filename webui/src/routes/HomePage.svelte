@@ -120,9 +120,16 @@
 	<title>OSL Member Manager : {query}</title>
 </svelte:head>
 
+
+
 <form onsubmit={doSearch}>
 	<Table>
 		<TableBody>
+			<TableBodyRow>
+				<TableBodyCell colspan={3}>
+					<Button color="grey" href="#/me">My Data</Button>
+				</TableBodyCell>
+			</TableBodyRow>
 			{#if !result}
 				<TableBodyRow>
 					<TableBodyCell colspan={3}>
