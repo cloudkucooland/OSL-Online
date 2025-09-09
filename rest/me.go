@@ -182,4 +182,3 @@ func getMeGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 }
-

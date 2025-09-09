@@ -27,8 +27,8 @@ func Dashboard() (Dashboard_t, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var status string;
-		var count int;
+		var status string
+		var count int
 		if err = rows.Scan(&status, &count); err != nil {
 			slog.Error(err.Error())
 			continue
@@ -44,9 +44,9 @@ func Dashboard() (Dashboard_t, error) {
 	}
 
 	y := time.Now().Year()
-	lastyear := fmt.Sprintf("%d-07-01", y - 1)
+	lastyear := fmt.Sprintf("%d-07-01", y-1)
 	thisyear := fmt.Sprintf("%d-07-01", y)
-	nextyear := fmt.Sprintf("%d-07-01", y + 1)
+	nextyear := fmt.Sprintf("%d-07-01", y+1)
 
 	err = db.QueryRow("select sum(amount) from giving where date > ? and date < ?", lastyear, thisyear).Scan(&d.LastYearGiving)
 	if err != nil {

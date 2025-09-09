@@ -15,8 +15,8 @@
 
 {#await getDashboard()}
 	<h3>... loading ...</h3>
-{:then d }
-		<Table>
+{:then d}
+	<Table>
 		<TableBody>
 			<TableBodyRow>
 				<TableBodyCell>Life Vow Members</TableBodyCell>
@@ -43,5 +43,5 @@
 				<TableBodyCell>{d.LastYearGiving}</TableBodyCell>
 			</TableBodyRow>
 		</TableBody>
-		</Table>
+	</Table>
 {/await}
