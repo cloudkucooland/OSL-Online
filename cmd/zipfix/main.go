@@ -23,7 +23,7 @@ func main() {
 	if u.Password == "" {
 		panic("ZIPFIX_PASS not set")
 	}
-	// u.Production = true
+	u.Production = true
 
 	dbpath := os.Getenv("OO_DB")
 	if dbpath == "" {
@@ -53,14 +53,17 @@ func main() {
 			slog.Debug("Skipping non-us", "country", m.Country)
 			continue
 		}
-		// slog.Info(m.OSLName())
+		slog.Info(m.OSLName())
 
 		a.Address2 = m.Address + " " + m.AddressLine2
 		a.City = m.City
 		a.State = m.State
-		a.Zip5 = zip4(m.PostalCode)
+		a.Zip5, a.Zip4 = zipsplit(m.PostalCode)
 		fmt.Printf("%+v\n", a)
 		lookup := u.ZipCodeLookup(a)
+		if lookup.Address.Zip5 == "" {
+			continue
+		}
 		fmt.Printf("%+v\n", lookup)
 
 		newzip := fmt.Sprintf("%s-%s", lookup.Address.Zip5, lookup.Address.Zip4)
@@ -71,10 +74,13 @@ func main() {
 	}
 }
 
-func zip4(z string) string {
+func zipsplit(z string) (string, string) {
 	if z == "" {
-		return ""
+		return "", ""
 	}
 	zs := strings.Split(z, "-")
-	return zs[0]
+	if len(zs) == 2 {
+		return zs[0], zs[1]
+	}
+	return zs[0], ""
 }
