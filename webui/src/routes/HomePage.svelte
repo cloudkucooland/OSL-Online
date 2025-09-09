@@ -120,8 +120,6 @@
 	<title>OSL Member Manager : {query}</title>
 </svelte:head>
 
-
-
 <form onsubmit={doSearch}>
 	<Table>
 		<TableBody>
