@@ -26,6 +26,7 @@
 	import AddSubscriber from './routes/AddSubscriber.svelte';
 	import Register from './routes/Register.svelte';
 	import Me from './routes/Me.svelte';
+	import MeGiving from './routes/MeGiving.svelte';
 	import Giving from './routes/Giving.svelte';
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
@@ -33,6 +34,7 @@
 	import { getMe } from './oo';
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
 	import Email from './routes/Email.svelte';
+	import Dashboard from './routes/Dashboard.svelte';
 
 	const _init = getMe();
 	setContext('oo', { me: writable(_init) });
@@ -47,6 +49,7 @@
 		'/reports': Reports,
 
 		'/me': Me,
+		'/mygiving': MeGiving,
 		'/member/:id': Member,
 		'/addmember/': AddMember,
 		'/giving/:id': Giving,
@@ -62,6 +65,7 @@
 		'/localitybrowser/': LocalityBrowser,
 		'/localitybrowser/:loc': LocalityBrowser,
 		'/email/': Email,
+		'/dashboard/': Dashboard,
 		'*': HomePage
 	};
 </script>
@@ -79,7 +83,8 @@
 					Me <ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
 				</NavLi>
 				<Dropdown class="z-20 w-44">
-					<DropdownItem href="#/me">{$me.sub}</DropdownItem>
+					<DropdownItem href="#/me">My Data</DropdownItem>
+					<DropdownItem href="#/mygiving">My Giving</DropdownItem>
 					<DropdownItem href="#/Login">Log out</DropdownItem>
 				</Dropdown>
 
@@ -104,6 +109,7 @@
 						<DropdownItem href="#/email">Email membership</DropdownItem>
 						<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
 						<DropdownItem href="#/addmember">Add Member/Friend</DropdownItem>
+						<DropdownItem href="#/Dashboard">Dashboard</DropdownItem>
 					</Dropdown>
 				{/if}
 			{/if}

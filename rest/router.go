@@ -38,8 +38,9 @@ func getServeMux() *httprouter.Router {
 	m.POST("/api/v1/me", authMW(setMe, AuthLevelView)) // should use PUT
 	m.PUT("/api/v1/me", authMW(setMe, AuthLevelView))
 	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, AuthLevelView))
+	m.GET("/api/v1/me/giving", authMW(getMeGiving, AuthLevelView))
 
-	// for instituions and individuals who subscribe to Doxology but aren't vowed
+	// for instituions who subscribe to Doxology
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
 	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelAdmin))
 	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
@@ -51,6 +52,7 @@ func getServeMux() *httprouter.Router {
 
 	// reports
 	m.GET("/api/v1/report/:report", authMW(reports, AuthLevelManager))
+	m.GET("/api/v1/dashboard", authMW(getDashboard, AuthLevelView))
 
 	m.POST("/api/v1/email", authMW(postEmail, AuthLevelAdmin))
 

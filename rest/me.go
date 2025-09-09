@@ -156,3 +156,30 @@ func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	fmt.Fprint(w, jsonStatusOK)
 }
+
+func getMeGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	headers(w, r)
+	username := model.Authname(getUser(r))
+	id, err := username.GetID()
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	mid := model.MemberID(id)
+	gr, err := mid.GivingRecords()
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("loading self giving record", "user", username)
+	if err := json.NewEncoder(w).Encode(gr); err != nil {
+		slog.Error(err.Error())
+		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		return
+	}
+}
+

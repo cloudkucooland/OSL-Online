@@ -504,6 +504,30 @@ export async function updateMe(FieldName, Value) {
 	}
 }
 
+export async function getMeGiving() {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/me/giving`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
 export async function getGiving(id) {
 	const jwt = localStorage.getItem('jwt');
 	if (jwt === undefined || jwt === null) {
@@ -917,4 +941,22 @@ export async function vcard(memberid) {
 			document.body.removeChild(link);
 		}
 	}
+}
+
+export async function getDashboard() {
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin'
+	};
+
+	const response = await fetch(`${server}/api/v1/dashboard`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
 }
