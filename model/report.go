@@ -188,6 +188,11 @@ func ActiveMemberIDsUS() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') AND Country = 'US' ORDER BY LastName, FirstName")
 }
 
+// JustMemberIDsUS returns All Annual Vows and Life Vows in the US
+func JustMemberIDsUS() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows') AND Country = 'US' ORDER BY LastName, FirstName")
+}
+
 // AnnualMemberIDs does what it says
 func AnnualMemberIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
