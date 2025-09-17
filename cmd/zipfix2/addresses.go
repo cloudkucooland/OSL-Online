@@ -14,17 +14,18 @@ import (
 
 const URL = "https://apis.usps.com/addresses/v3/address"
 
-func getaddress(ctx context.Context, member *model.Member, bearer string) {
+func getaddress(ctx context.Context, member *model.Member, bearer string) error {
 	if member.Address == "" || member.State == "" || member.City == "" {
 		slog.Info("getaddress", "not enough data", member.OSLName())
-		return
+		return nil
 	}
 
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return err
 	}
 	req.Header.Add("Authorization", `Bearer `+bearer)
 
@@ -40,7 +41,7 @@ func getaddress(ctx context.Context, member *model.Member, bearer string) {
 		values.Add("ZIPCode", member.PostalCode[:5])
 
 		if len(member.PostalCode) == 10 {
-			values.Add("ZIPPlus4", member.PostalCode[6:9])
+			values.Add("ZIPPlus4", member.PostalCode[6:10])
 		}
 	}
 
@@ -49,7 +50,8 @@ func getaddress(ctx context.Context, member *model.Member, bearer string) {
 RETRY:
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return err
 	}
 
 	switch resp.StatusCode {
@@ -60,31 +62,33 @@ RETRY:
 		time.Sleep(300 * time.Second)
 		goto RETRY
 	default:
-		slog.Info("bad status", "status", resp.Status)
-		return
+		slog.Info("bad status", "status", resp.Status, "member", member.OSLName())
+		return err
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return err
 	}
 
 	ar := AddressResponse{}
 	err = json.Unmarshal(body, &ar)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		return err
 	}
 
 	if len(ar.Warnings) != 0 {
 		slog.Error("Warnings found", "warnings", ar.Warnings, "member", member.OSLName())
 		slog.Info("ar", "ar", ar)
-		return
+		return nil
 	}
 
 	if len(ar.Matches) == 0 {
 		slog.Info("no matches", "member", member.OSLName())
-		return
+		return nil
 	}
 
 	for i := range ar.Matches {
@@ -105,11 +109,31 @@ RETRY:
 	}
 
 	for i := range ar.Corrections {
-		switch ar.Corrections[1].Code { // need to get a list of codes...
+		switch ar.Corrections[i].Code { // need to get a list of codes...
 		case "":
-			slog.Info("corrections with empty code", i, ar.Corrections[i])
+			slog.Info("correcting address format", "member", member.OSLName())
+			if member.Address != ar.Address.StreetAddress {
+				if err := member.ID.SetMemberField(ctx, "Address", ar.Address.StreetAddress, model.MemberID(0)); err != nil {
+					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+				}
+			}
+			if member.AddressLine2 != ar.Address.SecondaryAddress {
+				if err := member.ID.SetMemberField(ctx, "AddressLine2", ar.Address.SecondaryAddress, model.MemberID(0)); err != nil {
+					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+				}
+			}
+			if member.City != ar.Address.City {
+				if err := member.ID.SetMemberField(ctx, "City", ar.Address.City, model.MemberID(0)); err != nil {
+					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+				}
+			}
+			if member.State != ar.Address.State {
+				if err := member.ID.SetMemberField(ctx, "State", ar.Address.State, model.MemberID(0)); err != nil {
+					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+				}
+			}
 		default:
-			slog.Info("unknown corrections", i, ar.Corrections[i])
+			slog.Info("unknown corrections", "data", ar.Corrections[i], "member", member.OSLName())
 		}
 		// continue, we can still fix the zip
 	}
@@ -122,13 +146,13 @@ RETRY:
 	if ar.Address.ZIPCode != "" && ar.Address.ZIPPlus4 != "" {
 		z := fmt.Sprintf("%s-%s", ar.Address.ZIPCode, ar.Address.ZIPPlus4)
 		if member.PostalCode != z {
-			slog.Info("updating", "name", member.OSLName(), "current ZIP", member.PostalCode, "new ZIP", z)
-		}
-		member.PostalCode = z
-		if err := member.Store(); err != nil {
-			slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+			if err := member.ID.SetMemberField(ctx, "PostalCode", z, model.MemberID(0)); err != nil {
+				slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
+				return fmt.Errorf("unable to store corrected zipcode")
+			}
 		}
 	}
+	return nil
 }
 
 type AddressResponse struct {

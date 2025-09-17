@@ -27,6 +27,7 @@ func main() {
 	}
 
 	ids, err := model.JustMemberIDsUS()
+	// ids, err := model.FriendIDs()
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
