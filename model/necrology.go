@@ -8,7 +8,7 @@ import (
 func Necrology() ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Deceased' AND DateDeceased IS NOT NULL ORDER BY m.LastName, FirstName")
+	rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Deceased' AND DateDeceased IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}

@@ -35,6 +35,8 @@
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
 	import Email from './routes/Email.svelte';
 	import Dashboard from './routes/Dashboard.svelte';
+	import Notes from './routes/Notes.svelte';
+	import Necrology from './routes/Necrology.svelte';
 
 	const _init = getMe();
 	setContext('oo', { me: writable(_init) });
@@ -53,6 +55,7 @@
 		'/member/:id': Member,
 		'/addmember/': AddMember,
 		'/giving/:id': Giving,
+		'/notes/:id': Notes,
 		'/changelog/:id': Changelog,
 
 		'/subsearch': SubSearch,
@@ -66,6 +69,7 @@
 		'/localitybrowser/:loc': LocalityBrowser,
 		'/email/': Email,
 		'/dashboard/': Dashboard,
+		'/necrology/': Necrology,
 		'*': HomePage
 	};
 </script>
@@ -95,6 +99,7 @@
 					<DropdownItem href="#/chapterbrowser">Chapters</DropdownItem>
 					<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
 					<DropdownItem href="#/leadership">Leadership</DropdownItem>
+					<DropdownItem href="#/necrology">Necrology</DropdownItem>
 				</Dropdown>
 
 				{#if $me.level >= 1}

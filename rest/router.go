@@ -30,7 +30,11 @@ func getServeMux() *httprouter.Router {
 	// manage giving records
 	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, AuthLevelAdmin))
 	m.POST("/api/v1/giving/:id", authMW(postMemberGiving, AuthLevelAdmin))
-	m.GET("/api/v1/changelog/:id", authMW(getMemberChangelog, AuthLevelAdmin))
+
+	m.GET("/api/v1/changelog/:id", authMW(getMemberChangelog, AuthLevelManager))
+
+	m.POST("/api/v1/member/:id/notes", authMW(postNote, AuthLevelManager))
+	m.GET("/api/v1/member/:id/notes", authMW(getNotes, AuthLevelManager))
 
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
@@ -53,6 +57,7 @@ func getServeMux() *httprouter.Router {
 	// reports
 	m.GET("/api/v1/report/:report", authMW(reports, AuthLevelManager))
 	m.GET("/api/v1/dashboard", authMW(getDashboard, AuthLevelView))
+	m.GET("/api/v1/necrology", authMW(getNecrology, AuthLevelView))
 
 	m.POST("/api/v1/email", authMW(postEmail, AuthLevelAdmin))
 

@@ -960,3 +960,73 @@ export async function getDashboard() {
 	}
 	return payload;
 }
+
+export async function getMemberNotes(id) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${id}/notes`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
+
+export async function postMemberNote(id, note) {
+	const dataArray = new FormData();
+	dataArray.append('note', note);
+
+	const request = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		body: dataArray
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${id}/notes`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status, payload.error);
+		throw new Error(payload.error);
+	}
+	return true;
+}
+
+export async function getNecrology() {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const isee = await fetch(`${server}/api/v1/necrology`, request);
+	const payload = await isee.json();
+	if (isee.status != 200) {
+		console.log('server returned ', isee.status);
+		throw new Error(payload.error);
+	}
+	return payload;
+}
