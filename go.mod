@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/Boostport/address v0.13.0
-	github.com/aureum/usps-go v0.0.0-20150402201426-2f34ab376853
 	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/julienschmidt/httprouter v1.3.0
@@ -21,7 +20,7 @@ require (
 require (
 	cloud.google.com/go/auth v0.16.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
-	cloud.google.com/go/compute/metadata v0.8.1 // indirect
+	cloud.google.com/go/compute/metadata v0.8.3 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
