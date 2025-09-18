@@ -213,6 +213,11 @@ func FriendIDs() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
 }
 
+// NecrologyIDs does what it says
+func NecrologyIDs() ([]MemberID, error) {
+	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Deceased' ORDER BY LastName, FirstName")
+}
+
 // ReminderAnnual returns those who have not reaffirmed in the past year
 func ReminderAnnual() ([]MemberID, error) {
 	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")

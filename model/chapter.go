@@ -13,8 +13,18 @@ type Chapter struct {
 	Prior MemberID
 }
 
-func (c *Chapter) Store() error {
+// don't use this... you'll lose all member data, rewrite to be an INSERT/ON DUPLICATE 
+func (c *Chapter) store() error {
 	_, err := db.Exec("REPLACE INTO `chapters` (`id`, `name`, `prior` VALUES (?,?,?)", c.ID, c.Name, c.Prior)
+	if err != nil {
+		slog.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+func (c *Chapter) Update() error {
+	_, err := db.Exec("UPDATE `chapters` SET `name` = ?, `prior` = ?  WHERE `id` = ? `name`, `prior`", c.Name, c.Prior, c.ID)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

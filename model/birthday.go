@@ -35,7 +35,6 @@ func SearchBirthday(month time.Month, day int) ([]*Member, error) {
 		if err != nil {
 			slog.Error(err.Error())
 			continue
-			// return members, err
 		}
 
 		members = append(members, m)
