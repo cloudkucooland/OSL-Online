@@ -106,7 +106,7 @@ func postChapter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		Name:  name,
 		Prior: model.MemberID(prior),
 	}
-	if err := c.Store(); err != nil {
+	if err := c.Update(); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
