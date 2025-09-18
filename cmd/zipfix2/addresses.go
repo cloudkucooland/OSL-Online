@@ -98,11 +98,11 @@ RETRY:
 			// good result
 		case "32":
 			// need apt or suite number
-			slog.Error("Need more information", "code", ar.Matches[0].Code, "member", member.OSLName(), "info", ar.Matches[0].Text)
+			slog.Error("Need more information", "code", ar.Matches[i].Code, "member", member.OSLName(), "info", ar.Matches[i].Text)
 			// continue, we can still fix the zip
 			break
 		default:
-			slog.Error("Unknown Matches code", "code", ar.Matches[0].Code, "member", member.OSLName(), "info", ar.Matches[0].Text)
+			slog.Error("Unknown Matches code", "code", ar.Matches[i].Code, "member", member.OSLName(), "info", ar.Matches[i].Text)
 			slog.Info("ar", "ar", ar)
 			continue
 		}

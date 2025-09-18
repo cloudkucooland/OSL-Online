@@ -28,12 +28,13 @@ type Bearer struct {
 }
 
 // roll our own since USPS requires POST and that's not-standard
-func getauth(ctx context.Context) string {
+func getauth(ctx context.Context) (string, error) {
 	clientID := os.Getenv("ZIPFIX_CLIENTID")
 	clientSecret := os.Getenv("ZIPFIX_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		panic("ZIPFIX_CLIENTID and ZIPFIX_SECRET must be set")
+		err := fmt.Errorf("ZIPFIX_CLIENTID and ZIPFIX_SECRET must be set")
+		return "", err
 	}
 
 	j := fmt.Sprintf("{\"client_id\": \"%s\", \"client_secret\":\"%s\", \"grant_type\":\"client_credentials\"}", clientID, clientSecret)
@@ -45,23 +46,24 @@ func getauth(ctx context.Context) string {
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	if resp.StatusCode != 200 {
-		panic(resp.Status)
+		err := fmt.Errorf("status code: %s", resp.Status)
+		return "", err
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	bearer := Bearer{}
 	err = json.Unmarshal(body, &bearer)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return string(bearer.AccessToken)
+	return string(bearer.AccessToken), nil
 }

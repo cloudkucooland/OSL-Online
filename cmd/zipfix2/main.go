@@ -14,7 +14,10 @@ import (
 func main() {
 	ctx := context.Background()
 
-	bearer := getauth(ctx)
+	bearer, err := getauth(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	dbpath := os.Getenv("OO_DB")
 	if dbpath == "" {
@@ -28,6 +31,7 @@ func main() {
 
 	ids, err := model.JustMemberIDsUS()
 	// ids, err := model.FriendIDs()
+	// ids, err := model.NecrologyIDs()
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)
@@ -36,14 +40,17 @@ func main() {
 	for _, id := range ids {
 		member, err := id.Get()
 		if err != nil {
+			slog.Error(err.Error())
 			continue
 		}
 		if member.Country != "US" {
 			continue
 		}
-		getaddress(ctx, member, bearer)
+		err = getaddress(ctx, member, bearer)
+		if err != nil {
+			slog.Error(err.Error())
+		}
 		// default rate limit is 60/hr... yuk this is going to take DAYS
 		time.Sleep(60 * time.Second)
 	}
-
 }
