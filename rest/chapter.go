@@ -21,6 +21,7 @@ func getChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
+	slog.Info("getChapters", "requester", getUser(r))
 	if err := json.NewEncoder(w).Encode(ch); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

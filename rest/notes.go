@@ -62,17 +62,17 @@ func postNote(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	m := model.MemberID(id)
 
 	notecontent := r.PostFormValue("note")
-	if notecontent  == "" {
+	if notecontent == "" {
 		err := fmt.Errorf("note not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	note := model.Note {
-		ID:    0,
+	note := model.Note{
+		ID:     0,
 		Member: m,
-		Note: notecontent,
+		Note:   notecontent,
 	}
 	if err := note.Store(); err != nil {
 		slog.Error(err.Error())
@@ -114,4 +114,3 @@ func deleteNote(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	fmt.Fprint(w, jsonStatusOK)
 }
-

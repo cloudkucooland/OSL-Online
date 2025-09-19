@@ -18,6 +18,9 @@ func getServeMux() *httprouter.Router {
 	// takes an email address, returns an "OK" after the password message is sent
 	m.POST("/api/v1/register", postRegister)
 
+	// public -- pulled by WADO
+	m.GET("/api/v1/commemorations", getCommemorations)
+
 	// manage individual members
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, AuthLevelView))

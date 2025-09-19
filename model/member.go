@@ -230,7 +230,7 @@ func (n *memberNulls) Store() error {
 		return err
 	}
 	return nil
-} 
+}
 
 func (n *Member) Store() error {
 	nn := n.tomemberNulls()
@@ -511,7 +511,7 @@ func (n *Member) OSLName() string {
 		name += " " + n.Suffix
 	}
 
-	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
+	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" || n.MemberStatus == "Deceased" {
 		name += ", OSL"
 	}
 	return name
@@ -520,7 +520,7 @@ func (n *Member) OSLName() string {
 func (n *Member) OSLShortName() string {
 	var name string
 	firstname := false
-	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" {
+	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" || n.MemberStatus == "Deceased" {
 		name = n.Title + " "
 	}
 	if n.MemberStatus == "Life Vows" && n.LifevowName != "" {

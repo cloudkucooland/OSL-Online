@@ -17,7 +17,7 @@ type Note struct {
 func (m MemberID) GetNotes() ([]*Note, error) {
 	notes := make([]*Note, 0)
 
-	rows, err :=  db.Query("SELECT ID, member, date, note FROM notes WHERE member = ?", m)
+	rows, err := db.Query("SELECT ID, member, date, note FROM notes WHERE member = ?", m)
 	if err != nil {
 		slog.Error(err.Error())
 		return notes, err

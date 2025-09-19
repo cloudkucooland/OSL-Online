@@ -10,6 +10,7 @@
 
 	$: items = [
 		{
+			'Title': ' ',
 			'First Name': 'Loading',
 			'Last Name': 'Loading',
 			'Date Deceased': 'Loading',
@@ -24,7 +25,7 @@
 		sortable: true
 	};
 
-	// should not need the #await block, but we do...
+	// should not need the #await block, but we do... onMount loaded properly, but the table never updated
 	async function getit() {
 		const w = [];
 		try {
@@ -34,6 +35,7 @@
 				const dd = d.toLocaleDateString();
 
 				const j = {
+					'Title': i.Title,
 					'First Name': i.FirstName,
 					'Last Name': i.LastName,
 					'Date Deceased': dd,

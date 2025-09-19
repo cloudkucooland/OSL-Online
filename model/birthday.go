@@ -10,7 +10,9 @@ import (
 func SearchBirthday(month time.Month, day int) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	qq := fmt.Sprintf("%%-%2d-%2d", month, day)
+	qq := fmt.Sprintf("%%-%02d-%02d", month, day)
+
+	slog.Info("birthday qq", "qq", qq)
 
 	rows, err := db.Query("SELECT ID FROM member WHERE BirthDate LIKE ? AND MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName, FirstName", qq)
 	if err != nil && err == sql.ErrNoRows {

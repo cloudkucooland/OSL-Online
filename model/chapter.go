@@ -13,7 +13,7 @@ type Chapter struct {
 	Prior MemberID
 }
 
-// don't use this... you'll lose all member data, rewrite to be an INSERT/ON DUPLICATE 
+// don't use this... you'll lose all member data, rewrite to be an INSERT/ON DUPLICATE
 func (c *Chapter) store() error {
 	_, err := db.Exec("REPLACE INTO `chapters` (`id`, `name`, `prior` VALUES (?,?,?)", c.ID, c.Name, c.Prior)
 	if err != nil {

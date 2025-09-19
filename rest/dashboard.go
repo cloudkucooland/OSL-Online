@@ -18,6 +18,7 @@ func getDashboard(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	slog.Info("getDashboard", "requester", getUser(r))
 	headers(w, r)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		slog.Warn(err.Error())
