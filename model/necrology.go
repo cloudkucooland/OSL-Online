@@ -47,8 +47,6 @@ func Commemorations(month time.Month, day int) ([]Commemoration, error) {
 
 	qq := fmt.Sprintf("%%-%02d-%02d", month, day)
 
-	slog.Info("commemorations qq", "qq", qq)
-
 	rows, err := db.Query("SELECT ID FROM member WHERE DateDeceased LIKE ? AND MemberStatus = 'Deceased' ORDER BY LastName, FirstName", qq)
 	if err != nil && err == sql.ErrNoRows {
 		slog.Info("no commemorations for this day", "month", month, "day", day)

@@ -398,24 +398,29 @@ func DoxologyEmailedDirect() ([]string, error) {
 	return out, nil
 }
 
-// FontEmailedDirect returns a list of addresses for direct API processing, so we can dump the CSV stuff
+// FontEmailedDirect returns a list of addresses for direct google groups API processing
 func FontEmailedDirect() ([]string, error) {
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Newsletter != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
 	out := make([]string, 0)
 
-	for _, id := range members {
-		m, err := id.Get()
-		if err != nil {
+	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Newsletter != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
+	if err != nil {
+		slog.Error(err.Error())
+		return out, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var email string
+		if err = rows.Scan(&email); err != nil {
+			slog.Error(err.Error())
 			continue
 		}
-		if strings.TrimSpace(m.PrimaryEmail) == "" {
+		email = strings.TrimSpace(email)
+		if email == "" {
+			// write back null?
 			continue
 		}
-		out = append(out, m.PrimaryEmail)
+		out = append(out, email)
 	}
 	return out, nil
 }

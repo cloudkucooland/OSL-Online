@@ -12,8 +12,6 @@ func SearchBirthday(month time.Month, day int) ([]*Member, error) {
 
 	qq := fmt.Sprintf("%%-%02d-%02d", month, day)
 
-	slog.Info("birthday qq", "qq", qq)
-
 	rows, err := db.Query("SELECT ID FROM member WHERE BirthDate LIKE ? AND MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName, FirstName", qq)
 	if err != nil && err == sql.ErrNoRows {
 		slog.Info("no birthdays for this day", "month", month, "day", day)

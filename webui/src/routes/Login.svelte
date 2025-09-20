@@ -21,6 +21,11 @@
 		event.preventDefault();
 		event.stopPropagation();
 
+		if (typeof username == 'undefined' || typeof password == 'undefined') {
+			toast.push('Fill in both username and password');
+			return;
+		}
+
 		if (!username || !password) {
 			toast.push('Fill in both username and password');
 			return;

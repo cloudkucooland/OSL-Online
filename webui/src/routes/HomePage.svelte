@@ -66,6 +66,11 @@
 			}
 		}
 
+		if (query.indexOf('@') != -1) {
+			// people don't read...
+			mode = 'email';
+		}
+
 		try {
 			switch (mode) {
 				case 'email':
