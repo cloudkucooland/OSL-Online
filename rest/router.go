@@ -24,7 +24,7 @@ func getServeMux() *httprouter.Router {
 	// manage individual members
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, AuthLevelView))
-	m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager)) // should use PUT
+	// m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager)) // should use PUT
 	m.PUT("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
 	m.GET("/api/v1/member/:id/vcard", authMW(getMemberVcard, AuthLevelView))
 	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
@@ -33,6 +33,7 @@ func getServeMux() *httprouter.Router {
 	// manage giving records
 	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, AuthLevelAdmin))
 	m.POST("/api/v1/giving/:id", authMW(postMemberGiving, AuthLevelAdmin))
+	// m.DELETE("/api/v1/giving/:id", authMW(deleteMemberGiving, AuthLevelAdmin))
 
 	m.GET("/api/v1/changelog/:id", authMW(getMemberChangelog, AuthLevelManager))
 
@@ -42,7 +43,7 @@ func getServeMux() *httprouter.Router {
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
 	m.GET("/api/v1/me/chapters", authMW(getMeChapters, AuthLevelView))
-	m.POST("/api/v1/me", authMW(setMe, AuthLevelView)) // should use PUT
+	// m.POST("/api/v1/me", authMW(setMe, AuthLevelView)) // should use PUT
 	m.PUT("/api/v1/me", authMW(setMe, AuthLevelView))
 	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, AuthLevelView))
 	m.GET("/api/v1/me/giving", authMW(getMeGiving, AuthLevelView))
@@ -50,6 +51,7 @@ func getServeMux() *httprouter.Router {
 	// for instituions who subscribe to Doxology
 	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, AuthLevelView))
 	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, AuthLevelAdmin))
+	// m.DELETE("/api/v1/subscriber/:id", authMW(deleteSubscriber, AuthLevelAdmin))
 	// m.POST("/api/v1/subscriber", authMW(createSubscriber, AuthLevelAdmin))
 
 	// search lists
@@ -66,8 +68,9 @@ func getServeMux() *httprouter.Router {
 
 	// manage chapters
 	m.GET("/api/v1/chapter", getChapters) // public
-	m.PUT("/api/v1/chapter/:id", authMW(postChapter, AuthLevelAdmin))
+	m.PUT("/api/v1/chapter/:id", authMW(putChapter, AuthLevelAdmin))
 	m.GET("/api/v1/chapter/:id", authMW(getChapterMembers, AuthLevelView))
+	// m.DELETE("/api/v1/chapter/:id", authMW(deleteChapter, AuthLevelAdmin))
 
 	m.GET("/api/v1/localities", getLocalities) // public
 	m.GET("/api/v1/locality/:joint", authMW(getLocalityMembers, AuthLevelView))

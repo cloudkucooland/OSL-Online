@@ -58,7 +58,7 @@ func getChapterMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 }
 
-func postChapter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func putChapter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
