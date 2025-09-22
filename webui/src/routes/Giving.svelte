@@ -3,7 +3,7 @@
 	import { getMember, getGiving, postGiving } from '../oo';
 	import { Label, Input, Button } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { push } from 'svelte-spa-router';
+	import { push, replace } from 'svelte-spa-router';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {
@@ -27,7 +27,8 @@
 		try {
 			await postGiving(params.id, postdate, amount, description, check, transaction);
 			toast.push(`Posted`);
-			push(`#/giving/${params.id}`);
+			// await push(`#/giving/${params.id}`);
+			await replace(`#/giving/${params.id}`);
 		} catch (err) {
 			console.log(err);
 			toast.push('failed to change: ' + err.message);

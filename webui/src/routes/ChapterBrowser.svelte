@@ -20,10 +20,10 @@
 		event.stopPropagation();
 		try {
 			members = await getChapterMembers(selected);
-			push(`#/chapterbrowser/${selected}`);
-		} catch (e) {
-			console.log(e);
-			toast.push(e.message);
+			await push(`#/chapterbrowser/${selected}`);
+		} catch (err) {
+			console.log(err);
+			toast.push(err.message);
 		}
 	}
 

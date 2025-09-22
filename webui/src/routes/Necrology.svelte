@@ -10,7 +10,7 @@
 
 	$: items = [
 		{
-			'Title': ' ',
+			Title: ' ',
 			'First Name': 'Loading',
 			'Last Name': 'Loading',
 			'Date Deceased': 'Loading',
@@ -35,7 +35,7 @@
 				const dd = d.toLocaleDateString();
 
 				const j = {
-					'Title': i.Title,
+					Title: i.Title,
 					'First Name': i.FirstName,
 					'Last Name': i.LastName,
 					'Date Deceased': dd,

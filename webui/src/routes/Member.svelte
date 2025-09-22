@@ -85,14 +85,12 @@
 	async function reload(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.log('Member.svelte: reload()', event);
 		load(params.id);
 	}
 
 	async function change(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.log('Member.svelte: change()', event);
 		try {
 			await updateMember(params.id, event.target.id, event.target.value);
 			toast.push(`Changed ${event.target.id}`);
@@ -106,7 +104,6 @@
 	async function changeDate(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.log('Member.svelte: changeDate()', event);
 		try {
 			await updateMember(params.id, event.target.id, event.target.value);
 			toast.push(`Changed ${event.target.id}`);
@@ -120,7 +117,6 @@
 	async function changeCheck(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.log('Member.svelte changeCheck()', event);
 		try {
 			await updateMember(params.id, event.target.id, event.target.checked);
 			toast.push(`Changed ${event.target.id}`);
@@ -134,7 +130,6 @@
 	async function setchapters(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		console.log('Member.svelte setchapters()', event);
 		try {
 			await updateMemberChapters(params.id, selectedchapters);
 			toast.push('Updated Chapters');
