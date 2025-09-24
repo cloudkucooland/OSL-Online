@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { getMember, getGiving, postGiving } from '../oo';
+	import { getMember, getGiving, postGiving, cleanDateFormat } from '../oo';
 	import { Label, Input, Button } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push, replace } from 'svelte-spa-router';
@@ -11,21 +11,25 @@
 	}
 
 	let { params } = $props();
-	const dd = new Date().toISOString().split('T');
-	let postdate = $state(dd[0]);
+	let postdate = $state(cleanDateFormat(new Date().toISOString()));
 	let amount = $state();
 	let description = $state('Annual Reaffirmation');
 	let check = $state(0);
 	let transaction = $state(0);
-
-	console.log(params);
 
 	async function add(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
 		try {
-			await postGiving(params.id, postdate, amount, description, check, transaction);
+			await postGiving(
+				params.id,
+				cleanDateFormat(postdate),
+				amount,
+				description,
+				check,
+				transaction
+			);
 			toast.push(`Posted`);
 			// await push(`#/giving/${params.id}`);
 			await replace(`#/giving/${params.id}`);

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { Table } from '@flowbite-svelte-plugins/datatable';
-	import { getNecrology } from '../oo';
+	import { getNecrology, cleanDateFormat } from '../oo';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {
@@ -31,7 +31,8 @@
 		try {
 			const t = await getNecrology();
 			t.forEach((i) => {
-				const d = new Date(Date.parse(i.DateDeceased));
+				// why not use cleanDateFormat ?
+				const d = new Date(i.DateDeceased);
 				const dd = d.toLocaleDateString();
 
 				const j = {

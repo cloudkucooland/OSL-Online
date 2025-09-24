@@ -30,6 +30,7 @@
 	import Giving from './routes/Giving.svelte';
 	import Changelog from './routes/Changelog.svelte';
 	import ChapterBrowser from './routes/ChapterBrowser.svelte';
+	import ChapterEditor from './routes/ChapterEditor.svelte';
 	import Leadership from './routes/Leadership.svelte';
 	import { getMe } from './oo';
 	import LocalityBrowser from './routes/LocalityBrowser.svelte';
@@ -63,6 +64,8 @@
 		'/addsubscriber/': AddSubscriber,
 		'/chapterbrowser/': ChapterBrowser,
 		'/chapterbrowser/:id': ChapterBrowser,
+		'/chaptereditor/': ChapterEditor,
+		'/chaptereditor/:id': ChapterEditor,
 		'/leadership/': Leadership,
 		'/leadership/:id': Leadership,
 		'/localitybrowser/': LocalityBrowser,
@@ -115,6 +118,7 @@
 						<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
 						<DropdownItem href="#/addmember">Add Member/Friend</DropdownItem>
 						<DropdownItem href="#/Dashboard">Dashboard</DropdownItem>
+						<DropdownItem href="#/chaptereditor">Chapter Editor</DropdownItem>
 					</Dropdown>
 				{/if}
 			{/if}

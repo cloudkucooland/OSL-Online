@@ -10,7 +10,7 @@
 		Input,
 		Select
 	} from 'flowbite-svelte';
-	import { updateMember, search, searchemail } from '../oo';
+	import { updateMember, search, searchemail, cleanDateFormat } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { SearchOutline } from 'flowbite-svelte-icons';
 
@@ -103,8 +103,7 @@
 		event.preventDefault();
 		event.stopPropagation();
 		try {
-			const dd = new Date().toISOString().split('T');
-			await updateMember(r.ID, 'DateReaffirmation', dd[0]);
+			await updateMember(r.ID, 'DateReaffirmation', cleanDateFormat(new Date().toISOString()));
 			push(`/member/${r.ID}`);
 		} catch (err) {
 			console.log(err);

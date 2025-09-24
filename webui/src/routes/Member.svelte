@@ -7,7 +7,8 @@
 		getChapters,
 		updateMemberChapters,
 		oslname,
-		vcard
+		vcard,
+		cleanDateFormat
 	} from '../oo';
 	import { Button, Label, Input, Select, MultiSelect, Toggle } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
@@ -105,7 +106,8 @@
 		event.preventDefault();
 		event.stopPropagation();
 		try {
-			await updateMember(params.id, event.target.id, event.target.value);
+			const clean = cleanDateFormat(event.target.value);
+			await updateMember(params.id, event.target.id, clean);
 			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);

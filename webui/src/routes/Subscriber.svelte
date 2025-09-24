@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getSubscriber, updateSubscriber } from '../oo';
+	import { getSubscriber, updateSubscriber, cleanDateFormat } from '../oo';
 	import { Label, Input, Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 
@@ -16,6 +16,19 @@
 		event.stopPropagation();
 		try {
 			await updateSubscriber(params.id, event.target.id, event.target.value);
+			toast.push(`Changed ${event.target.id}`);
+		} catch (err) {
+			toast.push('failed to change: ' + err.message);
+			console.log(err);
+		}
+		return true;
+	}
+
+	async function changeDate(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		try {
+			await updateSubscriber(params.id, event.target.id, cleanDateFormat(event.target.value));
 			toast.push(`Changed ${event.target.id}`);
 		} catch (err) {
 			toast.push('failed to change: ' + err.message);
@@ -109,7 +122,7 @@
 			<div class="grid grid-cols-8 gap-4 px-4 py-2">
 				<div class="col-span-2">
 					<Label for="DatePaid" class="block">Paid</Label>
-					<Input id="DatePaid" value={r.DatePaid} onchange={change} />
+					<Input id="DatePaid" value={r.DatePaid} onchange={changeDate} />
 				</div>
 			</div>
 		</section>

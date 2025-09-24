@@ -1,5 +1,19 @@
 export const server = 'https://saint-luke.net:8443';
 
+export function cleanDateFormat(incoming) {
+	// parse whatever comes in
+	const d = new Date(incoming);
+
+	if (isNaN(d.valueOf())) {
+		// give up, let the server return an error
+		console.log('unknown date format');
+		return m;
+	}
+
+	// turn into yyyy-mm-dd
+	return d.toISOString().slice(0, 10);
+}
+
 export function oslname(m) {
 	let name = '';
 	let firstname = false;
@@ -116,61 +130,61 @@ export async function getMember(id) {
 		throw new Error(payload.error);
 	}
 
-	// trim unnecessary times
-	let sp = payload.DateReaffirmation.split('T');
-	if (sp[0] == '0001-01-01') {
+	// trim unnecessary times -- XXX rewrite to use .slice(0,10) instead of .split
+	let sp = cleanDateFormat(payload.DateReaffirmation);
+	if (sp == '0001-01-01') {
 		payload.DateReaffirmation = '';
 	} else {
-		payload.DateReaffirmation = sp[0];
+		payload.DateReaffirmation = sp;
 	}
 
-	sp = payload.DateFirstVows.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateFirstVows);
+	if (sp == '0001-01-01') {
 		payload.DateFirstVows = '';
 	} else {
-		payload.DateFirstVows = sp[0];
+		payload.DateFirstVows = sp;
 	}
 
-	sp = payload.DateNovitiate.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateNovitiate);
+	if (sp == '0001-01-01') {
 		payload.DateNovitiate = '';
 	} else {
-		payload.DateNovitiate = sp[0];
+		payload.DateNovitiate = sp;
 	}
 
-	sp = payload.BirthDate.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.BirthDate);
+	if (sp == '0001-01-01') {
 		payload.BirthDate = '';
 	} else {
-		payload.BirthDate = sp[0];
+		payload.BirthDate = sp;
 	}
 
-	sp = payload.DateDeceased.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateDeceased);
+	if (sp == '0001-01-01') {
 		payload.DateDeceased = '';
 	} else {
-		payload.DateDeceased = sp[0];
+		payload.DateDeceased = sp;
 	}
 
-	sp = payload.DateRecordCreated.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateRecordCreated);
+	if (sp == '0001-01-01') {
 		payload.DateRecordCreated = '';
 	} else {
-		payload.DateRecordCreated = sp[0];
+		payload.DateRecordCreated = sp;
 	}
 
-	sp = payload.DateRemoved.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateRemoved);
+	if (sp == '0001-01-01') {
 		payload.DateRemoved = '';
 	} else {
-		payload.DateRemoved = sp[0];
+		payload.DateRemoved = sp;
 	}
 
-	sp = payload.DateLifeVows.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateLifeVows);
+	if (sp == '0001-01-01') {
 		payload.DateLifeVows = '';
 	} else {
-		payload.DateLifeVows = sp[0];
+		payload.DateLifeVows = sp;
 	}
 	return payload;
 }
@@ -185,10 +199,8 @@ export async function updateMember(id, FieldName, Value) {
 	dataArray.append('field', FieldName);
 	dataArray.append('value', Value);
 
-	console.log(dataArray);
-
 	const request = {
-		method: 'POST',
+		method: 'PUT',
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
@@ -255,12 +267,11 @@ export async function getSubscriber(id) {
 		throw new Error(payload.error);
 	}
 
-	// trim unnecessary times
-	let sp = payload.DatePaid.split('T');
-	if (sp[0] == '0001-01-01') {
+	let sp = cleanDateFormat(payload.DatePaid);
+	if (sp == '0001-01-01') {
 		payload.DatePaid = '';
 	} else {
-		payload.DatePaid = sp[0];
+		payload.DatePaid = sp;
 	}
 	return payload;
 }
@@ -276,7 +287,7 @@ export async function updateSubscriber(id, FieldName, Value) {
 	dataArray.append('value', Value);
 
 	const request = {
-		method: 'POST',
+		method: 'PUT',
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
@@ -416,60 +427,60 @@ export async function getMeFromServer() {
 	}
 
 	// trim unnecessary times
-	let sp = payload.DateReaffirmation.split('T');
-	if (sp[0] == '0001-01-01') {
+	let sp = cleanDateFormat(payload.DateReaffirmation);
+	if (sp == '0001-01-01') {
 		payload.DateReaffirmation = '';
 	} else {
-		payload.DateReaffirmation = sp[0];
+		payload.DateReaffirmation = sp;
 	}
 
-	sp = payload.DateFirstVows.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateFirstVows);
+	if (sp == '0001-01-01') {
 		payload.DateFirstVows = '';
 	} else {
-		payload.DateFirstVows = sp[0];
+		payload.DateFirstVows = sp;
 	}
 
-	sp = payload.DateNovitiate.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateNovitiate);
+	if (sp == '0001-01-01') {
 		payload.DateNovitiate = '';
 	} else {
-		payload.DateNovitiate = sp[0];
+		payload.DateNovitiate = sp;
 	}
 
-	sp = payload.BirthDate.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.BirthDate);
+	if (sp == '0001-01-01') {
 		payload.BirthDate = '';
 	} else {
-		payload.BirthDate = sp[0];
+		payload.BirthDate = sp;
 	}
 
-	sp = payload.DateDeceased.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateDeceased);
+	if (sp == '0001-01-01') {
 		payload.DateDeceased = '';
 	} else {
-		payload.DateDeceased = sp[0];
+		payload.DateDeceased = sp;
 	}
 
-	sp = payload.DateRecordCreated.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateRecordCreated);
+	if (sp == '0001-01-01') {
 		payload.DateRecordCreated = '';
 	} else {
-		payload.DateRecordCreated = sp[0];
+		payload.DateRecordCreated = sp;
 	}
 
-	sp = payload.DateRemoved.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateRemoved);
+	if (sp == '0001-01-01') {
 		payload.DateRemoved = '';
 	} else {
-		payload.DateRemoved = sp[0];
+		payload.DateRemoved = sp;
 	}
 
-	sp = payload.DateLifeVows.split('T');
-	if (sp[0] == '0001-01-01') {
+	sp = cleanDateFormat(payload.DateLifeVows);
+	if (sp == '0001-01-01') {
 		payload.DateLifeVows = '';
 	} else {
-		payload.DateLifeVows = sp[0];
+		payload.DateLifeVows = sp;
 	}
 	return payload;
 }
@@ -487,7 +498,7 @@ export async function updateMe(FieldName, Value) {
 	console.log(dataArray);
 
 	const request = {
-		method: 'POST',
+		method: 'PUT',
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
@@ -551,8 +562,8 @@ export async function getGiving(id) {
 	}
 
 	payload.forEach((gr) => {
-		let sp = gr.Date.split('T');
-		gr.Date = sp[0];
+		let sp = cleanDateFormat(gr.Date);
+		gr.Date = sp;
 	});
 	return payload;
 }
@@ -612,8 +623,8 @@ export async function getChangelog(id) {
 	}
 
 	payload.forEach((cr) => {
-		let sp = cr.Date.split('T');
-		cr.Date = sp[0];
+		let sp = cleanDateFormat(cr.Date);
+		cr.Date = sp;
 	});
 
 	return payload;
