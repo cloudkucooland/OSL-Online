@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { getMember, getMemberNotes, postMemberNote } from '../oo';
+	import {
+		getMember,
+		getMemberNotes,
+		postMemberNote,
+		deleteMemberNote,
+		cleanDateFormat
+	} from '../oo';
 	import { Label, Input, Button } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { push } from 'svelte-spa-router';
+	import { push, replace } from 'svelte-spa-router';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {
@@ -13,16 +19,14 @@
 	let { params } = $props();
 	let note = $state();
 
-	console.log(params);
-
-	async function add(event) {
+	async function add(event): Boolean {
 		event.preventDefault();
 		event.stopPropagation();
 
 		try {
 			await postMemberNote(params.id, note);
 			toast.push(`Added`);
-			push(`#/notes/${params.id}`);
+			await replace(`#/notes/${params.id}`);
 		} catch (err) {
 			console.log(err);
 			toast.push('failed to change: ' + err.message);
@@ -30,7 +34,7 @@
 		return true;
 	}
 
-	async function getBoth(id) {
+	async function getBoth(id): Boolean {
 		try {
 			const m = await getMember(id);
 			const n = await getMemberNotes(id);
@@ -40,6 +44,18 @@
 			console.log(err);
 			throw err;
 		}
+	}
+
+	async function deleteNote(noteid: Number): Boolean {
+		try {
+			await deleteMemberNote(params.id, noteid);
+			toast.push(`deleted`);
+			await replace(`#/notes/${params.id}`);
+		} catch (err) {
+			console.log(err);
+			toast.push('failed to change: ' + err.message);
+		}
+		return true;
 	}
 </script>
 
@@ -67,9 +83,11 @@
 		</div>
 		{#each n as note}
 			<div class="grid grid-cols-5 gap-4 px-4 py-2">
-				<div class="col-span-1">{note.Date}</div>
+				<div class="col-span-1">{cleanDateFormat(note.Date)}</div>
 				<div class="col-span-1">{note.Note}</div>
-				<div class="col-span-1">{note.ID}</div>
+				<div class="col-span-1">
+					<Button color="red" onclick={() => deleteNote(note.ID)}>Delete</Button>
+				</div>
 			</div>
 		{/each}
 	</section>
@@ -83,7 +101,7 @@
 				</div>
 				<div class="col-span-4">&nbsp;</div>
 				<div class="col-span-1">
-					<Button color="green" type="submit">Add Giving Record</Button>
+					<Button color="green" type="submit">Add Note</Button>
 				</div>
 			</div>
 		</form>

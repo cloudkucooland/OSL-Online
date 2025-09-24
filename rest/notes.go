@@ -85,15 +85,12 @@ func postNote(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func deleteNote(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
-	if err := r.ParseMultipartForm(1024); err != nil {
-		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
-		return
-	}
 
-	s := ps.ByName("id")
+	// (id) memberid is not verified...
+
+	s := ps.ByName("noteid")
 	if s == "" {
-		err := fmt.Errorf("id not set")
+		err := fmt.Errorf("noteid not set")
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return

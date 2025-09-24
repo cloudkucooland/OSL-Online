@@ -1,17 +1,16 @@
 export const server = 'https://saint-luke.net:8443';
 
 export function cleanDateFormat(incoming) {
-	// parse whatever comes in
 	const d = new Date(incoming);
 
 	if (isNaN(d.valueOf())) {
-		// give up, let the server return an error
 		console.log('unknown date format');
-		return m;
+		return incoming;
 	}
 
-	// turn into yyyy-mm-dd
-	return d.toISOString().slice(0, 10);
+	const fmt = d.toISOString().slice(0, 10);
+	if (fmt == '0001-01-01') return '';
+	return fmt;
 }
 
 export function oslname(m) {
@@ -130,62 +129,29 @@ export async function getMember(id) {
 		throw new Error(payload.error);
 	}
 
-	// trim unnecessary times -- XXX rewrite to use .slice(0,10) instead of .split
 	let sp = cleanDateFormat(payload.DateReaffirmation);
-	if (sp == '0001-01-01') {
-		payload.DateReaffirmation = '';
-	} else {
-		payload.DateReaffirmation = sp;
-	}
+	payload.DateReaffirmation = sp;
 
 	sp = cleanDateFormat(payload.DateFirstVows);
-	if (sp == '0001-01-01') {
-		payload.DateFirstVows = '';
-	} else {
-		payload.DateFirstVows = sp;
-	}
+	payload.DateFirstVows = sp;
 
 	sp = cleanDateFormat(payload.DateNovitiate);
-	if (sp == '0001-01-01') {
-		payload.DateNovitiate = '';
-	} else {
-		payload.DateNovitiate = sp;
-	}
+	payload.DateNovitiate = sp;
 
 	sp = cleanDateFormat(payload.BirthDate);
-	if (sp == '0001-01-01') {
-		payload.BirthDate = '';
-	} else {
-		payload.BirthDate = sp;
-	}
+	payload.BirthDate = sp;
 
 	sp = cleanDateFormat(payload.DateDeceased);
-	if (sp == '0001-01-01') {
-		payload.DateDeceased = '';
-	} else {
-		payload.DateDeceased = sp;
-	}
+	payload.DateDeceased = sp;
 
 	sp = cleanDateFormat(payload.DateRecordCreated);
-	if (sp == '0001-01-01') {
-		payload.DateRecordCreated = '';
-	} else {
-		payload.DateRecordCreated = sp;
-	}
+	payload.DateRecordCreated = sp;
 
 	sp = cleanDateFormat(payload.DateRemoved);
-	if (sp == '0001-01-01') {
-		payload.DateRemoved = '';
-	} else {
-		payload.DateRemoved = sp;
-	}
+	payload.DateRemoved = sp;
 
 	sp = cleanDateFormat(payload.DateLifeVows);
-	if (sp == '0001-01-01') {
-		payload.DateLifeVows = '';
-	} else {
-		payload.DateLifeVows = sp;
-	}
+	payload.DateLifeVows = sp;
 	return payload;
 }
 
@@ -268,11 +234,7 @@ export async function getSubscriber(id) {
 	}
 
 	let sp = cleanDateFormat(payload.DatePaid);
-	if (sp == '0001-01-01') {
-		payload.DatePaid = '';
-	} else {
-		payload.DatePaid = sp;
-	}
+	payload.DatePaid = sp;
 	return payload;
 }
 
@@ -428,60 +390,28 @@ export async function getMeFromServer() {
 
 	// trim unnecessary times
 	let sp = cleanDateFormat(payload.DateReaffirmation);
-	if (sp == '0001-01-01') {
-		payload.DateReaffirmation = '';
-	} else {
-		payload.DateReaffirmation = sp;
-	}
+	payload.DateReaffirmation = sp;
 
 	sp = cleanDateFormat(payload.DateFirstVows);
-	if (sp == '0001-01-01') {
-		payload.DateFirstVows = '';
-	} else {
-		payload.DateFirstVows = sp;
-	}
+	payload.DateFirstVows = sp;
 
 	sp = cleanDateFormat(payload.DateNovitiate);
-	if (sp == '0001-01-01') {
-		payload.DateNovitiate = '';
-	} else {
-		payload.DateNovitiate = sp;
-	}
+	payload.DateNovitiate = sp;
 
 	sp = cleanDateFormat(payload.BirthDate);
-	if (sp == '0001-01-01') {
-		payload.BirthDate = '';
-	} else {
-		payload.BirthDate = sp;
-	}
+	payload.BirthDate = sp;
 
 	sp = cleanDateFormat(payload.DateDeceased);
-	if (sp == '0001-01-01') {
-		payload.DateDeceased = '';
-	} else {
-		payload.DateDeceased = sp;
-	}
+	payload.DateDeceased = sp;
 
 	sp = cleanDateFormat(payload.DateRecordCreated);
-	if (sp == '0001-01-01') {
-		payload.DateRecordCreated = '';
-	} else {
-		payload.DateRecordCreated = sp;
-	}
+	payload.DateRecordCreated = sp;
 
 	sp = cleanDateFormat(payload.DateRemoved);
-	if (sp == '0001-01-01') {
-		payload.DateRemoved = '';
-	} else {
-		payload.DateRemoved = sp;
-	}
+	payload.DateRemoved = sp;
 
 	sp = cleanDateFormat(payload.DateLifeVows);
-	if (sp == '0001-01-01') {
-		payload.DateLifeVows = '';
-	} else {
-		payload.DateLifeVows = sp;
-	}
+	payload.DateLifeVows = sp;
 	return payload;
 }
 
@@ -955,12 +885,18 @@ export async function vcard(memberid) {
 }
 
 export async function getDashboard() {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
 	const request = {
 		method: 'GET',
 		mode: 'cors',
 		credentials: 'include',
 		redirect: 'manual',
-		referrerPolicy: 'origin'
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
 	};
 
 	const response = await fetch(`${server}/api/v1/dashboard`, request);
@@ -997,6 +933,11 @@ export async function getMemberNotes(id) {
 }
 
 export async function postMemberNote(id, note) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
 	const dataArray = new FormData();
 	dataArray.append('note', note);
 
@@ -1006,10 +947,35 @@ export async function postMemberNote(id, note) {
 		credentials: 'include',
 		redirect: 'manual',
 		referrerPolicy: 'origin',
-		body: dataArray
+		body: dataArray,
+		headers: { Authorization: 'Bearer ' + jwt }
 	};
 
 	const response = await fetch(`${server}/api/v1/member/${id}/notes`, request);
+	const payload = await response.json();
+	if (response.status != 200) {
+		console.log('server returned ', response.status, payload.error);
+		throw new Error(payload.error);
+	}
+	return true;
+}
+
+export async function deleteMemberNote(memberid, noteid) {
+	const jwt = localStorage.getItem('jwt');
+	if (jwt === undefined || jwt === null) {
+		throw new Error('Not Logged in');
+	}
+
+	const request = {
+		method: 'DELETE',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin',
+		headers: { Authorization: 'Bearer ' + jwt }
+	};
+
+	const response = await fetch(`${server}/api/v1/member/${memberid}/notes/${noteid}`, request);
 	const payload = await response.json();
 	if (response.status != 200) {
 		console.log('server returned ', response.status, payload.error);

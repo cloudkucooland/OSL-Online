@@ -24,7 +24,6 @@ func getServeMux() *httprouter.Router {
 	// manage individual members
 	m.GET("/api/v1/member/:id", authMW(getMember, AuthLevelView))
 	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, AuthLevelView))
-	// m.POST("/api/v1/member/:id", authMW(setMember, AuthLevelManager)) // should use PUT
 	m.PUT("/api/v1/member/:id", authMW(setMember, AuthLevelManager))
 	m.GET("/api/v1/member/:id/vcard", authMW(getMemberVcard, AuthLevelView))
 	m.POST("/api/v1/member", authMW(createMember, AuthLevelAdmin))
@@ -39,11 +38,11 @@ func getServeMux() *httprouter.Router {
 
 	m.POST("/api/v1/member/:id/notes", authMW(postNote, AuthLevelManager))
 	m.GET("/api/v1/member/:id/notes", authMW(getNotes, AuthLevelManager))
+	m.DELETE("/api/v1/member/:id/notes/:noteid", authMW(deleteNote, AuthLevelManager))
 
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
 	m.GET("/api/v1/me/chapters", authMW(getMeChapters, AuthLevelView))
-	// m.POST("/api/v1/me", authMW(setMe, AuthLevelView)) // should use PUT
 	m.PUT("/api/v1/me", authMW(setMe, AuthLevelView))
 	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, AuthLevelView))
 	m.GET("/api/v1/me/giving", authMW(getMeGiving, AuthLevelView))
