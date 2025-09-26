@@ -506,7 +506,7 @@ export async function postGiving(id, date, amount, description, check, transacti
 
 	const dataArray = new FormData();
 	dataArray.append('id', id);
-	dataArray.append('date', date);
+	dataArray.append('date', cleanDateFormat(date));
 	dataArray.append('amount', amount);
 	dataArray.append('description', description);
 	dataArray.append('check', check);
