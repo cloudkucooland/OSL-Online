@@ -184,7 +184,7 @@
 			</TableBodyRow>
 		{/each}
 		<TableBodyRow>
-			<TableBodyCell colspan={5}>&nbsp;</TableBodyCell>
+			<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
 			<TableBodyCell>
 				{#if result}
 					<form onsubmit={resetSearch}>
@@ -195,7 +195,7 @@
 		</TableBodyRow>
 		{#if result == '' && query.length > 3}
 			<TableBodyRow>
-				<TableBodyCell colspan={5}>No results for query : {query}</TableBodyCell>
+				<TableBodyCell colspan={4}>No results for query : {query}</TableBodyCell>
 				<TableBodyCell>
 					<Button color="purple" onclick={() => push('#/addmember')}>Add Member</Button>
 				</TableBodyCell>
