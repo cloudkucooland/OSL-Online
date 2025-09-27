@@ -52,7 +52,11 @@
 				<div class="col-span-1">{gr.Amount}</div>
 				<div class="col-span-1">{gr.Description}</div>
 				<div class="col-span-1">{gr.Check}</div>
-				<div class="col-span-1">{gr.Transaction}</div>
+				<div class="col-span-1">
+					<a href="https://www.paypal.com/unifiedtransactions/details/payment/{gr.Transaction}"
+						>{gr.Transaction}</a
+					>
+				</div>
 			</div>
 		{/each}
 	</section>
