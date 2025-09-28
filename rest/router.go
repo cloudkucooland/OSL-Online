@@ -42,8 +42,8 @@ func getServeMux() *httprouter.Router {
 
 	// self-service (not complete)
 	m.GET("/api/v1/me", authMW(getMe, AuthLevelView))
-	m.GET("/api/v1/me/chapters", authMW(getMeChapters, AuthLevelView))
 	m.PUT("/api/v1/me", authMW(setMe, AuthLevelView))
+	m.GET("/api/v1/me/chapters", authMW(getMeChapters, AuthLevelView))
 	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, AuthLevelView))
 	m.GET("/api/v1/me/giving", authMW(getMeGiving, AuthLevelView))
 
