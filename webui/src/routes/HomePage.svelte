@@ -67,7 +67,7 @@
 		}
 
 		if (query.indexOf('@') != -1) {
-			// people don't read...
+			toast.push('Searching email addresses');
 			mode = 'email';
 		}
 

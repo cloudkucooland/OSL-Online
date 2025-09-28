@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Select, Button, Input } from 'flowbite-svelte';
+	import { Select, Input } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
-	import { oslname, getChapters } from '../oo';
+	import { getChapters } from '../oo';
 
 	let { params = {} } = $props();
 	let selected = $state(0);

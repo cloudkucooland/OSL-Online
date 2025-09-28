@@ -2,6 +2,7 @@
 	import { getContext } from 'svelte';
 	import { Table } from '@flowbite-svelte-plugins/datatable';
 	import { getNecrology, cleanDateFormat } from '../oo';
+	import { push } from 'svelte-spa-router';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {

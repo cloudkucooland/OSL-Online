@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { getMeFromServer, getMeGiving } from '../oo';
-	import { Label, Input, Button } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 

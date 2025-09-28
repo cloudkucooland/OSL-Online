@@ -2,6 +2,7 @@
 	import { getContext } from 'svelte';
 	import { Table, TableBody, TableBodyCell, TableBodyRow } from 'flowbite-svelte';
 	import { getDashboard } from '../oo';
+	import { push } from 'svelte-spa-router';
 
 	const { me } = getContext('oo');
 	if ($me === undefined) {

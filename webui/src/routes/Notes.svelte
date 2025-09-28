@@ -19,7 +19,7 @@
 	let { params } = $props();
 	let note = $state();
 
-	async function add(event): Boolean {
+	async function add(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -34,7 +34,7 @@
 		return true;
 	}
 
-	async function getBoth(id): Boolean {
+	async function getBoth(id) {
 		try {
 			const m = await getMember(id);
 			const n = await getMemberNotes(id);
@@ -46,7 +46,7 @@
 		}
 	}
 
-	async function deleteNote(noteid: Number): Boolean {
+	async function deleteNote(noteid) {
 		try {
 			await deleteMemberNote(params.id, noteid);
 			toast.push(`deleted`);
