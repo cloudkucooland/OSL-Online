@@ -150,7 +150,7 @@ func (id MemberID) allowPrinted() bool {
 		return false
 	}
 
-	if m.MemberStatus == "Removed" || m.MemberStatus == "Deceased" {
+	if m.MemberStatus == REMOVED || m.MemberStatus == DECEASED {
 		return false
 	}
 

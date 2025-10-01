@@ -277,21 +277,21 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 	case "MemberStatus":
 		switch value {
-		case "Removed":
-			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = 'Removed', `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", id); err != nil {
+		case REMOVED:
+			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
 			id.UnsubscribeDoxology(ctx)
 			id.UnsubscribeFont(ctx)
-		case "Deceased":
-			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = 'Deceased', `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", id); err != nil {
+		case DECEASED:
+			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
 			id.UnsubscribeDoxology(ctx)
 			id.UnsubscribeFont(ctx)
-		case "Annual Vows", "Friend", "Life Vows":
+		case ANNUAL, LIFE, FRIEND:
 			if _, err := db.Exec(q, value, id); err != nil {
 				slog.Error(err.Error())
 				return err
@@ -429,7 +429,7 @@ func Create(firstname, lastname string) (MemberID, error) {
 
 	n := memberNulls{
 		ID:                0,
-		MemberStatus:      sql.NullString{Valid: true, String: "Friend"},
+		MemberStatus:      sql.NullString{Valid: true, String: FRIEND},
 		FirstName:         sql.NullString{Valid: true, String: firstname},
 		LastName:          sql.NullString{Valid: true, String: lastname},
 		DateRecordCreated: sql.NullTime{Valid: true, Time: time.Now()},
@@ -511,7 +511,7 @@ func (n *Member) OSLName() string {
 		name += " " + n.Suffix
 	}
 
-	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" || n.MemberStatus == "Deceased" {
+	if n.MemberStatus == ANNUAL || n.MemberStatus == LIFE || n.MemberStatus == DECEASED {
 		name += ", OSL"
 	}
 	return name
@@ -520,10 +520,10 @@ func (n *Member) OSLName() string {
 func (n *Member) OSLShortName() string {
 	var name string
 	firstname := false
-	if n.MemberStatus == "Annual Vows" || n.MemberStatus == "Life Vows" || n.MemberStatus == "Deceased" {
+	if n.MemberStatus == ANNUAL || n.MemberStatus == LIFE || n.MemberStatus == DECEASED {
 		name = n.Title + " "
 	}
-	if n.MemberStatus == "Life Vows" && n.LifevowName != "" {
+	if n.MemberStatus == LIFE && n.LifevowName != "" {
 		name += n.LifevowName
 		firstname = true
 	}

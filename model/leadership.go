@@ -8,7 +8,7 @@ import (
 func Leadership(category string) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Leadership = ? AND MemberStatus != 'Removed' AND MemberStatus != 'Deceased' ORDER BY LastName", category)
+	rows, err := db.Query("SELECT ID FROM member WHERE Leadership = ? AND MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY LastName", category)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}

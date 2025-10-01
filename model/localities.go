@@ -18,7 +18,7 @@ type Locality struct {
 func Localities() ([]*Locality, error) {
 	localities := make([]*Locality, 0)
 
-	rows, err := db.Query("SELECT DISTINCT Country, State FROM member WHERE MemberStatus != 'Removed' AND MemberStatus != 'Deceased' AND ListInDirectory = true ORDER BY Country, State")
+	rows, err := db.Query("SELECT DISTINCT Country, State FROM member WHERE MemberStatus NOT IN ('Removed', 'Deceased') AND ListInDirectory = true ORDER BY Country, State")
 	if err != nil && err == sql.ErrNoRows {
 		return localities, nil
 	}
@@ -80,7 +80,7 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 		lc.String = locality
 	}
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Country = ? AND State = ? AND MemberStatus != 'Deceased' AND MemberStatus != 'Removed' AND ListInDirectory = true ORDER BY LastName, FirstName", country, lc)
+	rows, err := db.Query("SELECT ID FROM member WHERE Country = ? AND State = ? AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName", country, lc)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -111,7 +111,7 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 func localityMembersSG() ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Country = 'SG' AND MemberStatus != 'Deceased' AND MemberStatus != 'Removed' AND ListInDirectory = true ORDER BY LastName, FirstName")
+	rows, err := db.Query("SELECT ID FROM member WHERE Country = 'SG' AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName")
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}

@@ -23,6 +23,12 @@ const MAILED communicationPref = "mailed"
 const ELECTRONIC communicationPref = "electronic"
 const NONE communicationPref = "none"
 
+const ANNUAL = "Annual Vows"
+const LIFE = "Life Vows"
+const FRIEND = "Friend"
+const DECEASED = "Deceased"
+const REMOVED = "Removed"
+
 func (c communicationPref) String() string {
 	return string(c)
 }

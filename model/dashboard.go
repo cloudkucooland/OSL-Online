@@ -9,12 +9,14 @@ import (
 
 // Dashboard is the format sent to the UI
 type Dashboard_t struct {
-	LifevowCount    int
-	AnnualCount     int
-	FriendCount     int
-	SubscriberCount int
-	ThisYearGiving  string
-	LastYearGiving  string
+	LifevowCount      int
+	AnnualCount       int
+	FriendCount       int
+	SubscriberCount   int
+	ThisYearGiving    string
+	LastYearGiving    string
+	AnnualVowsWhoGave int
+	LifeVowsWhoGave   int
 }
 
 func Dashboard() (Dashboard_t, error) {
@@ -34,11 +36,11 @@ func Dashboard() (Dashboard_t, error) {
 			continue
 		}
 		switch status {
-		case "Annual Vows":
+		case ANNUAL:
 			d.AnnualCount = count
-		case "Life Vows":
+		case LIFE:
 			d.LifevowCount = count
-		case "Friend":
+		case FRIEND:
 			d.FriendCount = count
 		}
 	}
@@ -58,6 +60,35 @@ func Dashboard() (Dashboard_t, error) {
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
+	}
+
+	err = db.QueryRow("select count(*) from subscriber where DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY)").Scan(&d.SubscriberCount)
+	if err != nil {
+		slog.Error(err.Error())
+		return d, err
+	}
+
+	countrows, err := db.Query("select memberstatus, count(*) from member where id in (select distinct id from giving where date > ?) group by memberstatus", thisyear)
+	if err != nil {
+		slog.Error(err.Error())
+		return d, err
+	}
+	defer countrows.Close()
+	for countrows.Next() {
+		var status string
+		var count int
+		if err = countrows.Scan(&status, &count); err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		switch status {
+		case ANNUAL:
+			d.AnnualVowsWhoGave = count
+		case LIFE:
+			d.LifeVowsWhoGave = count
+		case FRIEND:
+			d.SubscriberCount++
+		}
 	}
 
 	return d, nil

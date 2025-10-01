@@ -69,7 +69,7 @@ func Chapters() ([]*Chapter, error) {
 func (c *Chapter) Members() ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT m.ID FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member AND m.MemberStatus != 'Removed' AND m.MemberStatus != 'Deceased' ORDER BY m.LastName", c.ID)
+	rows, err := db.Query("SELECT m.ID FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member AND m.MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY m.LastName", c.ID)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
