@@ -24,16 +24,24 @@
 				<TableBodyCell>{d.LifevowCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
+				<TableBodyCell>Life Vow members who gave (Since July 1)</TableBodyCell>
+				<TableBodyCell>{d.LifeVowsWhoGave}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
 				<TableBodyCell>Annual Vow Members</TableBodyCell>
 				<TableBodyCell>{d.AnnualCount}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Annual Vow members who gave (Since July 1)</TableBodyCell>
+				<TableBodyCell>{d.AnnualVowsWhoGave}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Friends</TableBodyCell>
 				<TableBodyCell>{d.FriendCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Institutional Subscribers</TableBodyCell>
-				<TableBodyCell>{d.Subscribers}</TableBodyCell>
+				<TableBodyCell>Institutional & non-member Doxology Subscribers</TableBodyCell>
+				<TableBodyCell>{d.SubscriberCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>This year member giving (since July 1)</TableBodyCell>
