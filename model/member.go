@@ -56,6 +56,7 @@ type memberNulls struct {
 	Occupation         sql.NullString
 	Employer           sql.NullString
 	Denomination       sql.NullString
+	Benefactor         sql.NullBool
 }
 
 // Member is the format sent to the UI
@@ -103,6 +104,7 @@ type Member struct {
 	Occupation         string
 	Employer           string
 	Denomination       string
+	Benefactor         bool
 	FormattedAddr      string // only populated for export to webui
 }
 
@@ -110,7 +112,7 @@ type Member struct {
 func (id MemberID) Get() (*Member, error) {
 	n := &memberNulls{}
 
-	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination)
+	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination, Benefactor FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination, &n.Benefactor)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
 		slog.Error(err.Error(), "id", id)
@@ -170,6 +172,7 @@ func (n *memberNulls) toMember() *Member {
 		Occupation:         n.Occupation.String,
 		Employer:           n.Employer.String,
 		Denomination:       n.Denomination.String,
+		Benefactor:         n.Benefactor.Bool,
 	}
 }
 
@@ -218,6 +221,7 @@ func (n *Member) tomemberNulls() *memberNulls {
 		Occupation:         makeNullString(n.Occupation),
 		Employer:           makeNullString(n.Employer),
 		Denomination:       makeNullString(n.Denomination),
+		Benefactor:         makeNullBool(n.Benefactor),
 	}
 }
 
@@ -253,7 +257,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
 
 	switch field {
-	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail":
+	case "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListSecondaryPhone", "ListPrimaryEmail", "ListSecondaryEmail", "Benefactor":
 		var nb sql.NullBool
 		nb.Valid = true
 		nb.Bool = value == "true"
@@ -475,6 +479,7 @@ func (n *Member) CleanUnlisted() {
 		n.ListSecondaryPhone = false
 		n.ListPrimaryEmail = false
 		n.ListSecondaryEmail = false
+		n.Benefactor = false
 	}
 
 	if !n.ListAddress {

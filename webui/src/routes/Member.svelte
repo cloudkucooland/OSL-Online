@@ -195,11 +195,13 @@
 						<Label for="Suffix" class="block">Suffix</Label>
 						<Input id="Suffix" value={r.Suffix} onchange={change} />
 					</div>
+				</div>
+				<div class="grid grid-cols-8 gap-4 px-4 py-2">
 					<div class="col-span-2">
 						<Label for="LifevowName" class="block">Life Vow Name</Label>
 						<Input id="LifevowName" value={r.LifevowName} onchange={change} />
 					</div>
-					<div class="col-span-2">
+					<div class="col-span-1">
 						<Label for="PreferedName" class="block">Preferred Name</Label>
 						<Input id="PreferredName" value={r.PreferredName} onchange={change} />
 					</div>
@@ -219,6 +221,11 @@
 					<div class="col-span-1">
 						<Label for="Title" class="block">Title</Label>
 						<Select id="Title" items={titles} value={r.Title} onchange={change} />
+					</div>
+					<div class="col-span-1">
+						<Label for="Benefactor" class="block">Benefactor</Label>
+						<Toggle id="Benefactor" checked={r.Benefactor} onchange={changeCheck} color="red">Benefactor</Toggle
+						>
 					</div>
 				</div>
 			</section>
