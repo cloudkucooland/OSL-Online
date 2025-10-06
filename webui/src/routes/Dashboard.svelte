@@ -40,7 +40,7 @@
 				<TableBodyCell>{d.FriendCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Institutional & non-member Doxology Subscribers</TableBodyCell>
+				<TableBodyCell>Institutional & non-member Doxology Subscribers (account current)</TableBodyCell>
 				<TableBodyCell>{d.SubscriberCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>

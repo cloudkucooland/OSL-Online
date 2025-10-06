@@ -129,7 +129,7 @@
 		<TableBody>
 			<TableBodyRow>
 				<TableBodyCell colspan={3}>
-					<Button color="grey" href="#/me">My Data</Button>
+					<Button color="gray" href="#/me">My Data</Button>
 				</TableBodyCell>
 			</TableBodyRow>
 			{#if !result}
