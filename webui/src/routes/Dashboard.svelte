@@ -24,12 +24,20 @@
 				<TableBodyCell>{d.LifevowCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
+				<TableBodyCell>Life Vow members who have checked in (Since July 1)</TableBodyCell>
+				<TableBodyCell>{d.LifeVowsCheckin}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
 				<TableBodyCell>Life Vow members who gave (Since July 1)</TableBodyCell>
 				<TableBodyCell>{d.LifeVowsWhoGave}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Annual Vow Members</TableBodyCell>
 				<TableBodyCell>{d.AnnualCount}</TableBodyCell>
+			</TableBodyRow>
+			<TableBodyRow>
+				<TableBodyCell>Annual Vow Members who hae reaffirmed (Since July 1)</TableBodyCell>
+				<TableBodyCell>{d.AnnualVowsReaffirmed}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
 				<TableBodyCell>Annual Vow members who gave (Since July 1)</TableBodyCell>
@@ -40,7 +48,9 @@
 				<TableBodyCell>{d.FriendCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Institutional & non-member Doxology Subscribers (account current)</TableBodyCell>
+				<TableBodyCell
+					>Institutional & non-member (friend) Doxology Subscribers (account current)</TableBodyCell
+				>
 				<TableBodyCell>{d.SubscriberCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>

@@ -9,14 +9,16 @@ import (
 
 // Dashboard is the format sent to the UI
 type Dashboard_t struct {
-	LifevowCount      int
-	AnnualCount       int
-	FriendCount       int
-	SubscriberCount   int
-	ThisYearGiving    string
-	LastYearGiving    string
-	AnnualVowsWhoGave int
-	LifeVowsWhoGave   int
+	LifevowCount         int
+	AnnualCount          int
+	FriendCount          int
+	SubscriberCount      int
+	ThisYearGiving       string
+	LastYearGiving       string
+	AnnualVowsWhoGave    int
+	LifeVowsWhoGave      int
+	AnnualVowsReaffirmed int
+	LifeVowsCheckin      int
 }
 
 func Dashboard() (Dashboard_t, error) {
@@ -88,6 +90,27 @@ func Dashboard() (Dashboard_t, error) {
 			d.LifeVowsWhoGave = count
 		case FRIEND:
 			d.SubscriberCount++
+		}
+	}
+
+	reaffirmed, err := db.Query("select memberstatus, count(*) from member where DateReaffirmation > ? group by memberstatus", thisyear)
+	if err != nil {
+		slog.Error(err.Error())
+		return d, err
+	}
+	defer reaffirmed.Close()
+	for reaffirmed.Next() {
+		var status string
+		var count int
+		if err = reaffirmed.Scan(&status, &count); err != nil {
+			slog.Error(err.Error())
+			continue
+		}
+		switch status {
+		case ANNUAL:
+			d.AnnualVowsReaffirmed = count
+		case LIFE:
+			d.LifeVowsCheckin = count
 		}
 	}
 

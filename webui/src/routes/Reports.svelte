@@ -24,6 +24,7 @@
 	<li><a href="#/reports" onclick={() => report('annual')}>Annual Vows Mail Merge</a></li>
 	<li><a href="#/reports" onclick={() => report('reaffirmation')}>Reaffirmation Form Merge</a></li>
 	<li><a href="#/reports" onclick={() => report('life')}>Life Vows Mail Merge</a></li>
+	<li><a href="#/reports" onclick={() => report('lifecheckin')}>Life Vows Checking Merge</a></li>
 	<li>
 		<a href="#/reports" onclick={() => report('doxprint')}
 			>Doxology Mailing List (member + subscriber)</a

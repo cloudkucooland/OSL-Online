@@ -77,7 +77,7 @@ func Commemorations(month time.Month, day int) ([]Commemoration, error) {
 			OSLName:  m.OSLName(),
 			Locality: m.State,
 			Country:  m.Country,
-			Year: m.DateDeceased.Year(),
+			Year:     m.DateDeceased.Year(),
 		}
 
 		commemorations = append(commemorations, c)

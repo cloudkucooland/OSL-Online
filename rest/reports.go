@@ -49,6 +49,9 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	case "life":
 		w.Header().Set(contentType, csvMime)
 		err = model.ReportLife(w)
+	case "lifecheckin":
+		w.Header().Set(contentType, csvMime)
+		err = model.ReportLifeCheckinFormMerge(w)
 	case "doxprint":
 		w.Header().Set(contentType, csvMime)
 		err = model.DoxologyPrinted(w)

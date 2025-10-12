@@ -224,7 +224,8 @@
 					</div>
 					<div class="col-span-1">
 						<Label for="Benefactor" class="block">Benefactor</Label>
-						<Toggle id="Benefactor" checked={r.Benefactor} onchange={changeCheck} color="red">Benefactor</Toggle
+						<Toggle id="Benefactor" checked={r.Benefactor} onchange={changeCheck} color="red"
+							>Benefactor</Toggle
 						>
 					</div>
 				</div>

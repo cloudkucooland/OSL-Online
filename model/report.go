@@ -120,6 +120,27 @@ func ReportLife(w io.Writer) error {
 	return nil
 }
 
+func ReportLifeCheckinFormMerge(w io.Writer) error {
+	// not reaffirmed in more than 240 days...
+	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+	if err != nil {
+		return err
+	}
+
+	r := csv.NewWriter(w)
+	_ = r.Write([]string{"OSLName", "OSLShortName", "FirstName", "LastName", "PreferredName", "Title", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryPhone", "PrimaryEmail", "DateFirstVows", "DateReaffirmation", "Doxology", "ListInDirectory", "ListAddress", "ListPrimaryPhone", "ListPrimaryEmail", "FormattedAddress"})
+
+	for _, m := range members {
+		f, err := FormatAddress(m)
+		if err != nil {
+			continue
+		}
+		_ = r.Write([]string{m.OSLName(), m.OSLShortName(), m.FirstName, m.LastName, m.PreferredName, m.Title, m.Address, m.AddressLine2, m.City, m.State, m.Country, m.PostalCode, m.PrimaryPhone, m.PrimaryEmail, m.DateFirstVows.Format(time.DateOnly), m.DateReaffirmation.Format(time.DateOnly), string(m.Doxology), yn(m.ListInDirectory), yn(m.ListAddress), yn(m.ListPrimaryPhone), yn(m.ListPrimaryEmail), f})
+	}
+	r.Flush()
+	return nil
+}
+
 func ReportAllEmail(w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail", "Address"})

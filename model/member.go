@@ -286,15 +286,15 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 				slog.Error(err.Error())
 				return err
 			}
-			id.UnsubscribeDoxology(ctx)
-			id.UnsubscribeFont(ctx)
+			_ = id.UnsubscribeDoxology(ctx)
+			_ = id.UnsubscribeFont(ctx)
 		case DECEASED:
 			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
-			id.UnsubscribeDoxology(ctx)
-			id.UnsubscribeFont(ctx)
+			_ = id.UnsubscribeDoxology(ctx)
+			_ = id.UnsubscribeFont(ctx)
 		case ANNUAL, LIFE, FRIEND:
 			if _, err := db.Exec(q, value, id); err != nil {
 				slog.Error(err.Error())
@@ -367,8 +367,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			return err
 		}
 	case "PrimaryEmail":
-		id.UnsubscribeDoxology(ctx)
-		id.UnsubscribeFont(ctx)
+		_ = id.UnsubscribeDoxology(ctx)
+		_ = id.UnsubscribeFont(ctx)
 
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
@@ -394,10 +394,10 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 
 		if m.Doxology != NONE {
-			id.SubscribeDoxology(ctx)
+			_ = id.SubscribeDoxology(ctx)
 		}
 		if m.Newsletter != NONE {
-			id.SubscribeFont(ctx)
+			_ = id.SubscribeFont(ctx)
 		}
 	default:
 		var ns sql.NullString
