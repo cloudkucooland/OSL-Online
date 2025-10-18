@@ -30,15 +30,14 @@
 	];
 
 	if (params.query) {
-		console.log('query params: ' + params.query);
-		query = params.query;
-		const event = new Event('search', { bubbles: true, cancelable: true });
-		doSearch(event);
+		// https://svelte.dev/e/state_referenced_locally
+		if (() => query != params.query) {
+			query = params.query;
+			const event = new Event('search', { bubbles: true, cancelable: true });
+			doSearch(event);
+		}
 	}
 
-	// the reason for the double-hits to the server is that this does the search, then it pushes to the search page
-	// which re-does the search (and doesn't loop because the spa-router package is smart enough)
-	// make this just do the push and move the rest of the logic to the block above
 	async function doSearch(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -56,8 +55,8 @@
 		}
 
 		if (query.indexOf(' ') != -1) {
-			toast.push('Please read the instructions. Please.');
 			const subs = query.split(' ');
+			query = '';
 			// look for a substring that is long enough
 			for (const sub of subs) {
 				console.log(sub);
@@ -66,6 +65,11 @@
 					toast.push('Using: ' + query);
 					break;
 				}
+			}
+			if (query == '') {
+				toast.push('Invalid query (read the directions, please)');
+				resetSearch(event);
+				return;
 			}
 		}
 
@@ -115,14 +119,6 @@
 			toast.push(err.message);
 		}
 	}
-
-	async function newinput(event) {
-		return; // for now, it's kinda annoying IMO
-		if (mode != 'name') return;
-		if (query.length >= 6) {
-			doSearch(event);
-		}
-	}
 </script>
 
 <svelte:head>
@@ -163,7 +159,7 @@
 					<Select class="mt-2" items={modes} bind:value={mode} />
 				</TableBodyCell>
 				<TableBodyCell>
-					<Input type="text" name="query" bind:value={query} oninput={(e) => newinput(e)} />
+					<Input type="text" name="query" bind:value={query} />
 				</TableBodyCell>
 				<TableBodyCell
 					><Button color="green" type="submit"><SearchOutline class="h-6 w-6" /> Search</Button
