@@ -2,7 +2,7 @@
 /* @plugin '@tailwindcss/forms'; */
 /* @plugin '@tailwindcss/typography'; */
 @custom-variant dark (&:where(.dark, .dark *));
-@source "../node_modules/flowbite-svelte/dist";
+@source '../node_modules/flowbite-svelte/dist';
 
 #app {
 	margin: 0 auto;
@@ -19,8 +19,8 @@ a:visited {
 }
 
 /* databable plugin */
-@source "../node_modules/simple-datatables/dist";
-@source "../node_modules/@flowbite-svelte-plugins/datatable/dist";
+@source '../node_modules/simple-datatables/dist';
+@source '../node_modules/@flowbite-svelte-plugins/datatable/dist';
 
 .datatable-pagination .datatable-active a,
 .datatable-pagination .datatable-active a:focus,
