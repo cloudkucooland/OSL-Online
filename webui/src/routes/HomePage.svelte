@@ -36,6 +36,9 @@
 		doSearch(event);
 	}
 
+	// the reason for the double-hits to the server is that this does the search, then it pushes to the search page
+	// which re-does the search (and doesn't loop because the spa-router package is smart enough)
+	// make this just do the push and move the rest of the logic to the block above
 	async function doSearch(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -69,6 +72,8 @@
 		if (query.indexOf('@') != -1) {
 			toast.push('Searching email addresses');
 			mode = 'email';
+		} else {
+			mode = 'name';
 		}
 
 		try {
