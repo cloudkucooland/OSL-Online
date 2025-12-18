@@ -8,6 +8,8 @@ import (
 	"google.golang.org/api/admin/directory/v1"
 )
 
+const fontaddr = "font@saint-luke.net"
+
 func FontSync(ctx context.Context) error {
 	// assumes that GOOGLE_APPLICATION_CREDENTIALS enviornment is set
 
@@ -16,7 +18,7 @@ func FontSync(ctx context.Context) error {
 		return err
 	}
 
-	call := adminService.Members.List("font@saint-luke.net")
+	call := adminService.Members.List(fontaddr)
 	known := make(map[string]bool, 0)
 	_ = call.Pages(ctx, func(members *admin.Members) error {
 		for _, m := range members.Members {
@@ -34,7 +36,7 @@ func FontSync(ctx context.Context) error {
 			}
 			if !ok {
 				slog.Info("font", "message", "removing", "user", e)
-				if err := adminService.Members.Delete("font@saint-luke.net", e).Do(); err != nil {
+				if err := adminService.Members.Delete(fontaddr, e).Do(); err != nil {
 					slog.Error("font", "error", err.Error())
 					continue
 				}
@@ -52,7 +54,7 @@ func FontSync(ctx context.Context) error {
 		m = strings.ToLower(m)
 		if _, ok := known[m]; !ok {
 			slog.Info("font", "message", "adding user", "email", m)
-			if _, err := adminService.Members.Insert("font@saint-luke.net", &admin.Member{Email: m}).Do(); err != nil {
+			if _, err := adminService.Members.Insert(fontaddr, &admin.Member{Email: m}).Do(); err != nil {
 				slog.Error("font", "error", err.Error())
 				continue
 			}
@@ -96,7 +98,7 @@ func (id MemberID) UnsubscribeFont(ctx context.Context) error {
 	}
 
 	slog.Info("font", "message", "removing", "user", m.PrimaryEmail)
-	if err := adminService.Members.Delete("font@saint-luke.net", m.PrimaryEmail).Do(); err != nil {
+	if err := adminService.Members.Delete(fontaddr, m.PrimaryEmail).Do(); err != nil {
 		slog.Error("font", "error", err.Error())
 		return err
 	}
@@ -119,7 +121,7 @@ func (id MemberID) SubscribeFont(ctx context.Context) error {
 	}
 
 	slog.Info("font", "message", "adding user", "email", m.PrimaryEmail)
-	if _, err := adminService.Members.Insert("font@saint-luke.net", &admin.Member{Email: m.PrimaryEmail}).Do(); err != nil {
+	if _, err := adminService.Members.Insert(fontaddr, &admin.Member{Email: m.PrimaryEmail}).Do(); err != nil {
 		slog.Error("font", "error", err.Error())
 		return err
 	}

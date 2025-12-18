@@ -179,3 +179,49 @@ func getJWSigningKeys() jwk.Set {
 	}
 	return keys
 }
+
+func refresh(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	token, err := parsetoken(r)
+	if err != nil {
+		slog.Error("refresh: token parse/validate failed", "error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	username := string(token.Subject())
+	claim, ok := token.Get("level")
+	if !ok {
+		err := fmt.Errorf("no level claim in token")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	level, ok := claim.(float64)
+	if !ok {
+		err := fmt.Errorf("authlevel type assertion failed")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	JWT, err := mintjwt(model.Authname(username), authLevel(level))
+	if err != nil {
+		slog.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("refresh", "username", username, "level", level)
+	headers(w, r)
+	w.Header().Set("content-type", "application/jwt")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    JWT,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24 * 365),
+		MaxAge:   0,
+		Secure:   false,
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	})
+	fmt.Fprint(w, JWT)
+}

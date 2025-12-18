@@ -15,6 +15,8 @@ func getServeMux() *httprouter.Router {
 
 	// URL to login, returns the JWT to pass in to authenticated endpoints
 	m.POST("/api/v1/getJWT", login)
+	// gets a new JWT if the current one is about to expire
+	m.GET("/api/vi/refreshJWT", refresh)
 	// takes an email address, returns an "OK" after the password message is sent
 	m.POST("/api/v1/register", postRegister)
 

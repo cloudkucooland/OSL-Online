@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 )
@@ -369,6 +370,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 	case "PrimaryEmail":
 		_ = id.UnsubscribeDoxology(ctx)
 		_ = id.UnsubscribeFont(ctx)
+		_ = id.UnsubscribeAllChapters(ctx)
 
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
@@ -399,6 +401,9 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		if m.Newsletter != NONE {
 			_ = id.SubscribeFont(ctx)
 		}
+
+		_ = id.SubscribeAllChapters(ctx)
+
 	default:
 		var ns sql.NullString
 		value = strings.TrimSpace(value)
@@ -542,25 +547,38 @@ func (n *Member) OSLShortName() string {
 	return name
 }
 
-func (m *Member) SetChapters(chapters ...int) error {
-	if _, err := db.Exec("DELETE FROM `chaptermembers` WHERE `member` = ?", m.ID); err != nil {
+func (m *Member) SetChapters(incoming ...int) error {
+	current, err := m.ID.GetChapters()
+	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	for _, ch := range chapters {
-		_, err := db.Exec("INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID)
-		if err != nil {
-			slog.Error(err.Error())
-			return err
+	for _, ch := range incoming {
+		if !slices.Contains(current, ch) {
+			if _, err := db.Exec("INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID); err != nil {
+				slog.Error(err.Error())
+				return err
+			}
+			m.ID.SubscribeChapter(context.Background(), ChapterID(ch))
+		}
+	}
+
+	for _, ch := range current {
+		if !slices.Contains(incoming, ch) {
+			if _, err := db.Exec("DELETE FROM `chaptermembers` WHERE `chapter` = ? AND `member` = ?", ch, m.ID); err != nil {
+				slog.Error(err.Error())
+				return err
+			}
+			m.ID.UnsubscribeChapter(context.Background(), ChapterID(ch))
 		}
 	}
 
 	return nil
 }
 
-func (m *Member) GetChapters() ([]int, error) {
-	rows, err := db.Query("SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", m.ID)
+func (id MemberID) GetChapters() ([]int, error) {
+	rows, err := db.Query("SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", id)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err

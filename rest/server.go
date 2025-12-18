@@ -92,7 +92,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 		claim, ok := token.Get("level")
 		if !ok {
 			err := fmt.Errorf("no level claim in token")
-			slog.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
+			slog.Error(err.Error(), "user", username)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -111,6 +111,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
+
 		h(w, r, ps)
 	}
 }

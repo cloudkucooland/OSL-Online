@@ -58,7 +58,7 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 
-	chapters, err := m.GetChapters()
+	chapters, err := m.ID.GetChapters()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

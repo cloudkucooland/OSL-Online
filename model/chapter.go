@@ -11,9 +11,11 @@ type Chapter struct {
 	ID    ChapterID
 	Name  string
 	Prior MemberID
+	Email string
 }
 
 // don't use this... you'll lose all member data, rewrite to be an INSERT/ON DUPLICATE
+/*
 func (c *Chapter) store() error {
 	_, err := db.Exec("REPLACE INTO `chapters` (`id`, `name`, `prior` VALUES (?,?,?)", c.ID, c.Name, c.Prior)
 	if err != nil {
@@ -21,14 +23,20 @@ func (c *Chapter) store() error {
 		return err
 	}
 	return nil
-}
+} */
 
 func (c *Chapter) Update() error {
-	_, err := db.Exec("UPDATE `chapters` SET `name` = ?, `prior` = ?  WHERE `id` = ? `name`, `prior`", c.Name, c.Prior, c.ID)
+	var e sql.NullString
+
+	_, err := db.Exec("UPDATE `chapters` SET `name` = ?, `prior` = ?, `email` = ? WHERE `id` = ?", c.Name, c.Prior, c.ID, e)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
+	if e.Valid {
+		c.Email = e.String
+	}
+
 	return nil
 }
 
@@ -44,7 +52,7 @@ func (c *Chapter) Remove() error {
 func Chapters() ([]*Chapter, error) {
 	ch := make([]*Chapter, 0)
 
-	rows, err := db.Query("SELECT `id`, `name`, `prior` FROM `chapters` ORDER BY `name`")
+	rows, err := db.Query("SELECT `id`, `name`, `prior`, `email` FROM `chapters` ORDER BY `name`")
 	if err != nil && err == sql.ErrNoRows {
 		return ch, nil
 	}
@@ -56,7 +64,7 @@ func Chapters() ([]*Chapter, error) {
 
 	for rows.Next() {
 		var c Chapter
-		err := rows.Scan(&c.ID, &c.Name, &c.Prior)
+		err := rows.Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -98,4 +106,14 @@ func (c *Chapter) Members() ([]*Member, error) {
 		members = append(members, m)
 	}
 	return members, nil
+}
+
+func (id ChapterID) Load() (*Chapter, error) {
+	var c Chapter
+	err := db.QueryRow("SELECT `id`, `name`, `prior`, `email` FROM `chapters` WHERE `id` = ?", id).Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	return &c, nil
 }

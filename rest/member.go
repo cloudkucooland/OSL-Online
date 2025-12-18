@@ -72,7 +72,7 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	chapters, err := m.GetChapters()
+	chapters, err := m.ID.GetChapters()
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
