@@ -53,6 +53,12 @@ export function getMe() {
 		localStorage.removeItem('jwt');
 		return undefined;
 	}
+
+	// if the token expires in the next week, refresh; a fresh token lasts 28 days
+	if (exp.valueOf() - (86400 * 7) <= Date.now().valueOf()) {
+		console.log('token expiring tomorrow, refreshing');
+		refreshJWT();
+	}
 	return token;
 }
 
@@ -71,6 +77,24 @@ export async function getJWT(username, password) {
 	};
 
 	const response = await fetch(`${server}/api/v1/getJWT`, request);
+	const payload = await response.text();
+	if (response.status != 200) {
+		console.log('server returned ', response.status);
+		throw new Error(payload.error);
+	}
+	localStorage.setItem('jwt', payload);
+}
+
+export async function refreshJWT() {
+	const request = {
+		method: 'GET',
+		mode: 'cors',
+		credentials: 'include',
+		redirect: 'manual',
+		referrerPolicy: 'origin'
+	};
+
+	const response = await fetch(`${server}/api/v1/refreshJWT`, request);
 	const payload = await response.text();
 	if (response.status != 200) {
 		console.log('server returned ', response.status);

@@ -54,7 +54,7 @@
 			</div>
 			<div class="col-span-4">
 				<h3>Hi [sibling name]</h3>
-				<Textarea id="content" rows={8} bind:value={content} />
+				<Textarea id="content" rows={16} cols={80} bind:value={content} />
 				<h3>Living the Sacramental Life</h3>
 				<h3>Yours truly,</h3>
 				<h3>The Order of Saint Luke</h3>

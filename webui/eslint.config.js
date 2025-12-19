@@ -5,7 +5,7 @@ import { globalIgnores } from 'eslint/config';
 
 export default [
 	js.configs.recommended,
-	globalIgnores(['build/**/*', 'dist/**/*']),
+	globalIgnores(['build/**/*', 'dist/**/*', 'node_modules/**/*']),
 	{
 		files: ['src/**/*.svelte'],
 		languageOptions: {

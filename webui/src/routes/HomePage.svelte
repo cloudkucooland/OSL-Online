@@ -20,9 +20,9 @@
 		push('/Login');
 	}
 
-	let query = $state();
-	let result = $state();
-	let mode = $state('name');
+	let query: string = $state();
+	let result: Array<any> = $state();
+	let mode: string = $state('name');
 
 	const modes = [
 		{ value: 'name', name: 'Name', selected: true },

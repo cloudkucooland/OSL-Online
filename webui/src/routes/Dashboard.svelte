@@ -36,7 +36,7 @@
 				<TableBodyCell>{d.AnnualCount}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
-				<TableBodyCell>Annual Vow Members who hae reaffirmed (Since July 1)</TableBodyCell>
+				<TableBodyCell>Annual Vow Members who have reaffirmed (Since July 1)</TableBodyCell>
 				<TableBodyCell>{d.AnnualVowsReaffirmed}</TableBodyCell>
 			</TableBodyRow>
 			<TableBodyRow>
