@@ -62,13 +62,19 @@ func Chapters() ([]*Chapter, error) {
 	}
 	defer rows.Close()
 
+	var e sql.NullString
+
 	for rows.Next() {
 		var c Chapter
-		err := rows.Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
+		err := rows.Scan(&c.ID, &c.Name, &c.Prior, &e)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
+		if e.Valid {
+			c.Email = e.String
+		}
+
 		ch = append(ch, &c)
 	}
 	return ch, nil
