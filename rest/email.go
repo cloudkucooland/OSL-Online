@@ -45,13 +45,13 @@ func postEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var err error
 	switch whom {
 	case "all":
-		ids, err = model.ActiveMemberIDs()
+		ids, err = model.ActiveMemberIDs(r.Context())
 	case "annual":
-		ids, err = model.AnnualMemberIDs()
+		ids, err = model.AnnualMemberIDs(r.Context())
 	case "life":
-		ids, err = model.LifeMemberIDs()
+		ids, err = model.LifeMemberIDs(r.Context())
 	case "friends":
-		ids, err = model.FriendIDs()
+		ids, err = model.FriendIDs(r.Context())
 	default:
 		ids, err = model.TestMemberIDs()
 	}

@@ -32,7 +32,7 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 				continue
 			}
 
-			ok, err := checkChapter(e, id)
+			ok, err := checkChapter(ctx, e, id)
 			if err != nil {
 				slog.Error("chapter sync", "error", err.Error())
 				continue
@@ -73,8 +73,8 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 	return nil
 }
 
-func checkChapter(email string, chapterid ChapterID) (bool, error) {
-	found, err := SearchEmail(email, true)
+func checkChapter(ctx context.Context, email string, chapterid ChapterID) (bool, error) {
+	found, err := SearchEmail(ctx, email, true)
 	if err != nil {
 		return false, err
 	}
@@ -158,7 +158,7 @@ func (chapter ChapterID) emailaddress() (string, error) {
 }
 
 func (id MemberID) UnsubscribeAllChapters(ctx context.Context) error {
-	if _, err := db.Exec("DELETE FROM `chaptermembers` WHERE `member` = ?", id); err != nil {
+	if _, err := db.ExecContext(ctx, "DELETE FROM `chaptermembers` WHERE `member` = ?", id); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

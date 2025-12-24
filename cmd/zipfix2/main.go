@@ -29,9 +29,9 @@ func main() {
 		panic(err)
 	}
 
-	ids, err := model.JustMemberIDsUS()
-	// ids, err := model.FriendIDs()
-	// ids, err := model.NecrologyIDs()
+	ids, err := model.JustMemberIDsUS(ctx)
+	// ids, err := model.FriendIDs(ctx)
+	// ids, err := model.NecrologyIDs(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		panic(err)

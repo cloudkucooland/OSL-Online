@@ -26,7 +26,7 @@ func DoxologySync(ctx context.Context) error {
 				continue
 			}
 
-			ok, err := checkDoxology(e)
+			ok, err := checkDoxology(ctx, e)
 			if err != nil {
 				slog.Error("doxology", "error", err.Error())
 				continue
@@ -43,7 +43,7 @@ func DoxologySync(ctx context.Context) error {
 		return nil
 	})
 
-	toadd, err := DoxologyEmailedDirect()
+	toadd, err := DoxologyEmailedDirect(ctx)
 	if err != nil {
 		return err
 	}
@@ -106,8 +106,8 @@ func (id MemberID) SubscribeDoxology(ctx context.Context) error {
 	return nil
 }
 
-func checkDoxology(email string) (bool, error) {
-	found, err := SearchEmail(email, true)
+func checkDoxology(ctx context.Context, email string) (bool, error) {
+	found, err := SearchEmail(ctx, email, true)
 	if err != nil {
 		return false, err
 	}

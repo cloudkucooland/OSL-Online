@@ -30,7 +30,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 		var nb sql.NullBool
 		nb.Valid = true
 		nb.Bool = value == "true"
-		if _, err := db.Exec(q, nb, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, nb, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -45,7 +45,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 			slog.Error(err.Error())
 			return err
 		}
-		if _, err := db.Exec(q, t, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, t, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -60,7 +60,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 			ns.Valid = true
 			ns.String = value
 		}
-		if _, err := db.Exec(q, ns, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -72,7 +72,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 			cp = NONE
 		}
 
-		if _, err := db.Exec(q, cp, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -97,7 +97,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 			}
 		}
 
-		if _, err := db.Exec(q, cp, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -122,7 +122,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 			}
 		}
 
-		if _, err := db.Exec(q, cp, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}

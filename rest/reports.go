@@ -33,37 +33,37 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	case "avery":
 		w.Header().Set(contentType, pdfMime)
 		// w.Header().Set(contentDisposition, pdfDisposition)
-		err = model.ReportAvery(w)
+		err = model.ReportAvery(r.Context(), w)
 	case "annual":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportAnnual(w)
+		err = model.ReportAnnual(r.Context(), w)
 	case "reaffirmation":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportReaffirmationFormMerge(w)
+		err = model.ReportReaffirmationFormMerge(r.Context(), w)
 	case "email":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportAllEmail(w)
+		err = model.ReportAllEmail(r.Context(), w)
 	case "expired":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportExpired(w)
+		err = model.ReportExpired(r.Context(), w)
 	case "life":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportLife(w)
+		err = model.ReportLife(r.Context(), w)
 	case "lifecheckin":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportLifeCheckinFormMerge(w)
+		err = model.ReportLifeCheckinFormMerge(r.Context(), w)
 	case "doxprint":
 		w.Header().Set(contentType, csvMime)
-		err = model.DoxologyPrinted(w)
+		err = model.DoxologyPrinted(r.Context(), w)
 	case "allsubscribers":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportAllSubscribers(w)
+		err = model.ReportAllSubscribers(r.Context(), w)
 	case "barb":
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportBarb(w)
+		err = model.ReportBarb(r.Context(), w)
 	default:
 		w.Header().Set(contentType, csvMime)
-		err = model.ReportBarb(w)
+		err = model.ReportBarb(r.Context(), w)
 	}
 	if err != nil {
 		slog.Error(err.Error())

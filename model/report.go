@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -10,10 +11,10 @@ import (
 )
 
 // reportMemberQuery returns full member data, unlisted data is included
-func reportMemberQuery(query string) ([]*Member, error) {
+func reportMemberQuery(ctx context.Context, query string) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
@@ -32,8 +33,8 @@ func reportMemberQuery(query string) ([]*Member, error) {
 	return members, nil
 }
 
-func ReportExpired(w io.Writer) error {
-	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
+func ReportExpired(ctx context.Context, w io.Writer) error {
+	members, err := reportMemberQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY DateReaffirmation")
 	if err != nil {
 		return err
 	}
@@ -52,8 +53,8 @@ func ReportExpired(w io.Writer) error {
 	return nil
 }
 
-func ReportAnnual(w io.Writer) error {
-	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+func ReportAnnual(ctx context.Context, w io.Writer) error {
+	members, err := reportMemberQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
 	if err != nil {
 		return err
 	}
@@ -79,9 +80,9 @@ func yn(v bool) string {
 	return "No"
 }
 
-func ReportReaffirmationFormMerge(w io.Writer) error {
+func ReportReaffirmationFormMerge(ctx context.Context, w io.Writer) error {
 	// not reaffirmed in more than 240 days...
-	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DATE_SUB(CURDATE(),INTERVAL 240 DAY) >= DateReaffirmation ORDER BY LastName, FirstName")
+	members, err := reportMemberQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DATE_SUB(CURDATE(),INTERVAL 240 DAY) >= DateReaffirmation ORDER BY LastName, FirstName")
 	if err != nil {
 		return err
 	}
@@ -100,8 +101,8 @@ func ReportReaffirmationFormMerge(w io.Writer) error {
 	return nil
 }
 
-func ReportLife(w io.Writer) error {
-	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+func ReportLife(ctx context.Context, w io.Writer) error {
+	members, err := reportMemberQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {
 		return err
 	}
@@ -120,9 +121,9 @@ func ReportLife(w io.Writer) error {
 	return nil
 }
 
-func ReportLifeCheckinFormMerge(w io.Writer) error {
+func ReportLifeCheckinFormMerge(ctx context.Context, w io.Writer) error {
 	// not reaffirmed in more than 240 days...
-	members, err := reportMemberQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+	members, err := reportMemberQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 	if err != nil {
 		return err
 	}
@@ -141,11 +142,11 @@ func ReportLifeCheckinFormMerge(w io.Writer) error {
 	return nil
 }
 
-func ReportAllEmail(w io.Writer) error {
+func ReportAllEmail(ctx context.Context, w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"OSLName", "OSLShortName", "MemberStatus", "PrimaryEmail", "Address"})
 
-	m, err := ActiveMemberIDs()
+	m, err := ActiveMemberIDs(ctx)
 	if err != nil {
 		return err
 	}
@@ -167,12 +168,12 @@ func ReportAllEmail(w io.Writer) error {
 	return nil
 }
 
-func ReportBarb(w io.Writer) error {
+func ReportBarb(ctx context.Context, w io.Writer) error {
 	months := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "X"}
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"OSLName", "MemberStatus", "PrimaryEmail", "Month"})
 
-	m, err := ActiveMemberIDs()
+	m, err := ActiveMemberIDs(ctx)
 	if err != nil {
 		return err
 	}
@@ -200,58 +201,58 @@ func ReportBarb(w io.Writer) error {
 }
 
 // ActiveMemberIDs returns All Annual Vows, Life Vows and Friends
-func ActiveMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') ORDER BY LastName, FirstName")
+func ActiveMemberIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') ORDER BY LastName, FirstName")
 }
 
 // ActiveMemberIDsUS returns All Annual Vows, Life Vows and Friends in the US
-func ActiveMemberIDsUS() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') AND Country = 'US' ORDER BY LastName, FirstName")
+func ActiveMemberIDsUS(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows', 'Friend') AND Country = 'US' ORDER BY LastName, FirstName")
 }
 
 // JustMemberIDsUS returns All Annual Vows and Life Vows in the US
-func JustMemberIDsUS() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows') AND Country = 'US' ORDER BY LastName, FirstName")
+func JustMemberIDsUS(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus IN ('Annual Vows', 'Life Vows') AND Country = 'US' ORDER BY LastName, FirstName")
 }
 
 // AnnualMemberIDs does what it says
-func AnnualMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
+func AnnualMemberIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' ORDER BY LastName, FirstName")
 }
 
 // LifeMemberIDs does what it says
-func LifeMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
+func LifeMemberIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Life Vows' ORDER BY LastName, FirstName")
 }
 
 // NewMemberIDs does what it says
-func NewMemberIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateFirstVows > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY LastName, FirstName")
+func NewMemberIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateFirstVows > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY LastName, FirstName")
 }
 
 // FriendsIDs does what it says
-func FriendIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
+func FriendIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Friend' ORDER BY LastName, FirstName")
 }
 
 // NecrologyIDs does what it says
-func NecrologyIDs() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Deceased' ORDER BY LastName, FirstName")
+func NecrologyIDs(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Deceased' ORDER BY LastName, FirstName")
 }
 
 // ReminderAnnual returns those who have not reaffirmed in the past year
-func ReminderAnnual() ([]MemberID, error) {
-	return reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")
+func ReminderAnnual(ctx context.Context) ([]MemberID, error) {
+	return reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY) ORDER BY LastName, FirstName")
 }
 
 func TestMemberIDs() ([]MemberID, error) {
 	return []MemberID{1078}, nil
 }
 
-func reportMemberIDQuery(query string) ([]MemberID, error) {
+func reportMemberIDQuery(ctx context.Context, query string) ([]MemberID, error) {
 	list := make([]MemberID, 0, 500)
 
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -275,11 +276,11 @@ func reportMemberIDQuery(query string) ([]MemberID, error) {
 	return reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) ORDER BY Name")
 } */
 
-func ReportAllSubscribers(w io.Writer) error {
+func ReportAllSubscribers(ctx context.Context, w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"ID", "Name", "Attn", "Address", "AddressLine2", "City", "State", "Country", "PostalCode", "PrimaryPhone", "SecondaryPhone", "PrimaryEmail", "SecondaryEmail", "DateRecordCreated", "DatePaid", "Doxology", "Newsletter", "Communication"})
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber ORDER BY id")
+	subscribers, err := reportSubscriberIDQuery(ctx, "SELECT id FROM subscriber ORDER BY id")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -297,10 +298,10 @@ func ReportAllSubscribers(w io.Writer) error {
 	return nil
 }
 
-func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
+func reportSubscriberIDQuery(ctx context.Context, query string) ([]SubscriberID, error) {
 	list := make([]SubscriberID, 0, 50)
 
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		slog.Error(err.Error())
 		return list, err
@@ -319,10 +320,10 @@ func reportSubscriberIDQuery(query string) ([]SubscriberID, error) {
 	return list, nil
 }
 
-func ReportAvery(w io.Writer) error {
+func ReportAvery(ctx context.Context, w io.Writer) error {
 	members := make([]addressFormatter, 0)
 
-	ids, err := ActiveMemberIDsUS()
+	ids, err := ActiveMemberIDsUS(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -342,11 +343,11 @@ func ReportAvery(w io.Writer) error {
 	return nil
 }
 
-func DoxologyPrinted(w io.Writer) error {
+func DoxologyPrinted(ctx context.Context, w io.Writer) error {
 	r := csv.NewWriter(w)
 	_ = r.Write([]string{"Last Name", "First Name", "Address", "City", "State", "Zip Code", "Country"})
 
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology = 'mailed' ORDER BY LastName, FirstName")
+	members, err := reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology = 'mailed' ORDER BY LastName, FirstName")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -362,7 +363,7 @@ func DoxologyPrinted(w io.Writer) error {
 	}
 
 	// subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY) AND Doxology = 'mailed' ORDER BY Name")
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE Doxology = 'mailed' ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery(ctx, "SELECT id FROM subscriber WHERE Doxology = 'mailed' ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -381,8 +382,8 @@ func DoxologyPrinted(w io.Writer) error {
 }
 
 // DoxologyEmailedDirect returns a list of addresses for direct API processing, so we can dump the CSV stuff
-func DoxologyEmailedDirect() ([]string, error) {
-	members, err := reportMemberIDQuery("SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
+func DoxologyEmailedDirect(ctx context.Context) ([]string, error) {
+	members, err := reportMemberIDQuery(ctx, "SELECT id FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Doxology != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err
@@ -400,7 +401,7 @@ func DoxologyEmailedDirect() ([]string, error) {
 		out = append(out, m.PrimaryEmail)
 	}
 
-	subscribers, err := reportSubscriberIDQuery("SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
+	subscribers, err := reportSubscriberIDQuery(ctx, "SELECT id FROM subscriber WHERE PrimaryEmail IS NOT NULL AND DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 730 DAY) ORDER BY Name")
 	if err != nil {
 		slog.Error(err.Error())
 		return out, err

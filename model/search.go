@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -16,14 +17,14 @@ type SearchResult struct {
 	ListInDirectory bool
 }
 
-func Search(query string, unlisted bool) ([]*SearchResult, error) {
+func Search(ctx context.Context, query string, unlisted bool) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
 	var pn sql.NullString
 
-	rows, err := db.Query("SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
+	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
 	if err != nil {
 		slog.Error(err.Error())
 		return res, err
@@ -53,12 +54,12 @@ func Search(query string, unlisted bool) ([]*SearchResult, error) {
 	return res, nil
 }
 
-func SearchEmail(query string, unlisted bool) ([]*SearchResult, error) {
+func SearchEmail(ctx context.Context, query string, unlisted bool) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
 	var pn sql.NullString
 
-	rows, err := db.Query("SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE PrimaryEmail = ? OR SecondaryEmail = ?", query, query)
+	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE PrimaryEmail = ? OR SecondaryEmail = ?", query, query)
 	if err != nil {
 		slog.Error(err.Error())
 		return res, err

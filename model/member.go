@@ -226,22 +226,6 @@ func (n *Member) tomemberNulls() *memberNulls {
 	}
 }
 
-/* don't use this, it replaces and the delete cascades to other tables
-func (n *memberNulls) Store() error {
-	_, err := db.Exec("REPLACE INTO member (ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.MemberStatus, n.FirstName, n.MiddleName, n.LastName, n.PreferredName, n.Title, n.LifevowName, n.Suffix, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.BirthDate, n.DateRecordCreated, n.DateFirstVows, n.DateReaffirmation, n.DateRemoved, n.DateDeceased, n.DateNovitiate, n.DateLifeVows, n.Status, n.Leadership, n.HowJoined, n.HowRemoved, n.ListInDirectory, n.ListAddress, n.ListPrimaryPhone, n.ListSecondaryPhone, n.ListPrimaryEmail, n.ListSecondaryEmail, n.Doxology, n.Newsletter, n.Communication, n.Occupation, n.Employer, n.Denomination)
-
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-	return nil
-}
-
-func (n *Member) Store() error {
-	nn := n.tomemberNulls()
-	return nn.Store()
-} */
-
 func (id MemberID) SetMemberField(ctx context.Context, field string, value string, changer MemberID) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
@@ -262,7 +246,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		var nb sql.NullBool
 		nb.Valid = true
 		nb.Bool = value == "true"
-		if _, err := db.Exec(q, nb, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, nb, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -276,28 +260,28 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			slog.Error(err.Error())
 			return err
 		}
-		if _, err := db.Exec(q, t, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, t, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
 	case "MemberStatus":
 		switch value {
 		case REMOVED:
-			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
+			if _, err := db.ExecContext(ctx, "UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
 			_ = id.UnsubscribeDoxology(ctx)
 			_ = id.UnsubscribeFont(ctx)
 		case DECEASED:
-			if _, err := db.Exec("UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
+			if _, err := db.ExecContext(ctx, "UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
 			_ = id.UnsubscribeDoxology(ctx)
 			_ = id.UnsubscribeFont(ctx)
 		case ANNUAL, LIFE, FRIEND:
-			if _, err := db.Exec(q, value, id); err != nil {
+			if _, err := db.ExecContext(ctx, q, value, id); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
@@ -327,7 +311,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			ns.String = pn
 		}
 
-		if _, err := db.Exec(q, ns, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -348,7 +332,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			}
 		}
 
-		if _, err := db.Exec(q, cp, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -363,7 +347,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			_ = id.UnsubscribeFont(ctx)
 		}
 
-		if _, err := db.Exec(q, cp, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -381,7 +365,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			ns.Valid = true
 			ns.String = value
 		}
-		if _, err := db.Exec(q, ns, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -414,7 +398,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			ns.Valid = true
 			ns.String = value
 		}
-		if _, err := db.Exec(q, ns, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}

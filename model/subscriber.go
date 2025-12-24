@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -94,7 +95,7 @@ func (n *subNulls) toSubscriber() *Subscriber {
 	}
 }
 
-func (n *Subscriber) Store() error {
+/* func (n *Subscriber) Store() error {
 	_, err := db.Exec("REPLACE INTO subscriber (ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", n.ID, n.Name, n.Attn, n.Address, n.AddressLine2, n.City, n.State, n.Country, n.PostalCode, n.PrimaryPhone, n.SecondaryPhone, n.PrimaryEmail, n.SecondaryEmail, n.DateRecordCreated, n.DatePaid, n.Doxology, n.Newsletter, n.Communication)
 
 	if err != nil {
@@ -112,9 +113,9 @@ func (n *subNulls) Store() error {
 		return err
 	}
 	return nil
-}
+} */
 
-func (id SubscriberID) SetField(field string, value string) error {
+func (id SubscriberID) SetField(ctx context.Context, field string, value string) error {
 	slog.Info("updating", "id", id, "field", field, "value", value)
 
 	if field == "id" {
@@ -140,7 +141,7 @@ func (id SubscriberID) SetField(field string, value string) error {
 			slog.Error(err.Error())
 			return err
 		}
-		if _, err := db.Exec(q, t, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, t, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}
@@ -154,7 +155,7 @@ func (id SubscriberID) SetField(field string, value string) error {
 			ns.Valid = true
 			ns.String = value
 		}
-		if _, err := db.Exec(q, ns, id); err != nil {
+		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
 			slog.Error(err.Error())
 			return err
 		}

@@ -29,7 +29,7 @@ func FontSync(ctx context.Context) error {
 				continue
 			}
 
-			ok, err := checkFont(e)
+			ok, err := checkFont(ctx, e)
 			if err != nil {
 				slog.Error("font", "error", err.Error())
 				continue
@@ -63,8 +63,8 @@ func FontSync(ctx context.Context) error {
 	return nil
 }
 
-func checkFont(email string) (bool, error) {
-	found, err := SearchEmail(email, true)
+func checkFont(ctx context.Context, email string) (bool, error) {
+	found, err := SearchEmail(ctx, email, true)
 	if err != nil {
 		return false, err
 	}

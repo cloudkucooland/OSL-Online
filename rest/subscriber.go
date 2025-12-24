@@ -66,7 +66,7 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 	sid := model.SubscriberID(id)
-	if err := sid.SetField(field, value); err != nil {
+	if err := sid.SetField(r.Context(), field, value); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

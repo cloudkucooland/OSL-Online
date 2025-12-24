@@ -47,7 +47,7 @@ func postSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	slog.Info("search", "query", query, "requester", getUser(r))
-	result, err := model.Search(query, unlisted)
+	result, err := model.Search(r.Context(), query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -89,7 +89,7 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	}
 
 	slog.Info("search email", "query", query, "requester", getUser(r))
-	result, err := model.SearchEmail(query, unlisted)
+	result, err := model.SearchEmail(r.Context(), query, unlisted)
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
