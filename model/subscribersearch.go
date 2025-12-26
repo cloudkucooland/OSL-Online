@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -14,13 +15,13 @@ type SubSearchResult struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-func SubscriberSearch(query string) ([]*SubSearchResult, error) {
+func SubscriberSearch(ctx context.Context, query string) ([]*SubSearchResult, error) {
 	res := make([]*SubSearchResult, 0)
 	var attn sql.NullString
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
-	rows, err := db.Query("SELECT ID, Name, Attn FROM subscriber WHERE Name like ? OR Attn like ? ORDER BY Name, Attn", qq, qq)
+	rows, err := db.QueryContext(ctx, "SELECT ID, Name, Attn FROM subscriber WHERE Name like ? OR Attn like ? ORDER BY Name, Attn", qq, qq)
 	if err != nil {
 		slog.Error(err.Error())
 		return res, err
@@ -43,11 +44,11 @@ func SubscriberSearch(query string) ([]*SubSearchResult, error) {
 	return res, nil
 }
 
-func SubscriberSearchEmail(query string) ([]*SubSearchResult, error) {
+func SubscriberSearchEmail(ctx context.Context, query string) ([]*SubSearchResult, error) {
 	res := make([]*SubSearchResult, 0)
 	var attn sql.NullString
 
-	rows, err := db.Query("SELECT ID, Name, Attn FROM subscriber WHERE PrimaryEmail = ?", query)
+	rows, err := db.QueryContext(ctx, "SELECT ID, Name, Attn FROM subscriber WHERE PrimaryEmail = ?", query)
 	if err != nil {
 		slog.Error(err.Error())
 		return res, err

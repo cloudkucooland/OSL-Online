@@ -110,10 +110,10 @@ type Member struct {
 }
 
 // GetMember returns a populated Member struct, NULLs converted to ""
-func (id MemberID) Get() (*Member, error) {
+func (id MemberID) Get(ctx context.Context) (*Member, error) {
 	n := &memberNulls{}
 
-	err := db.QueryRow("SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination, Benefactor FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination, &n.Benefactor)
+	err := db.QueryRowContext(ctx, "SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination, Benefactor FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination, &n.Benefactor)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
 		slog.Error(err.Error(), "id", id)
@@ -293,7 +293,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 	case "PrimaryPhone", "SecondaryPhone":
 		var ns sql.NullString
 
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			return err
 		}
@@ -373,7 +373,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		if value == "" {
 			break
 		}
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			return err
@@ -531,7 +531,7 @@ func (n *Member) OSLShortName() string {
 	return name
 }
 
-func (m *Member) SetChapters(incoming ...int) error {
+func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
 	current, err := m.ID.GetChapters()
 	if err != nil {
 		slog.Error(err.Error())
@@ -540,21 +540,21 @@ func (m *Member) SetChapters(incoming ...int) error {
 
 	for _, ch := range incoming {
 		if !slices.Contains(current, ch) {
-			if _, err := db.Exec("INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID); err != nil {
+			if _, err := db.ExecContext(ctx, "INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
-			m.ID.SubscribeChapter(context.Background(), ChapterID(ch))
+			m.ID.SubscribeChapter(ctx, ChapterID(ch))
 		}
 	}
 
 	for _, ch := range current {
 		if !slices.Contains(incoming, ch) {
-			if _, err := db.Exec("DELETE FROM `chaptermembers` WHERE `chapter` = ? AND `member` = ?", ch, m.ID); err != nil {
+			if _, err := db.ExecContext(ctx, "DELETE FROM `chaptermembers` WHERE `chapter` = ? AND `member` = ?", ch, m.ID); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
-			m.ID.UnsubscribeChapter(context.Background(), ChapterID(ch))
+			m.ID.UnsubscribeChapter(ctx, ChapterID(ch))
 		}
 	}
 

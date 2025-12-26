@@ -15,7 +15,7 @@ func background(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			slog.Info("daily tasks")
-			doDaily()
+			doDaily(ctx)
 		case <-ctx.Done():
 			slog.Info("stopping background tasks")
 			return
@@ -23,12 +23,12 @@ func background(ctx context.Context) {
 	}
 }
 
-func doDaily() {
+func doDaily(ctx context.Context) {
 	now := time.Now()
 	day := now.Day()
 	month := now.Month()
 
-	todaybdays, err := model.SearchBirthday(month, day)
+	todaybdays, err := model.SearchBirthday(ctx, month, day)
 	if err != nil {
 		slog.Error(err.Error())
 		return

@@ -20,7 +20,7 @@ func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 	sid := model.SubscriberID(id)
-	m, err := sid.Get()
+	m, err := sid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

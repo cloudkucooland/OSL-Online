@@ -54,10 +54,10 @@ type subNulls struct {
 	Communication     sql.NullString
 }
 
-func (id SubscriberID) Get() (*Subscriber, error) {
+func (id SubscriberID) Get(ctx context.Context) (*Subscriber, error) {
 	var n subNulls
 
-	err := db.QueryRow("SELECT ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication FROM subscriber WHERE ID = ?", id).Scan(&n.ID, &n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.DateRecordCreated, &n.DatePaid, &n.Doxology, &n.Newsletter, &n.Communication)
+	err := db.QueryRowContext(ctx, "SELECT ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication FROM subscriber WHERE ID = ?", id).Scan(&n.ID, &n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.DateRecordCreated, &n.DatePaid, &n.Doxology, &n.Newsletter, &n.Communication)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("subscriber not found")
 		slog.Error(err.Error(), "id", id)

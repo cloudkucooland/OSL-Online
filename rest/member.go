@@ -33,7 +33,7 @@ func getMember(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	mid := model.MemberID(id)
-	m, err := mid.Get()
+	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -66,7 +66,7 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 
 	mid := model.MemberID(id)
-	m, err := mid.Get()
+	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -192,14 +192,14 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 
 	mid := model.MemberID(id)
-	member, err := mid.Get()
+	member, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
 
-	if err := member.SetChapters(chapters...); err != nil {
+	if err := member.SetChapters(r.Context(), chapters...); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
@@ -217,7 +217,7 @@ func getMemberVcard(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		return
 	}
 	mid := model.MemberID(id)
-	member, err := mid.Get()
+	member, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)

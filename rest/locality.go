@@ -13,7 +13,7 @@ import (
 func getLocalities(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	headers(w, r)
 
-	l, err := model.Localities()
+	l, err := model.Localities(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -41,7 +41,7 @@ func getLocalityMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		locality = chunks[1]
 	}
 
-	m, err := model.LocalityMembers(country, locality)
+	m, err := model.LocalityMembers(r.Context(), country, locality)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

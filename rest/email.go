@@ -63,7 +63,7 @@ func postEmail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	slog.Info("sending bulk email", "whom", whom, "subject", subject, "from", getUser(r))
 
-	if err := email.SendGeneric(ids, subject, message); err != nil {
+	if err := email.SendGeneric(r.Context(), ids, subject, message); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return

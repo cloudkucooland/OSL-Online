@@ -15,7 +15,7 @@ func getNecrology(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	headers(w, r)
 
 	slog.Info("necrology", "requester", getUser(r))
-	isee, err := model.Necrology()
+	isee, err := model.Necrology(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -57,7 +57,7 @@ func getCommemorations(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 
 	slog.Info("getCommemorations", "month", month, "day", day)
-	isee, err := model.Commemorations(month, day)
+	isee, err := model.Commemorations(r.Context(), month, day)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

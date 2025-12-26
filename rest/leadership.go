@@ -18,7 +18,7 @@ func getLeadership(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 
 	slog.Info("leadership", "category", category, "requester", getUser(r))
-	leaders, err := model.Leadership(category)
+	leaders, err := model.Leadership(r.Context(), category)
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

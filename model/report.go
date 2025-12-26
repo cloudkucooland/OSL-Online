@@ -27,7 +27,7 @@ func reportMemberQuery(ctx context.Context, query string) ([]*Member, error) {
 			slog.Error(err.Error())
 			return nil, err
 		}
-		member, _ := id.Get()
+		member, _ := id.Get(ctx)
 		members = append(members, member)
 	}
 	return members, nil
@@ -152,7 +152,7 @@ func ReportAllEmail(ctx context.Context, w io.Writer) error {
 	}
 
 	for _, id := range m {
-		n, err := id.Get()
+		n, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			err = nil
@@ -186,7 +186,7 @@ func ReportBarb(ctx context.Context, w io.Writer) error {
 			i = 0
 			month = month + 1
 		}
-		n, err := id.Get()
+		n, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			err = nil
@@ -287,7 +287,7 @@ func ReportAllSubscribers(ctx context.Context, w io.Writer) error {
 	}
 
 	for _, id := range subscribers {
-		s, err := id.Get()
+		s, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -330,7 +330,7 @@ func ReportAvery(ctx context.Context, w io.Writer) error {
 	}
 
 	for _, id := range ids {
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -354,7 +354,7 @@ func DoxologyPrinted(ctx context.Context, w io.Writer) error {
 	}
 
 	for _, id := range members {
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -370,7 +370,7 @@ func DoxologyPrinted(ctx context.Context, w io.Writer) error {
 	}
 
 	for _, id := range subscribers {
-		s, err := id.Get()
+		s, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -391,7 +391,7 @@ func DoxologyEmailedDirect(ctx context.Context) ([]string, error) {
 	out := make([]string, 0)
 
 	for _, id := range members {
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -408,7 +408,7 @@ func DoxologyEmailedDirect(ctx context.Context) ([]string, error) {
 	}
 
 	for _, id := range subscribers {
-		s, err := id.Get()
+		s, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -421,10 +421,10 @@ func DoxologyEmailedDirect(ctx context.Context) ([]string, error) {
 }
 
 // FontEmailedDirect returns a list of addresses for direct google groups API processing
-func FontEmailedDirect() ([]string, error) {
+func FontEmailedDirect(ctx context.Context) ([]string, error) {
 	out := make([]string, 0)
 
-	rows, err := db.Query("SELECT PrimaryEmail FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Newsletter != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
+	rows, err := db.QueryContext(ctx, "SELECT PrimaryEmail FROM member WHERE MemberStatus IN ('Life Vows', 'Annual Vows', 'Friend') AND Newsletter != 'none' AND PrimaryEmail IS NOT NULL ORDER BY PrimaryEmail")
 	if err != nil {
 		slog.Error(err.Error())
 		return out, err

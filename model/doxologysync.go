@@ -67,7 +67,7 @@ func (id MemberID) UnsubscribeDoxology(ctx context.Context) error {
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (id MemberID) SubscribeDoxology(ctx context.Context) error {
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -112,9 +112,9 @@ func checkDoxology(ctx context.Context, email string) (bool, error) {
 		return false, err
 	}
 	if len(found) == 0 { // should be != 1 but Br Dan and Sr. Mary-O share an address
-		return checkDoxologySubscriber(email)
+		return checkDoxologySubscriber(ctx, email)
 	}
-	member, err := found[0].ID.Get()
+	member, err := found[0].ID.Get(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -125,15 +125,15 @@ func checkDoxology(ctx context.Context, email string) (bool, error) {
 	return true, nil
 }
 
-func checkDoxologySubscriber(email string) (bool, error) {
-	found, err := SubscriberSearchEmail(email)
+func checkDoxologySubscriber(ctx context.Context, email string) (bool, error) {
+	found, err := SubscriberSearchEmail(ctx, email)
 	if err != nil {
 		return false, err
 	}
 	if len(found) == 0 {
 		return false, nil
 	}
-	subscriber, err := found[0].ID.Get()
+	subscriber, err := found[0].ID.Get(ctx)
 	if err != nil {
 		return false, err
 	}

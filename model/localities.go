@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -15,10 +16,10 @@ type Locality struct {
 	Locality     string
 }
 
-func Localities() ([]*Locality, error) {
+func Localities(ctx context.Context) ([]*Locality, error) {
 	localities := make([]*Locality, 0)
 
-	rows, err := db.Query("SELECT DISTINCT Country, State FROM member WHERE MemberStatus NOT IN ('Removed', 'Deceased') AND ListInDirectory = true ORDER BY Country, State")
+	rows, err := db.QueryContext(ctx, "SELECT DISTINCT Country, State FROM member WHERE MemberStatus NOT IN ('Removed', 'Deceased') AND ListInDirectory = true ORDER BY Country, State")
 	if err != nil && err == sql.ErrNoRows {
 		return localities, nil
 	}
@@ -67,9 +68,9 @@ func Localities() ([]*Locality, error) {
 	return localities, nil
 }
 
-func LocalityMembers(country string, locality string) ([]*Member, error) {
+func LocalityMembers(ctx context.Context, country string, locality string) ([]*Member, error) {
 	if country == "SG" {
-		return localityMembersSG()
+		return localityMembersSG(ctx)
 	}
 
 	members := make([]*Member, 0)
@@ -80,7 +81,7 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 		lc.String = locality
 	}
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Country = ? AND State = ? AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName", country, lc)
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE Country = ? AND State = ? AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName", country, lc)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -97,7 +98,7 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 			continue
 		}
 
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -108,10 +109,10 @@ func LocalityMembers(country string, locality string) ([]*Member, error) {
 	return members, nil
 }
 
-func localityMembersSG() ([]*Member, error) {
+func localityMembersSG(ctx context.Context) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Country = 'SG' AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName")
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE Country = 'SG' AND MemberStatus NOT IN ('Deceased', 'Removed') AND ListInDirectory = true ORDER BY LastName, FirstName")
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -128,7 +129,7 @@ func localityMembersSG() ([]*Member, error) {
 			continue
 		}
 
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue

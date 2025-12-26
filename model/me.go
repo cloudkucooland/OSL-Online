@@ -78,7 +78,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 		}
 	case "Newsletter":
 		cp := communicationPref(strings.TrimSpace(value))
-		if cp == MAILED && !id.allowPrinted() {
+		if cp == MAILED && !id.allowPrinted(ctx) {
 			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Newsletter")
 			return err
 		}
@@ -103,7 +103,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 		}
 	case "Doxology": // only allow printed if donated this year
 		cp := communicationPref(strings.TrimSpace(value))
-		if cp == MAILED && !id.allowPrinted() {
+		if cp == MAILED && !id.allowPrinted(ctx) {
 			err := fmt.Errorf("no donations in the past 12 months, cannot choose printed Doxology")
 			return err
 		}
@@ -144,8 +144,8 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 	return nil
 }
 
-func (id MemberID) allowPrinted() bool {
-	m, err := id.Get()
+func (id MemberID) allowPrinted(ctx context.Context) bool {
+	m, err := id.Get(ctx)
 	if err != nil {
 		return false
 	}

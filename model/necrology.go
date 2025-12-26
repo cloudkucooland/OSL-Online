@@ -1,16 +1,17 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
 	"time"
 )
 
-func Necrology() ([]*Member, error) {
+func Necrology(ctx context.Context) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Deceased' AND DateDeceased IS NOT NULL ORDER BY LastName, FirstName")
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE MemberStatus = 'Deceased' AND DateDeceased IS NOT NULL ORDER BY LastName, FirstName")
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -27,7 +28,7 @@ func Necrology() ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -43,12 +44,12 @@ type Commemoration struct {
 	Year     int
 }
 
-func Commemorations(month time.Month, day int) ([]Commemoration, error) {
+func Commemorations(ctx context.Context, month time.Month, day int) ([]Commemoration, error) {
 	commemorations := make([]Commemoration, 0)
 
 	qq := fmt.Sprintf("%%-%02d-%02d", month, day)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE DateDeceased LIKE ? AND MemberStatus = 'Deceased' ORDER BY LastName, FirstName", qq)
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE DateDeceased LIKE ? AND MemberStatus = 'Deceased' ORDER BY LastName, FirstName", qq)
 	if err != nil && err == sql.ErrNoRows {
 		slog.Info("no commemorations for this day", "month", month, "day", day)
 		return commemorations, nil
@@ -67,7 +68,7 @@ func Commemorations(month time.Month, day int) ([]Commemoration, error) {
 			continue
 		}
 
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue

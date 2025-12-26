@@ -10,8 +10,8 @@ const friendzoneMinDays = 365 * 3 // 3 years
 
 // Friendzone moves all members who have not reaffirmed vows in the past friendzoneMinDays and converts
 // them to friends
-func Friendzone() error {
-	rows, err := db.Query("SELECT ID FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL ? DAY) ORDER BY LastName", friendzoneMinDays)
+func Friendzone(ctx context.Context) error {
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE MemberStatus = 'Annual Vows' AND DateReaffirmation < DATE_SUB(CURRENT_DATE(), INTERVAL ? DAY) ORDER BY LastName", friendzoneMinDays)
 	if err != nil && err == sql.ErrNoRows {
 		return nil
 	}
@@ -28,14 +28,14 @@ func Friendzone() error {
 			continue
 		}
 
-		f, err := id.Get()
+		f, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
 		}
 		slog.Info("friendzoning", "name", f.OSLName(), "last reaffirmation", f.DateReaffirmation)
 
-		if err := id.makeFriend(); err != nil {
+		if err := id.makeFriend(ctx); err != nil {
 			slog.Error(err.Error())
 			continue
 		}
@@ -44,6 +44,6 @@ func Friendzone() error {
 }
 
 // the logic for moving to friend is already in SetMemberField, use that
-func (id MemberID) makeFriend() error {
-	return id.SetMemberField(context.Background(), "MemberStatus", "Friend", MemberID(0))
+func (id MemberID) makeFriend(ctx context.Context) error {
+	return id.SetMemberField(ctx, "MemberStatus", "Friend", MemberID(0))
 }

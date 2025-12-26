@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 )
@@ -80,10 +81,10 @@ func Chapters() ([]*Chapter, error) {
 	return ch, nil
 }
 
-func (c *Chapter) Members() ([]*Member, error) {
+func (c *Chapter) Members(ctx context.Context) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT m.ID FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member AND m.MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY m.LastName", c.ID)
+	rows, err := db.QueryContext(ctx, "SELECT m.ID FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member AND m.MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY m.LastName", c.ID)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -100,7 +101,7 @@ func (c *Chapter) Members() ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}

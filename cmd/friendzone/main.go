@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := model.Friendzone(); err != nil {
+	if err := model.Friendzone(ctx); err != nil {
 		slog.Error(err.Error())
 		panic(err)
 	}

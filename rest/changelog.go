@@ -19,7 +19,7 @@ func getMemberChangelog(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		return
 	}
 	mid := model.MemberID(id)
-	m, err := mid.Get()
+	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

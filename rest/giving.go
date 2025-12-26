@@ -110,7 +110,7 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		return
 	}
 
-	if err := email.SendGiving(model.MemberID(id), fmt.Sprintf("%.2f", gr.Amount), gr.Description); err != nil {
+	if err := email.SendGiving(r.Context(), model.MemberID(id), fmt.Sprintf("%.2f", gr.Amount), gr.Description); err != nil {
 		slog.Error(err.Error())
 	}
 

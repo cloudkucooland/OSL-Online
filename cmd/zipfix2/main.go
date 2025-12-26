@@ -38,7 +38,7 @@ func main() {
 	}
 
 	for _, id := range ids {
-		member, err := id.Get()
+		member, err := id.Get(ctx)
 		if err != nil {
 			slog.Error(err.Error())
 			continue

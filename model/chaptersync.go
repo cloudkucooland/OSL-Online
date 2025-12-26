@@ -53,7 +53,7 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	toadd, err := c.Members()
+	toadd, err := c.Members(ctx)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (id MemberID) UnsubscribeChapter(ctx context.Context, chapterid ChapterID) 
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (id MemberID) SubscribeChapter(ctx context.Context, chapterid ChapterID) er
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}

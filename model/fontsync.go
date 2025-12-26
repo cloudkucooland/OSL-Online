@@ -46,7 +46,7 @@ func FontSync(ctx context.Context) error {
 		return nil
 	})
 
-	toadd, err := FontEmailedDirect()
+	toadd, err := FontEmailedDirect(ctx)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func checkFont(ctx context.Context, email string) (bool, error) {
 	if len(found) == 0 { // should be != 1 but Br Dan and Sr. Mary-O share an address
 		return false, nil
 	}
-	member, err := found[0].ID.Get()
+	member, err := found[0].ID.Get(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -89,7 +89,7 @@ func (id MemberID) UnsubscribeFont(ctx context.Context) error {
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (id MemberID) SubscribeFont(ctx context.Context) error {
 		return err
 	}
 
-	m, err := id.Get()
+	m, err := id.Get(ctx)
 	if err != nil {
 		return err
 	}

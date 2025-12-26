@@ -28,7 +28,7 @@ func postSubSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	// XXX min length or other checks?
 
-	result, err := model.SubscriberSearch(query)
+	result, err := model.SubscriberSearch(r.Context(), query)
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

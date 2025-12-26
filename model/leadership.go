@@ -1,14 +1,15 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 )
 
-func Leadership(category string) ([]*Member, error) {
+func Leadership(ctx context.Context, category string) ([]*Member, error) {
 	members := make([]*Member, 0)
 
-	rows, err := db.Query("SELECT ID FROM member WHERE Leadership = ? AND MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY LastName", category)
+	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE Leadership = ? AND MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY LastName", category)
 	if err != nil && err == sql.ErrNoRows {
 		return members, nil
 	}
@@ -24,7 +25,7 @@ func Leadership(category string) ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
