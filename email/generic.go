@@ -1,6 +1,7 @@
 package email
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/matcornic/hermes/v2"
 )
 
-func SendGeneric(ids []model.MemberID, subject string, message string) error {
+func SendGeneric(ctx context.Context, ids []model.MemberID, subject string, message string) error {
 	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
@@ -18,7 +19,7 @@ func SendGeneric(ids []model.MemberID, subject string, message string) error {
 	intros := strings.Split(message, "\n")
 
 	for _, id := range ids {
-		if err := sendGeneric(id, subject, intros, h); err != nil {
+		if err := sendGeneric(ctx, id, subject, intros, h); err != nil {
 			slog.Error(err.Error())
 			// continue
 		}
@@ -26,8 +27,8 @@ func SendGeneric(ids []model.MemberID, subject string, message string) error {
 	return nil
 }
 
-func sendGeneric(id model.MemberID, subject string, intros []string, h *hermes.Hermes) error {
-	member, err := id.Get()
+func sendGeneric(ctx context.Context, id model.MemberID, subject string, intros []string, h *hermes.Hermes) error {
+	member, err := id.Get(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

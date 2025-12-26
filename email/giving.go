@@ -1,20 +1,21 @@
 package email
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 	"github.com/matcornic/hermes/v2"
 )
 
-func SendGiving(id model.MemberID, amount string, description string) error {
+func SendGiving(ctx context.Context, id model.MemberID, amount string, description string) error {
 	h, err := Setup()
 	if err != nil {
 		slog.Error(err.Error())
 		return err
 	}
 
-	member, err := id.Get()
+	member, err := id.Get(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
