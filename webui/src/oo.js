@@ -55,7 +55,7 @@ export function getMe() {
 	}
 
 	// if the token expires in the next week, refresh; a fresh token lasts 28 days
-	if (exp.valueOf() - (86400 * 7) <= Date.now().valueOf()) {
+	if (exp.valueOf() - 86400 * 7 <= Date.now().valueOf()) {
 		console.log('token expiring tomorrow, refreshing');
 		refreshJWT();
 	}
