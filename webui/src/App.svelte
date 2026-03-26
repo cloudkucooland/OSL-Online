@@ -103,19 +103,19 @@
 					<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
 					<DropdownItem href="#/leadership">Leadership</DropdownItem>
 					<DropdownItem href="#/necrology">Necrology</DropdownItem>
+					<DropdownItem href="#/subsearch">Doxology Subscribers</DropdownItem>
 				</Dropdown>
 
 				{#if $me.level >= 1}
 					<NavLi href="#/reports">Reports</NavLi>
 				{/if}
 
-				{#if $me.level >= 2}
+				{#if $me.level >= 3}
 					<NavLi class="cursor-pointer">
 						Admin Tools<ChevronDownOutline class="text-primary-800 ms-2 inline h-6 w-6" />
 					</NavLi>
 					<Dropdown>
 						<DropdownItem href="#/email">Email membership</DropdownItem>
-						<DropdownItem href="#/subsearch">Subscribers</DropdownItem>
 						<DropdownItem href="#/addmember">Add Member/Friend</DropdownItem>
 						<DropdownItem href="#/Dashboard">Dashboard</DropdownItem>
 						<DropdownItem href="#/chaptereditor">Chapter Editor</DropdownItem>

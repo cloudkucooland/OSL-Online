@@ -42,7 +42,7 @@ func postSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	if level >= AuthLevelManager {
+	if level >= model.AuthLevelFullView {
 		unlisted = true
 	}
 
@@ -84,7 +84,7 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-	if level >= AuthLevelManager {
+	if level >= model.AuthLevelFullView {
 		unlisted = true
 	}
 

@@ -10,6 +10,15 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
+type AuthLevel uint8
+
+const (
+        AuthLevelView    AuthLevel = iota // view  members/subscribers
+        AuthLevelFullView                 // view full member data
+        AuthLevelManager                  // change/add members/subscribers
+        AuthLevelAdmin                    // add users
+)
+
 type Authname string
 
 // String satisfies the stringer interface
@@ -17,9 +26,9 @@ func (u Authname) String() string {
 	return string(u)
 }
 
-func (u Authname) getAuthData() (string, uint8, error) {
+func (u Authname) getAuthData() (string, AuthLevel, error) {
 	var pwhash string
-	var level uint8
+	var level AuthLevel
 	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", u).Scan(&pwhash, &level)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("user %s not found", u)
@@ -33,7 +42,7 @@ func (u Authname) getAuthData() (string, uint8, error) {
 	return pwhash, level, nil
 }
 
-func (u Authname) Authenticate(password string) (uint8, error) {
+func (u Authname) Authenticate(password string) (AuthLevel, error) {
 	pwhash, level, err := u.getAuthData()
 	if err != nil || pwhash == "" {
 		err := fmt.Errorf("the email address %s has not yet been registered", u)

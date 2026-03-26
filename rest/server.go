@@ -13,6 +13,8 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
+
+	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 var srv *http.Server
@@ -23,14 +25,6 @@ const jsonType = "application/json; charset=UTF-8"
 
 const jsonStatusOK = `{"status":"ok"}`
 const BcryptRounds = 14
-
-type authLevel uint8
-
-const (
-	AuthLevelView    authLevel = iota // view  members/subscribers
-	AuthLevelManager                  // change/add members/subscribers
-	AuthLevelAdmin                    // add users
-)
 
 // Start launches the HTTP server which is responsible for the frontend and the HTTP API.
 func Start(ctx context.Context) {
@@ -79,7 +73,7 @@ func parsetoken(r *http.Request) (jwt.Token, error) {
 	)
 }
 
-func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
+func authMW(h httprouter.Handle, requiredlevel model.AuthLevel) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		token, err := parsetoken(r)
 		if err != nil {
@@ -105,7 +99,7 @@ func authMW(h httprouter.Handle, requiredlevel authLevel) httprouter.Handle {
 			return
 		}
 
-		if authLevel(checklevel) < requiredlevel {
+		if model.AuthLevel(checklevel) < requiredlevel {
 			err := fmt.Errorf("access level too low")
 			slog.Warn(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -127,26 +121,26 @@ func getUser(r *http.Request) string {
 	return username
 }
 
-func getLevel(r *http.Request) (authLevel, error) {
+func getLevel(r *http.Request) (model.AuthLevel, error) {
 	token, err := parsetoken(r)
 	if err != nil {
 		slog.Error("token parse/validate failed", "error", err.Error())
-		return AuthLevelView, err
+		return model.AuthLevelView, err
 	}
 
 	claim, ok := token.Get("level")
 	if !ok {
 		err := fmt.Errorf("no level claim in token")
-		return AuthLevelView, err
+		return model.AuthLevelView, err
 	}
 
 	ff, ok := claim.(float64) // why does this come across as float64?
 	if !ok {
 		err := fmt.Errorf("authlevel type assertion failed")
-		return AuthLevelView, err
+		return model.AuthLevelView, err
 	}
 
-	return authLevel(ff), nil
+	return model.AuthLevel(ff), nil
 }
 
 type serverErrorLogWriter struct{}

@@ -26,7 +26,7 @@ import (
 const jwtSignerFilename = "signer.jwk"
 const stateStore = "/var/oo"
 
-func mintjwt(username model.Authname, level authLevel) (string, error) {
+func mintjwt(username model.Authname, level model.AuthLevel) (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return "", err
@@ -89,7 +89,7 @@ func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	JWT, err := mintjwt(username, authLevel(level))
+	JWT, err := mintjwt(username, model.AuthLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -203,7 +203,7 @@ func refresh(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	JWT, err := mintjwt(model.Authname(username), authLevel(level))
+	JWT, err := mintjwt(model.Authname(username), model.AuthLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)

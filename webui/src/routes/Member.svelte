@@ -150,7 +150,7 @@
 {#await load(params.id)}
 	<h3>... loading ...</h3>
 {:then r}
-	{#if $me && $me.level > 0}
+	{#if $me && $me.level > 1}
 		<section>
 			<div class="grid grid-cols-6 gap-4 px-4 py-2">
 				<div class="col-span-2">
