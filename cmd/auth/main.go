@@ -21,7 +21,7 @@ func main() {
 		panic(usage)
 	}
 
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), model.CtxKeyLevel, model.AuthLevelInternal)
 
 	dbpath := os.Getenv("OO_DB")
 	if dbpath == "" {

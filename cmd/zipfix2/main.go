@@ -2,17 +2,15 @@ package main
 
 import (
 	"context"
-	// "fmt"
 	"log/slog"
 	"os"
-	// "strings"
 	"time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func main() {
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), model.CtxKeyLevel, model.AuthLevelInternal)
 
 	bearer, err := getauth(ctx)
 	if err != nil {

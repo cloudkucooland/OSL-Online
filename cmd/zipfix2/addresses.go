@@ -111,22 +111,22 @@ RETRY:
 		case "":
 			slog.Info("correcting address format", "member", member.OSLName())
 			if member.Address != ar.Address.StreetAddress {
-				if err := member.ID.SetMemberField(ctx, "Address", ar.Address.StreetAddress, model.MemberID(0)); err != nil {
+				if err := member.ID.SetMemberField(ctx, "Address", ar.Address.StreetAddress); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.AddressLine2 != ar.Address.SecondaryAddress {
-				if err := member.ID.SetMemberField(ctx, "AddressLine2", ar.Address.SecondaryAddress, model.MemberID(0)); err != nil {
+				if err := member.ID.SetMemberField(ctx, "AddressLine2", ar.Address.SecondaryAddress); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.City != ar.Address.City {
-				if err := member.ID.SetMemberField(ctx, "City", ar.Address.City, model.MemberID(0)); err != nil {
+				if err := member.ID.SetMemberField(ctx, "City", ar.Address.City); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.State != ar.Address.State {
-				if err := member.ID.SetMemberField(ctx, "State", ar.Address.State, model.MemberID(0)); err != nil {
+				if err := member.ID.SetMemberField(ctx, "State", ar.Address.State); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
@@ -144,7 +144,7 @@ RETRY:
 	if ar.Address.ZIPCode != "" && ar.Address.ZIPPlus4 != "" {
 		z := fmt.Sprintf("%s-%s", ar.Address.ZIPCode, ar.Address.ZIPPlus4)
 		if member.PostalCode != z {
-			if err := member.ID.SetMemberField(ctx, "PostalCode", z, model.MemberID(0)); err != nil {
+			if err := member.ID.SetMemberField(ctx, "PostalCode", z); err != nil {
 				slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				return fmt.Errorf("unable to store corrected zipcode")
 			}

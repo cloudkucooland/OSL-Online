@@ -34,8 +34,14 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Go(func() { rest.Start(ctx) })
-	wg.Go(func() { background(ctx) })
+	wg.Go(func() {
+		rest.Start(ctx)
+	})
+	wg.Go(func() {
+		// background tasks need elevated access level
+		bgctx := context.WithValue(ctx, model.CtxKeyLevel, model.AuthLevelInternal)
+		background(bgctx)
+	})
 
 	sigch := make(chan os.Signal, 1)
 	signal.Notify(sigch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)

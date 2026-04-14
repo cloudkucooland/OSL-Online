@@ -1,12 +1,11 @@
 module github.com/cloudkucooland/OSL-Online
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/Boostport/address v0.13.0
 	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/julienschmidt/httprouter v1.3.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/jwx/v2 v2.1.6
 	github.com/matcornic/hermes/v2 v2.1.0

@@ -2,13 +2,21 @@ package main
 
 import (
 	"context"
-	"log/slog"
+	"flag"
 	"os"
+	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func main() {
+	flag.Parse()
+	c, err := strconv.Atoi(flag.Arg(0))
+	if err != nil {
+		panic(err.Error())
+	}
+	id := model.ChapterID(c)
+
 	ctx := context.WithValue(context.Background(), model.CtxKeyLevel, model.AuthLevelInternal)
 
 	dbpath := os.Getenv("OO_DB")
@@ -17,12 +25,15 @@ func main() {
 	}
 
 	if err := model.Connect(ctx, dbpath); err != nil {
-		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
 		panic(err)
 	}
 
-	if err := model.Friendzone(ctx); err != nil {
-		slog.Error(err.Error())
-		panic(err)
+	gac := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	if gac == "" {
+		panic("GOOGLE_APPLICATION_CREDENTIALS enviornment var not set.")
+	}
+
+	if err := id.ChapterSync(ctx); err != nil {
+		panic(err.Error())
 	}
 }
