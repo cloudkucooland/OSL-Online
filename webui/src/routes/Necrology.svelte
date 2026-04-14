@@ -25,6 +25,7 @@
 		rawData.map((i) => {
 			const d = new Date(i.DateDeceased);
 			return {
+				id: i.ID,
 				name: oslname(i),
 				date: d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }),
 				locality: i.State ? `${i.State}, ${i.Country}` : i.Country
@@ -60,10 +61,8 @@
 				<Heading tag="h1" class="text-4xl font-black tracking-tight text-slate-900"
 					>Necrology</Heading
 				>
-				<p class="font-serif text-lg italic text-slate-500">In Memoriam: The Church Triumphant</p>
 			</div>
 		</div>
-		<Badge color="dark" class="px-4 py-1 text-sm uppercase tracking-widest">Rest in Peace</Badge>
 	</header>
 
 	{#if loading}
@@ -71,17 +70,20 @@
 			<Spinner color="dark" size="16" />
 		</div>
 	{:else}
-		<Card size="none" class="overflow-hidden border-none shadow-xl ring-1 ring-slate-200">
+		<div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-md">
+			<!-- <Card size="none" class="overflow-hidden border-none shadow-xl ring-1 ring-slate-200"> -->
 			<Table striped={true} hoverable={true} class="text-base">
 				<TableHead class="bg-slate-900 py-4 text-white">
-					<TableHeadCell class="py-5 text-lg">Sibling Name</TableHeadCell>
-					<TableHeadCell class="text-lg">Date of Decease</TableHeadCell>
+					<TableHeadCell class="py-5 text-lg">Sibling</TableHeadCell>
+					<TableHeadCell class="text-lg">Date</TableHeadCell>
 					<TableHeadCell class="text-lg">Locality</TableHeadCell>
 				</TableHead>
 				<TableBody>
 					{#each items as item}
 						<TableBodyRow class="border-b border-slate-100 text-lg">
-							<TableBodyCell class="py-6 font-bold text-slate-900">{item.name}</TableBodyCell>
+							<TableBodyCell class="py-6 font-bold text-slate-900"
+								><a href="#/member/{item.id}">{item.name}</a></TableBodyCell
+							>
 							<TableBodyCell class="font-serif text-slate-600">{item.date}</TableBodyCell>
 							<TableBodyCell class="text-slate-500">{item.locality || '—'}</TableBodyCell>
 						</TableBodyRow>
@@ -94,6 +96,7 @@
 					{/each}
 				</TableBody>
 			</Table>
-		</Card>
+			<!-- </Card> -->
+		</div>
 	{/if}
 </div>

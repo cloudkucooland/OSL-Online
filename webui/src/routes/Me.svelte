@@ -83,14 +83,14 @@
 			return;
 		}
 		try {
-			const [m, allChaps, myChaps] = await Promise.all([
-				getMeFromServer(),
-				getChapters(),
-				getMeChapters()
-			]);
+			const [m, myChaps] = await Promise.all([getMeFromServer(), getMeChapters()]);
 			member = m;
-			chaps = allChaps;
 			selectedChapters = myChaps;
+			if (oo.chaptercache) {
+				chaps = oo.chaptercache;
+			} else {
+				chaps = await getChapters();
+			}
 		} catch (err) {
 			toast.push(err.message);
 		} finally {
@@ -135,7 +135,6 @@
 					<Heading tag="h2" class="text-3xl font-bold text-slate-900">{oslname(member)}</Heading>
 					<Badge color="purple" class="px-3 text-sm">{member.MemberStatus}</Badge>
 				</div>
-				<p class="font-medium text-slate-500">Leadership: {member.Leadership || 'Member'}</p>
 			</div>
 
 			<div class="flex flex-col items-center rounded-lg border border-red-100 bg-red-50 p-4">

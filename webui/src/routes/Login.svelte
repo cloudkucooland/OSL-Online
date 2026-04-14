@@ -1,18 +1,16 @@
 <script>
 	import { getContext } from 'svelte';
 	import { Button, Input, Label, Card, Heading } from 'flowbite-svelte';
+	import { push } from 'svelte-spa-router';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { getJWT } from '../oo';
 
 	const oo = getContext('oo');
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-	// Logout logic on mount
-	const jwt = localStorage.getItem('jwt');
-	if (jwt) {
-		localStorage.removeItem('jwt');
-		oo.me = undefined; // Updated: removed '$'
-		toast.push('Logged out');
+	// if already logged in, go to home page
+	if (oo.me) {
+		push('#/');
 	}
 
 	let username = $state('');
@@ -32,10 +30,10 @@
 		}
 
 		try {
-			await getJWT(username, password);
-			// Force a reload or redirect to home to refresh the state
-			window.location.hash = '#/';
-			window.location.reload();
+			oo.me = await getJWT(username, password);
+			setTimeout(() => {
+				push('#/');
+			}, 300); // give the oo update time to propogate
 		} catch (e) {
 			console.error(e);
 			toast.push('Incorrect password for ' + username);

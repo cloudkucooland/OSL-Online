@@ -7,14 +7,10 @@
 	import { toast } from '@zerodevx/svelte-toast';
 
 	const oo = getContext('oo');
-
-	// Guard: Check auth (using the oo object directly, not $me)
 	if (!oo.me) {
 		push('/Login');
 	}
 
-	// Initialize with empty strings instead of 'first'/'last'
-	// unless you specifically want those placeholders
 	let firstname = $state('');
 	let lastname = $state('');
 	let processing = $state(false);

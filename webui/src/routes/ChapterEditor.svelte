@@ -14,7 +14,11 @@
 
 	onMount(async () => {
 		try {
-			chaps = await getChapters();
+			if (oo.chaptercache) {
+				chaps = oo.chaptercache;
+			} else {
+				chaps = await getChapters();
+			}
 			if (params.id) {
 				selected = parseInt(params.id);
 				const c = chaps.find((i) => i.ID == selected);
@@ -30,31 +34,13 @@
 		}
 	});
 
-	async function chooseChapterSCB(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		try {
-			const selectedChap = chaps.find((c) => {
-				return c.ID == selected;
-			});
-			if (typeof selectedChap == 'undefined') {
-				name = 'Unknown';
-				prior = 0;
-			} else {
-				name = selectedChap.Name;
-				prior = selectedChap.Prior;
-			}
-			await push(`#/chaptereditor/${selected}`);
-			loading = false;
-		} catch (err) {
-			console.log(err);
-			toast.push(err.message);
-		}
-	}
-
 	async function load() {
 		loading = true;
-		chaps = await getChapters();
+		if (oo.chaptercache) {
+			chaps = oo.chaptercache;
+		} else {
+			chaps = await getChapters();
+		}
 		return chaps;
 	}
 

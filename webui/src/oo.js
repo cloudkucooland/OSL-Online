@@ -1,7 +1,5 @@
 export const server = 'https://saint-luke.net:8443';
 
-// --- Helpers ---
-
 /**
  * Handles the heavy lifting for all API requests to ensure consistency.
  */
@@ -66,8 +64,6 @@ function processMemberDates(member) {
 	return member;
 }
 
-// --- Main Exports ---
-
 export function oslname(m) {
 	let name = '';
 	const isVowed = m.MemberStatus === 'Life Vows' || m.MemberStatus === 'Annual Vows';
@@ -90,7 +86,7 @@ export function oslname(m) {
 
 export function getMe() {
 	const jwt = localStorage.getItem('jwt');
-	if (!jwt) return undefined;
+	if (!jwt) undefined;
 
 	try {
 		const token = JSON.parse(window.atob(jwt.split('.')[1]));
@@ -119,6 +115,23 @@ export async function getJWT(username, password) {
 	const res = await apiCall('/getJWT', { method: 'POST', body });
 	const payload = await res.text();
 	localStorage.setItem('jwt', payload);
+	try {
+		const token = JSON.parse(window.atob(jwt.split('.')[1]));
+		const exp = new Date(token.exp * 1000);
+
+		if (exp <= Date.now()) {
+			console.log('server sent expired token!');
+			// return undefined
+		}
+		if (token.aud[0] != 'OSL-Online') {
+			console.log('server sent weird token!');
+			// return undefined
+		}
+	} catch (e) {
+		console.log('unable to parse token');
+		return undefined;
+	}
+	return payload;
 }
 
 export async function refreshJWT() {
@@ -126,8 +139,6 @@ export async function refreshJWT() {
 	const payload = await res.text();
 	localStorage.setItem('jwt', payload);
 }
-
-// --- Member & Search ---
 
 export async function search(query) {
 	const body = new FormData();
@@ -267,6 +278,7 @@ export async function getChangelog(id) {
 }
 
 export async function getChapters() {
+	console.log('getChapters');
 	const res = await apiCall('/chapter');
 	const payload = await res.json();
 	return payload.map((c) => ({ ...c, value: c.ID, name: c.Name }));

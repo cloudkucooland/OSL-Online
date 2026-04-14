@@ -1,5 +1,5 @@
 <script>
-	import { setContext } from 'svelte';
+	import { setContext, onMount } from 'svelte';
 	import Router from 'svelte-spa-router';
 	import {
 		Footer,
@@ -18,6 +18,7 @@
 	// Route Imports
 	import HomePage from './routes/HomePage.svelte';
 	import Login from './routes/Login.svelte';
+	import Logout from './routes/Logout.svelte';
 	import Reports from './routes/Reports.svelte';
 	import Member from './routes/Member.svelte';
 	import AddMember from './routes/AddMember.svelte';
@@ -41,15 +42,22 @@
 	import { getMe } from './oo';
 
 	let oo = $state({
-		me: getMe()
+		// oo.me is the JSON token
+		me: getMe(),
+		chaptercache: null, // only load the chapter list once per session
+		namecache: null // resolve ID => names
 	});
-
 	setContext('oo', oo);
+
+	/* onMount(async () => {
+		// prime the caches here, not needed for chaptercache
+	}); */
 
 	const routes = {
 		'/': HomePage,
 		'/search/:query': HomePage,
 		'/login': Login,
+		'/logout': Logout,
 		'/register': Register,
 		'/reports': Reports,
 		'/me': Me,
@@ -91,14 +99,14 @@
 			<NavHamburger />
 
 			<NavUl class="transition-all">
-				{#if oo.me && oo.me.sub}
+				{#if oo.me && oo.me.level}
 					<NavLi class="group flex cursor-pointer items-center gap-1">
 						Me <ChevronDownOutline size="sm" class="group-hover:text-primary-600" />
 					</NavLi>
 					<Dropdown class="z-50 w-44">
 						<DropdownItem href="#/me">My Data</DropdownItem>
 						<DropdownItem href="#/mygiving">My Giving</DropdownItem>
-						<DropdownItem href="#/Login" class="mt-1 border-t text-red-600">Log out</DropdownItem>
+						<DropdownItem href="#/Logout" class="mt-1 border-t text-red-600">Log out</DropdownItem>
 					</Dropdown>
 
 					<NavLi class="group flex cursor-pointer items-center gap-1">
@@ -112,11 +120,11 @@
 						<DropdownItem href="#/subsearch">Doxology Subscribers</DropdownItem>
 					</Dropdown>
 
-					{#if oo.me.level >= 1}
+					{#if oo.me.level > 0}
 						<NavLi href="#/reports">Reports</NavLi>
 					{/if}
 
-					{#if oo.me.level >= 3}
+					{#if oo.me.level > 2}
 						<NavLi class="group flex cursor-pointer items-center gap-1">
 							Admin <ChevronDownOutline size="sm" class="group-hover:text-primary-600" />
 						</NavLi>

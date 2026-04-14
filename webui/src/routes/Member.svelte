@@ -89,14 +89,17 @@
 	onMount(async () => {
 		if (!oo.me) return push('/Login');
 		try {
-			const [memberData, allChaps, memberChaps] = await Promise.all([
+			const [memberData, memberChaps] = await Promise.all([
 				getMember(params.id),
-				getChapters(),
 				getMemberChapters(params.id)
 			]);
 			r = memberData;
-			chaps = allChaps;
 			selectedChapters = memberChaps;
+			if (oo.chaptercache) {
+				chaps = oo.chaptercache;
+			} else {
+				chaps = await getChapters();
+			}
 		} catch (err: any) {
 			toast.push(err.message);
 		} finally {
@@ -228,7 +231,7 @@
 							/>
 						</div>
 						<div>
-							<Label class="mb-1 font-bold text-red-700">Preferred Name</Label><Input
+							<Label class="mb-1 font-bold">Preferred Name</Label><Input
 								id="PreferredName"
 								value={r.PreferredName}
 								onchange={handleUpdate}
@@ -268,9 +271,7 @@
 
 				<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
 					<div class="mb-6 flex items-center justify-between border-b pb-2">
-						<Heading tag="h4" class="text-lg font-bold uppercase text-slate-800"
-							>Contact & Mailing</Heading
-						>
+						<Heading tag="h4" class="text-lg font-bold uppercase text-slate-800">Contact</Heading>
 						<Toggle
 							id="ListAddress"
 							checked={r.ListAddress}
@@ -387,7 +388,7 @@
 				<div class="space-y-8">
 					<Card size="none" class="border-slate-200 p-6 shadow-sm">
 						<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-							>Vocation & Milestones</Heading
+							>Data</Heading
 						>
 						<div class="space-y-4">
 							<div class="grid grid-cols-2 gap-4">
@@ -435,7 +436,7 @@
 									/>
 								</div>
 								<div>
-									<Label class="text-xs text-red-600">Date Removed</Label><Input
+									<Label class="text-xs">Date Removed</Label><Input
 										id="DateRemoved"
 										value={r.DateRemoved}
 										onchange={handleUpdate}
@@ -445,9 +446,7 @@
 							</div>
 
 							<div class="rounded-lg border border-purple-100 bg-purple-50 p-3">
-								<Label class="mb-1 text-[10px] font-bold uppercase text-purple-700"
-									>Church Triumphant (Deceased)</Label
-								>
+								<Label class="mb-1 text-[10px] font-bold uppercase text-purple-700">Deceased</Label>
 								<Input
 									id="DateDeceased"
 									size="sm"

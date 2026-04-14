@@ -88,7 +88,7 @@
 </script>
 
 <svelte:head>
-	<title>Giving Ledger: {member ? member.LastName : 'Loading'}</title>
+	<title>Giving : {member ? member.LastName : 'Loading'}</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-4 py-6 sm:px-10">
@@ -128,12 +128,13 @@
 			</div>
 		</div>
 
-		<Card size="none" class="border-slate-200 bg-slate-50/50 p-8 shadow-md">
+		<div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-md">
+			<!-- <Card size="none" class="border-slate-200 bg-slate-50/50 p-8 shadow-md"> -->
 			<Heading
 				tag="h5"
 				class="mb-6 flex items-center gap-2 text-sm font-bold uppercase text-slate-500"
 			>
-				<PlusOutline class="h-4 w-4" /> Add Transaction to Ledger
+				<PlusOutline class="h-4 w-4" /> Record Gift
 			</Heading>
 			<form onsubmit={handleAdd} class="grid grid-cols-1 items-end gap-6 md:grid-cols-12">
 				<div class="md:col-span-2">
@@ -167,7 +168,8 @@
 					<Button type="submit" color="green" class="w-full py-2.5">POST</Button>
 				</div>
 			</form>
-		</Card>
+			<!-- </Card> -->
+		</div>
 
 		<div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
 			<Table hoverable={true}>
