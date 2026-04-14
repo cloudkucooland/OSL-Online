@@ -379,3 +379,31 @@ export async function deleteMemberNote(memberid, noteid) {
 	await apiCall(`/member/${memberid}/notes/${noteid}`, { method: 'DELETE' });
 	return true;
 }
+
+export async function getAllPrayers() {
+    // This is the unauthenticated, public feed for WADO/General list
+    const res = await apiCall(`/prayers`);
+    return await res.json();
+}
+
+export async function getMyPrayers(memberid) {
+    // Authenticated: Gets prayers specifically for the Me screen or Member screen
+    const res = await apiCall(`/member/${memberid}/prayers`);
+    return await res.json();
+}
+
+export async function addPrayer(prayerText, isAnonymous = false) {
+    // Passing the anonymous flag as a 0/1 or boolean for the DB
+    const body = new FormData();
+    body.append('prayer', prayerText);
+    body.append('anonymous', isAnonymous ? '1' : '0');
+
+    await apiCall(`/prayers`, { method: 'POST', body });
+    return true;
+}
+
+export async function deletePrayer(prayerid) {
+    // Authenticated: Server handles the "Is this mine or am I an admin?" check
+    await apiCall(`/prayers/${prayerid}`, { method: 'DELETE' });
+    return true;
+}

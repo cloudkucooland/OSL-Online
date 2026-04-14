@@ -38,6 +38,7 @@
 	import Dashboard from './routes/Dashboard.svelte';
 	import Notes from './routes/Notes.svelte';
 	import Necrology from './routes/Necrology.svelte';
+	import Prayers from './routes/Prayers.svelte';
 
 	import { getMe } from './oo';
 
@@ -81,6 +82,7 @@
 		'/email/': Email,
 		'/dashboard/': Dashboard,
 		'/necrology/': Necrology,
+		'/prayers/': Prayers,
 		'*': HomePage
 	};
 </script>
@@ -113,6 +115,7 @@
 						Lists <ChevronDownOutline size="sm" class="group-hover:text-primary-600" />
 					</NavLi>
 					<Dropdown class="z-50 w-44">
+						<DropdownItem href="#/prayers">Prayer Requests</DropdownItem>
 						<DropdownItem href="#/chapterbrowser">Chapters</DropdownItem>
 						<DropdownItem href="#/localitybrowser">Localities</DropdownItem>
 						<DropdownItem href="#/leadership">Leadership</DropdownItem>
