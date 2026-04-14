@@ -103,10 +103,6 @@ func parsetoken(r *http.Request) (jwt.Token, error) {
 }
 
 func getUser(r *http.Request) string {
-	if changer, ok := r.Context().Value(model.CtxKeyID).(model.MemberID); ok {
-		return fmt.Sprintf("%d", changer)
-	}
-
 	token, err := parsetoken(r)
 	if err != nil {
 		return ""
