@@ -8,199 +8,213 @@
 		TableBodyRow,
 		Button,
 		Input,
-		Select
+		Select,
+		Card,
+		Badge,
+		Heading
 	} from 'flowbite-svelte';
 	import { updateMember, search, searchemail, cleanDateFormat } from '../oo';
 	import { toast } from '@zerodevx/svelte-toast';
-	import { SearchOutline } from 'flowbite-svelte-icons';
+	import {
+		SearchOutline,
+		RefreshOutline,
+		UserAddOutline,
+		InfoCircleOutline
+	} from 'flowbite-svelte-icons';
 
 	let { params = {} } = $props();
-	const { me } = getContext('oo');
-	if ($me === undefined) {
+	const oo = getContext('oo');
+
+	// If no user is logged in, redirect
+	if (!oo.me) {
 		push('/Login');
 	}
 
-	let query: string = $state();
-	let result: Array<any> = $state();
-	let mode: string = $state('name');
+	let query = $state('');
+	let result = $state(null);
+	let mode = $state('name');
+
+	$effect(() => {
+		if (params.query) {
+			query = params.query;
+			// optional: trigger search here if you want it automatic
+		}
+	});
 
 	const modes = [
-		{ value: 'name', name: 'Name', selected: true },
-		{ value: 'email', name: 'Full/Exact Email Address' }
+		{ value: 'name', name: 'Name' },
+		{ value: 'email', name: 'Full Email' }
 	];
 
-	if (params.query) {
-		// https://svelte.dev/e/state_referenced_locally
-		if (() => query != params.query) {
+	// Run search automatically if URL has a query
+	$effect(() => {
+		if (params.query && !result) {
 			query = params.query;
-			const event = new Event('search', { bubbles: true, cancelable: true });
-			doSearch(event);
+			handleSearch();
 		}
-	}
+	});
 
-	async function doSearch(event) {
-		event.preventDefault();
-		event.stopPropagation();
+	async function handleSearch(event?: Event) {
+		if (event) {
+			event.preventDefault();
+		}
 
-		if (!query) {
-			toast.push('Please enter a search query, mimimum of 3 letters');
+		if (!query || query.trim().length < 3) {
+			toast.push('A minimum 3 letters are required');
 			return;
 		}
 
-		query = query.trim();
+		const cleanedQuery = query.trim();
 
-		if (query.length < 3) {
-			toast.push('Query too short (A minimum 3 of letters are required)');
-			return;
-		}
-
-		if (query.indexOf(' ') != -1) {
-			const subs = query.split(' ');
-			query = '';
-			// look for a substring that is long enough
-			for (const sub of subs) {
-				console.log(sub);
-				if (sub.length >= 3) {
-					query = sub;
-					toast.push('Using: ' + query);
-					break;
-				}
-			}
-			if (query == '') {
-				toast.push('Invalid query (read the directions, please)');
-				resetSearch(event);
+		// Handle multi-word strings by grabbing the first valid chunk
+		if (cleanedQuery.includes(' ')) {
+			const subs = cleanedQuery.split(' ');
+			const firstValid = subs.find((s) => s.length >= 3);
+			if (firstValid) {
+				query = firstValid;
+				toast.push(`Using: ${query}`);
+			} else {
+				toast.push('Invalid query format');
 				return;
 			}
 		}
 
-		if (query.indexOf('@') != -1) {
-			toast.push('Searching email addresses');
+		// Auto-detect email mode
+		if (query.includes('@')) {
 			mode = 'email';
-		} else {
-			mode = 'name';
 		}
 
 		try {
-			switch (mode) {
-				case 'email':
-					result = await searchemail(query);
-					break;
-				default:
-					result = await search(query);
-					break;
-			}
-			if (result == null || result.length == 0) {
-				result = [];
-			}
+			result = mode === 'email' ? await searchemail(query) : await search(query);
+			if (!result) result = [];
 			push(`/search/${query}`);
-		} catch (err) {
-			console.log(err);
+		} catch (err: any) {
+			console.error(err);
 			toast.push(err.message);
 		}
 	}
 
-	async function resetSearch(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		result = [];
+	function resetSearch() {
+		result = null;
 		query = '';
 		mode = 'name';
-		push(`/`);
+		push('/');
 	}
 
-	async function quickRenew(event, r) {
-		event.preventDefault();
-		event.stopPropagation();
+	async function quickRenew(r: any) {
 		try {
 			await updateMember(r.ID, 'DateReaffirmation', cleanDateFormat(new Date().toISOString()));
 			push(`/member/${r.ID}`);
-		} catch (err) {
-			console.log(err);
+			toast.push(`Renewed ${r.LastName}`);
+		} catch (err: any) {
 			toast.push(err.message);
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>OSL Member Manager : {query}</title>
+	<title>OSL Directory : {query || 'Search'}</title>
 </svelte:head>
 
-<form onsubmit={doSearch}>
-	<Table>
-		<TableBody>
-			<TableBodyRow>
-				<TableBodyCell colspan={3}>
-					<Button href="#/me">My Data</Button>
-				</TableBodyCell>
-			</TableBodyRow>
-			{#if !result}
-				<TableBodyRow>
-					<TableBodyCell colspan={3}>
-						{#if mode != 'email'}
-							This searches first, last, life-vow, and preferred name as individual fields.<br />
-							Do <b>not</b> type full names (e.g. "Bob Smith"), they will not match the individual
-							fields.<br />
-							Use <b>one</b> name or, better still, a partial name to search.<br />
-							A minimum of 3 letters are required.<br />
-							Case is ignored.<br />
-							<i>
-								e.g. <b>"sMi"</b> matches both "<b>Smi</b>thers Boberson" and "Bob
-								<b>Smi</b>th".
-							</i> <br />
-						{/if}
-						{#if mode == 'email'}
-							This searches by EXACT and FULL email address, not partial matches.
-						{/if}
-					</TableBodyCell>
-				</TableBodyRow>
-			{/if}
-			<TableBodyRow>
-				<TableBodyCell>
-					<Select class="mt-2" items={modes} bind:value={mode} />
-				</TableBodyCell>
-				<TableBodyCell>
-					<Input type="text" name="query" bind:value={query} />
-				</TableBodyCell>
-				<TableBodyCell
-					><Button color="green" type="submit"><SearchOutline class="h-6 w-6" /> Search</Button
-					></TableBodyCell
+<div class="space-y-6">
+	<section
+		class="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-6 md:flex-row md:items-end"
+	>
+		<div class="flex-grow space-y-2">
+			<label for="search-input" class="text-sm font-medium text-slate-700">Find Members</label>
+			<div class="flex gap-2">
+				<Select items={modes} bind:value={mode} class="w-32 md:w-48" />
+				<Input
+					id="search-input"
+					type="text"
+					placeholder={mode === 'name' ? 'Search names...' : 'Exact email...'}
+					bind:value={query}
+					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 				>
-			</TableBodyRow>
-		</TableBody>
-	</Table>
-</form>
-<Table class="w-full">
-	<TableBody>
-		{#each result as r}
-			<TableBodyRow>
-				<TableBodyCell><a href="#/member/{r.ID}">{r.FirstName}</a></TableBodyCell>
-				<TableBodyCell><a href="#/member/{r.ID}">{r.PreferredName}</a></TableBodyCell>
-				<TableBodyCell><a href="#/member/{r.ID}">{r.LastName}</a></TableBodyCell>
-				<TableBodyCell>{r.MemberStatus}</TableBodyCell>
-				<TableBodyCell>
-					{#if $me && $me.level > 1}
-						<Button color="purple" onclick={(e) => quickRenew(e, r)}>Quick Renew</Button>
-					{/if}
-				</TableBodyCell>
-			</TableBodyRow>
-		{/each}
-		<TableBodyRow>
-			<TableBodyCell colspan={4}>&nbsp;</TableBodyCell>
-			<TableBodyCell>
-				{#if result}
-					<form onsubmit={resetSearch}>
-						<Button color="red" type="submit">Reset</Button>
-					</form>
-				{/if}
-			</TableBodyCell>
-		</TableBodyRow>
-		{#if result == '' && query.length > 3}
-			<TableBodyRow>
-				<TableBodyCell colspan={4}>No results for query : {query}</TableBodyCell>
-				<TableBodyCell>
-					<Button color="purple" onclick={() => push('#/addmember')}>Add Member</Button>
-				</TableBodyCell>
-			</TableBodyRow>
-		{/if}
-	</TableBody>
-</Table>
+					<SearchOutline slot="left" class="h-5 w-5 text-slate-400" />
+				</Input>
+			</div>
+		</div>
+		<div class="flex gap-2">
+			<Button color="alternative" onclick={resetSearch} disabled={!query}>Reset</Button>
+			<Button color="primary" onclick={() => handleSearch()}>
+				<SearchOutline class="mr-2 h-5 w-5" /> Search
+			</Button>
+		</div>
+	</section>
+
+	{#if !result}
+		<Card size="xl" padding="lg" class="border-l-4 border-l-primary-600 shadow-sm">
+			<div class="flex items-start gap-3">
+				<InfoCircleOutline class="mt-1 h-6 w-6 text-primary-600" />
+				<div class="space-y-2 text-slate-600">
+					<Heading tag="h4" class="text-lg font-semibold text-slate-800">Search Tips</Heading>
+					<ul class="list-inside list-disc space-y-1 text-sm">
+						<li>Search by individual fields (First, Last, Preferred, or Life-vow names).</li>
+						<li>
+							<strong>Avoid full names</strong> (e.g. "Bob Smith") as they won't match individual fields.
+						</li>
+						<li>Minimum of 3 letters required; case is ignored.</li>
+						<li>
+							Email search requires the <strong>exact</strong> and <strong>full</strong> address.
+						</li>
+						<li>
+							Don't search for yourself; use the "Me" menu above. Those who most need to read this
+							message are the least likely to read it....
+						</li>
+					</ul>
+				</div>
+			</div>
+		</Card>
+	{:else if result.length > 0}
+		<div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+			<Table hoverable={true}>
+				<thead>
+					<tr class="border-b border-slate-200 bg-slate-50">
+						<TableBodyCell class="font-bold">First Name</TableBodyCell>
+						<TableBodyCell class="font-bold">Preferred</TableBodyCell>
+						<TableBodyCell class="font-bold">Last Name</TableBodyCell>
+						<TableBodyCell class="font-bold">Status</TableBodyCell>
+						<TableBodyCell class="text-right font-bold">Actions</TableBodyCell>
+					</tr>
+				</thead>
+				<TableBody>
+					{#each result as r}
+						<TableBodyRow class="cursor-pointer" onclick={() => push(`/member/${r.ID}`)}>
+							<TableBodyCell class="font-medium text-primary-700">{r.FirstName}</TableBodyCell>
+							<TableBodyCell>{r.LifeVowedName || r.PreferredName || '-'}</TableBodyCell>
+							<TableBodyCell class="font-semibold text-slate-900">{r.LastName}</TableBodyCell>
+							<TableBodyCell>
+								<Badge
+									color={r.MemberStatus.includes('Vows')
+										? 'green'
+										: r.MemberStatus === 'Deceased'
+											? 'purple'
+											: r.MemberStatus === 'Removed'
+												? 'red'
+												: 'indigo'}
+								>
+									{r.MemberStatus}
+								</Badge>
+							</TableBodyCell>
+							<TableBodyCell class="text-right" onclick={(e) => e.stopPropagation()}>
+								{#if oo.me.level > 1}
+									<Button size="xs" color="purple" outline onclick={() => quickRenew(r)}>
+										<RefreshOutline class="mr-1 h-4 w-4" /> Renew
+									</Button>
+								{/if}
+							</TableBodyCell>
+						</TableBodyRow>
+					{/each}
+				</TableBody>
+			</Table>
+		</div>
+	{:else if result.length === 0}
+		<div class="rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 py-12 text-center">
+			<div class="mb-4">No results found for "<span class="font-bold">{query}</span>"</div>
+			<Button color="alternative" onclick={() => push('/addmember')}>
+				<UserAddOutline class="mr-2 h-5 w-5" /> Add New Member
+			</Button>
+		</div>
+	{/if}
+</div>

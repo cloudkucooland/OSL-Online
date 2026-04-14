@@ -1,8 +1,13 @@
-@import 'tailwindcss';
-/* @plugin '@tailwindcss/forms'; */
-/* @plugin '@tailwindcss/typography'; */
+/* @import 'tailwindcss'; */
+@plugin '@tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
 @custom-variant dark (&:where(.dark, .dark *));
 @source '../node_modules/flowbite-svelte/dist';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 #app {
 	margin: 0 auto;
@@ -34,4 +39,16 @@ a:visited {
 
 .datatable-wrapper .datatable-table tbody tr.selected {
 	background-color: #fff1ee !important;
+}
+
+/* Fix for MultiSelect dropdown legibility */
+.flex.flex-col.fixed,
+.flex.flex-col.absolute {
+	@apply rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800;
+	z-index: 9999 !important;
+}
+
+/* Specifically target the MultiSelect items */
+[role='listbox'] {
+	@apply bg-white dark:bg-slate-800;
 }

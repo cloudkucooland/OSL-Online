@@ -1,7 +1,10 @@
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 export default {
-	// Consult https://svelte.dev/docs#compile-time-svelte-preprocess
-	// for more information about preprocessors
-	preprocess: vitePreprocess()
+	preprocess: vitePreprocess(),
+	compilerOptions: {
+		// 'undefined' (the default) allows Svelte 5 to auto-detect.
+		// Setting it to 'true' forces runes everywhere and breaks old libraries.
+		runes: undefined
+	}
 };

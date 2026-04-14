@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Select } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
@@ -9,11 +10,13 @@
 	let members = $state([]);
 	let selected = $state();
 
-	if (params.id) {
-		selected = params.id;
-		const e = new Event('search', { bubbles: true, cancelable: true });
-		chooseChapter(e);
-	}
+	onMount(() => {
+		if (params.id) {
+			selected = params.id;
+			const e = new Event('search', { bubbles: true, cancelable: true });
+			chooseChapter(e);
+		}
+	});
 
 	async function chooseChapter(event) {
 		event.preventDefault();

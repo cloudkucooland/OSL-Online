@@ -1,30 +1,25 @@
 <script>
 	import { getContext } from 'svelte';
-	import { Button, Input, Label } from 'flowbite-svelte';
+	import { Button, Input, Label, Card, Heading } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { getJWT } from '../oo';
 
-	const { me } = getContext('oo');
+	const oo = getContext('oo');
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+	// Logout logic on mount
 	const jwt = localStorage.getItem('jwt');
 	if (jwt) {
 		localStorage.removeItem('jwt');
-		$me = undefined;
+		oo.me = undefined; // Updated: removed '$'
 		toast.push('Logged out');
 	}
 
-	let username = $state();
-	let password = $state();
+	let username = $state('');
+	let password = $state('');
 
 	async function doLogin(event) {
 		event.preventDefault();
-		event.stopPropagation();
-
-		if (typeof username == 'undefined' || typeof password == 'undefined') {
-			toast.push('Fill in both username and password');
-			return;
-		}
 
 		if (!username || !password) {
 			toast.push('Fill in both username and password');
@@ -32,35 +27,52 @@
 		}
 
 		if (!emailRegex.test(username)) {
-			toast.push('Please read the directions: use your email address for your username');
+			toast.push('Please use your email address as your username');
 			return;
 		}
 
 		try {
 			await getJWT(username, password);
-			window.location.href = '';
+			// Force a reload or redirect to home to refresh the state
+			window.location.hash = '#/';
+			window.location.reload();
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			toast.push('Incorrect password for ' + username);
 		}
 	}
 </script>
 
-<form onsubmit={doLogin}>
-	<div class="grid grid-cols-8 gap-4 px-4 py-2">
-		<div class="col-span-8">
-			Your username is your primary email address as listed in our system.<br />
-			<b
-				>If this is your first time logging in, you will need to register using the link below to
-				have your password emailed to you</b
-			>
-		</div>
-		<div class="col-span-2"><Label for="username" class="block">Primary Email Address</Label></div>
-		<div class="col-span-6"><Input type="text" name="username" bind:value={username} /></div>
-		<div class="col-span-2"><Label for="password" class="block">Password</Label></div>
-		<div class="col-span-6"><Input type="password" name="password" bind:value={password} /></div>
-		<div class="col-span-4">&nbsp;</div>
-		<div class="col-span-2"><a href="#/register">Register/Lost Password</a></div>
-		<div class="col-span-2"><Button type="submit" color="green">Login</Button></div>
-	</div>
-</form>
+<div class="mx-auto mt-8 max-w-2xl">
+	<Card size="md" padding="xl">
+		<Heading tag="h2" class="mb-4 text-2xl font-bold text-gray-900">Login</Heading>
+		<p class="mb-6 text-gray-600">
+			Your username is your primary email address.
+			<strong>If this is your first time,</strong> please register to receive your password.
+		</p>
+
+		<form onsubmit={doLogin} class="space-y-6">
+			<div>
+				<Label for="username" class="mb-2">Primary Email Address</Label>
+				<Input
+					type="email"
+					id="username"
+					bind:value={username}
+					placeholder="name@example.com"
+					required
+				/>
+			</div>
+			<div>
+				<Label for="password" class="mb-2">Password</Label>
+				<Input type="password" id="password" bind:value={password} required />
+			</div>
+
+			<div class="flex items-center justify-between">
+				<a href="#/register" class="text-sm text-primary-700 hover:underline"
+					>Register/Lost Password</a
+				>
+				<Button type="submit" color="green">Login</Button>
+			</div>
+		</form>
+	</Card>
+</div>

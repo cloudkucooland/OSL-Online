@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Select, Input } from 'flowbite-svelte';
+	import { onMount, getContext } from 'svelte';
+	import { Select, Input, Label, Card, Heading, Button, Spinner, Hr } from 'flowbite-svelte';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 	import { getChapters } from '../oo';
@@ -9,14 +10,27 @@
 	let chaps = $state([]);
 	let name = $state('');
 	let prior = $state(0);
+	let loading = $state(true);
 
-	if (params.id) {
-		selected = params.id;
-		const e = new Event('search', { bubbles: true, cancelable: true });
-		chooseChapter(e);
-	}
+	onMount(async () => {
+		try {
+			chaps = await getChapters();
+			if (params.id) {
+				selected = parseInt(params.id);
+				const c = chaps.find((i) => i.ID == selected);
+				if (c) {
+					name = c.Name;
+					prior = c.Prior;
+				}
+			}
+		} catch (err) {
+			toast.push('Error loading chapters');
+		} finally {
+			loading = false;
+		}
+	});
 
-	async function chooseChapter(event) {
+	async function chooseChapterSCB(event) {
 		event.preventDefault();
 		event.stopPropagation();
 		try {
@@ -31,6 +45,7 @@
 				prior = selectedChap.Prior;
 			}
 			await push(`#/chaptereditor/${selected}`);
+			loading = false;
 		} catch (err) {
 			console.log(err);
 			toast.push(err.message);
@@ -38,36 +53,74 @@
 	}
 
 	async function load() {
+		loading = true;
 		chaps = await getChapters();
 		return chaps;
 	}
 
+	async function chooseChapter() {
+		const selectedChap = chaps.find((c) => c.ID == selected);
+		if (selectedChap) {
+			name = selectedChap.Name;
+			prior = selectedChap.Prior;
+			push(`/chaptereditor/${selected}`);
+		} else {
+			name = '';
+			prior = 0;
+		}
+	}
+
 	async function updateChapter(event) {
 		console.log(event);
+		// Placeholder for your actual update API call
+		console.log('Saving Chapter:', { id: selected, name, prior });
+		toast.push(`Saving changes for ${name}...`);
+		// await saveChapterFromServer({ ID: selected, Name: name, Prior: prior });
 	}
 </script>
 
-{#await load()}
-	<h3>... loading ...</h3>
-{:then}
-	<div class="grid grid-cols-8 gap-4 px-4 py-2">
-		<div class="col-span-8">Chapter Editor</div>
-		<div class="col-span-8">
-			<Select class="mt-2" items={chaps} bind:value={selected} onchange={chooseChapter} />
-		</div>
-	</div>
-	{#if selected != 0}
-		<div class="grid grid-cols-8 gap-4 px-4 py-2">
-			<div class="col-span-2">Chapter Name</div>
-			<div class="col-span-6">
-				<Input type="text" name="name" bind:value={name} onchange={updateChapter} />
+<svelte:head>
+	<title>OSL Directory: Chapter Editor</title>
+</svelte:head>
+
+<div class="mx-auto max-w-4xl space-y-6 p-6">
+	<Card size="none" class="border-slate-200 p-6 shadow-sm">
+		<Heading tag="h2" class="mb-6 text-2xl font-bold text-slate-900">Chapter Editor</Heading>
+
+		<div class="space-y-4">
+			<div>
+				<Label for="chapter-select" class="mb-2">Select Chapter</Label>
+				<Select
+					id="chapter-select"
+					items={chaps.map((c) => ({ value: c.ID, name: c.Name }))}
+					bind:value={selected}
+					onchange={chooseChapter}
+					placeholder="Choose a chapter to edit..."
+				/>
 			</div>
-			<div class="col-span-2">Chapter Prior (ID number for now)</div>
-			<div class="col-span-6">
-				<Input type="text" name="prior" bind:value={prior} onchange={updateChapter} />
-			</div>
 		</div>
-	{/if}
-{:catch error}
-	<h3 style="color: red">{error.message}</h3>
-{/await}
+
+		{#if loading}
+			<div class="flex justify-center p-12">
+				<Spinner color="purple" />
+			</div>
+		{:else if selected > 0}
+			<Hr class="my-8" />
+
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+				<div>
+					<Label class="mb-2">Chapter Name</Label>
+					<Input bind:value={name} placeholder="e.g. St. Luke Chapter" />
+				</div>
+				<div>
+					<Label class="mb-2">Prior / Leader ID</Label>
+					<Input type="number" bind:value={prior} placeholder="Member ID" />
+				</div>
+			</div>
+
+			<div class="mt-8 flex justify-end">
+				<Button color="primary" on:click={updateChapter}>Save Chapter Changes</Button>
+			</div>
+		{/if}
+	</Card>
+</div>
