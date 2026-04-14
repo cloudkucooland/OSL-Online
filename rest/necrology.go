@@ -8,12 +8,9 @@ import (
 	"time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getNecrology(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
+func getNecrology(w http.ResponseWriter, r *http.Request) {
 	slog.Info("necrology", "requester", getUser(r))
 	isee, err := model.Necrology(r.Context())
 	if err != nil {
@@ -29,9 +26,7 @@ func getNecrology(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 }
 
-func getCommemorations(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
+func getCommemorations(w http.ResponseWriter, r *http.Request) {
 	date := time.Now()
 	month := date.Month()
 	day := date.Day()

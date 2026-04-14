@@ -9,11 +9,9 @@ import (
 	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
+func getMe(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
 	id, err := username.GetID()
 
@@ -40,8 +38,7 @@ func getMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
-func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
+func getMeChapters(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
 	id, err := username.GetID()
 	if err != nil {
@@ -74,19 +71,15 @@ func getMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 }
 
-func setMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-	username := model.Authname(getUser(r))
-	id, err := username.GetID()
+func setMe(w http.ResponseWriter, r *http.Request) {
+	id, err := model.IDFromContext(r.Context())
 	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
@@ -104,16 +97,12 @@ func setMe(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
-
 	fmt.Fprint(w, jsonStatusOK)
 }
 
-func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-	username := model.Authname(getUser(r))
-	id, err := username.GetID()
+func setMeChapters(w http.ResponseWriter, r *http.Request) {
+	id, err := model.IDFromContext(r.Context())
 	if err != nil {
-		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
 	}
@@ -157,8 +146,7 @@ func setMeChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	fmt.Fprint(w, jsonStatusOK)
 }
 
-func getMeGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
+func getMeGiving(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
 	id, err := username.GetID()
 	if err != nil {

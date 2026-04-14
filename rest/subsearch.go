@@ -7,11 +7,9 @@ import (
 	"net/http"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-
-	"github.com/julienschmidt/httprouter"
 )
 
-func postSubSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func postSubSearch(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -35,7 +33,6 @@ func postSubSearch(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 
-	headers(w, r)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

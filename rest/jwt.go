@@ -15,8 +15,6 @@ import (
 
 	"github.com/cloudkucooland/OSL-Online/model"
 
-	"github.com/julienschmidt/httprouter"
-
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
@@ -59,7 +57,7 @@ func mintjwt(username model.Authname, level model.AuthLevel) (string, error) {
 	return string(signed[:]), nil
 }
 
-func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func login(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -97,8 +95,6 @@ func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	slog.Info("login", "username", username, "level", level)
-	headers(w, r)
-	w.Header().Set("content-type", "application/jwt")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "jwt",
 		Value:    JWT,
@@ -180,7 +176,7 @@ func getJWSigningKeys() jwk.Set {
 	return keys
 }
 
-func refresh(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func refresh(w http.ResponseWriter, r *http.Request) {
 	token, err := parsetoken(r)
 	if err != nil {
 		slog.Error("refresh: token parse/validate failed", "error", err.Error())
@@ -211,8 +207,6 @@ func refresh(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	slog.Info("refresh", "username", username, "level", level)
-	headers(w, r)
-	w.Header().Set("content-type", "application/jwt")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "jwt",
 		Value:    JWT,

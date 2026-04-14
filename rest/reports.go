@@ -6,19 +6,14 @@ import (
 	"net/http"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
 const contentType = "Content-Type"
 const csvMime = "text/csv;charset=utf-8;"
 const pdfMime = "application/pdf;"
 
-// const contentDisposition = "Content-Disposition"
-// const csvDisposition = "attachment"
-// const pdfDisposition = `attachment;filename="avery.pdf";`
-
-func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	report := ps.ByName("report")
+func reports(w http.ResponseWriter, r *http.Request) {
+	report := r.PathValue("report")
 	if report == "" {
 		err := fmt.Errorf("report request not set")
 		slog.Error(err.Error())
@@ -28,11 +23,9 @@ func reports(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	slog.Info("report", "requested", report, "requester", getUser(r))
 
 	var err error
-	headers(w, r)
 	switch report {
 	case "avery":
 		w.Header().Set(contentType, pdfMime)
-		// w.Header().Set(contentDisposition, pdfDisposition)
 		err = model.ReportAvery(r.Context(), w)
 	case "annual":
 		w.Header().Set(contentType, csvMime)

@@ -6,13 +6,10 @@ import (
 	"net/http"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getLeadership(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
-	category := ps.ByName("category")
+func getLeadership(w http.ResponseWriter, r *http.Request) {
+	category := r.PathValue("category")
 	if category == "" {
 		category = "elected"
 	}

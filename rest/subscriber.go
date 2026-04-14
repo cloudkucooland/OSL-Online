@@ -8,12 +8,10 @@ import (
 	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-	id, err := strconv.Atoi(ps.ByName("id"))
+func getSubscriber(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -42,7 +40,7 @@ func getSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 }
 
-func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func setSubscriber(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -59,7 +57,7 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	value := r.PostFormValue("value")
 
-	id, err := strconv.Atoi(ps.ByName("id"))
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -72,6 +70,5 @@ func setSubscriber(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		return
 	}
 
-	headers(w, r)
 	fmt.Fprint(w, jsonStatusOK)
 }

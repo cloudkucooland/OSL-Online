@@ -7,12 +7,9 @@ import (
 	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getLocalities(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
+func getLocalities(w http.ResponseWriter, r *http.Request) {
 	l, err := model.Localities(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
@@ -27,10 +24,8 @@ func getLocalities(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	}
 }
 
-func getLocalityMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
-	q := ps.ByName("joint")
+func getLocalityMembers(w http.ResponseWriter, r *http.Request) {
+	q := r.PathValue("joint")
 
 	slog.Info("locality search", "locality", q, "requester", getUser(r))
 

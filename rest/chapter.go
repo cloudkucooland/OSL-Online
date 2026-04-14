@@ -8,12 +8,9 @@ import (
 	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
+func getChapters(w http.ResponseWriter, r *http.Request) {
 	ch, err := model.Chapters()
 	if err != nil {
 		slog.Error(err.Error())
@@ -29,10 +26,8 @@ func getChapters(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
-func getChapterMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-
-	s := ps.ByName("id")
+func getChapterMembers(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
 	id, err := strconv.Atoi(s)
 	if err != nil {
 		slog.Error(err.Error())
@@ -58,15 +53,14 @@ func getChapterMembers(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 }
 
-func putChapter(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
+func putChapter(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
 	}
 
-	s := ps.ByName("id")
+	s := r.PathValue("id")
 	if s == "" {
 		err := fmt.Errorf("id not set")
 		slog.Error(err.Error())

@@ -10,12 +10,10 @@ import (
 
 	"github.com/cloudkucooland/OSL-Online/email"
 	"github.com/cloudkucooland/OSL-Online/model"
-	"github.com/julienschmidt/httprouter"
 )
 
-func getMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
-	id, err := strconv.Atoi(ps.ByName("id"))
+func getMemberGiving(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -36,8 +34,7 @@ func getMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 }
 
-func postMemberGiving(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	headers(w, r)
+func postMemberGiving(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)

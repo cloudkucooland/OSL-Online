@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienschmidt/httprouter"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -22,15 +21,13 @@ var sk jwk.Set
 
 const sessionName string = "OSL-Online"
 const jsonType = "application/json; charset=UTF-8"
-
 const jsonStatusOK = `{"status":"ok"}`
 const BcryptRounds = 14
 
-// Start launches the HTTP server which is responsible for the frontend and the HTTP API.
 func Start(ctx context.Context) {
 	srv = &http.Server{
-		Handler:           getServeMux(),
-		Addr:              ":8443", // make config file...
+		Handler:           GetServeMux(),
+		Addr:              ":8443",
 		WriteTimeout:      (30 * time.Second),
 		ReadTimeout:       (30 * time.Second),
 		ReadHeaderTimeout: (2 * time.Second),
@@ -40,7 +37,6 @@ func Start(ctx context.Context) {
 	cert := "/etc/letsencrypt/live/saint-luke.net/fullchain.pem"
 	key := "/etc/letsencrypt/live/saint-luke.net/privkey.pem"
 
-	// creates the keys if needed
 	sk = getJWSigningKeys()
 
 	slog.Info("Starting up REST server", "on", ":8443")
@@ -58,8 +54,41 @@ func Start(ctx context.Context) {
 	}
 }
 
-func jsonError(e error) string {
-	return fmt.Sprintf(`{"status":"error","error":"%s"}`, e.Error())
+func authMW(next http.HandlerFunc, requiredlevel model.AuthLevel) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, err := parsetoken(r)
+		if err != nil {
+			slog.Error("token parse/validate failed", "error", err.Error())
+			http.Error(w, jsonError(err), http.StatusUnauthorized)
+			return
+		}
+
+		claim, ok := token.Get("level")
+		if !ok {
+			http.Error(w, `{"error":"no level claim"}`, http.StatusInternalServerError)
+			return
+		}
+
+		checklevel, ok := claim.(float64)
+		if !ok || model.AuthLevel(checklevel) < requiredlevel {
+			slog.Warn("access level too low", "user", token.Subject())
+			http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
+			return
+		}
+
+		username := model.Authname(token.Subject())
+		uid, err := username.GetID()
+		if err != nil {
+			slog.Error("failed to get UID from token subject", "sub", token.Subject())
+			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), model.CtxKeyID, model.MemberID(uid))
+		ctx = context.WithValue(ctx, model.CtxKeyLevel, model.AuthLevel(checklevel))
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
 }
 
 func parsetoken(r *http.Request) (jwt.Token, error) {
@@ -73,74 +102,20 @@ func parsetoken(r *http.Request) (jwt.Token, error) {
 	)
 }
 
-func authMW(h httprouter.Handle, requiredlevel model.AuthLevel) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		token, err := parsetoken(r)
-		if err != nil {
-			slog.Error("token parse/validate failed", "error", err.Error())
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-
-		username := string(token.Subject())
-		claim, ok := token.Get("level")
-		if !ok {
-			err := fmt.Errorf("no level claim in token")
-			slog.Error(err.Error(), "user", username)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		checklevel, ok := claim.(float64) // why does this come across as float64?
-		if !ok {
-			err := fmt.Errorf("authlevel type assertion failed")
-			slog.Error(err.Error(), "user", username, "claim", claim, "type", fmt.Sprintf("%T", claim))
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if model.AuthLevel(checklevel) < requiredlevel {
-			err := fmt.Errorf("access level too low")
-			slog.Warn(err.Error(), "wanted", requiredlevel, "got", checklevel, "username", username)
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-
-		h(w, r, ps)
-	}
-}
-
 func getUser(r *http.Request) string {
+	if changer, ok := r.Context().Value(model.CtxKeyID).(model.MemberID); ok {
+		return fmt.Sprintf("%d", changer)
+	}
+
 	token, err := parsetoken(r)
 	if err != nil {
-		slog.Error("token parse/validate failed", "error", err.Error())
 		return ""
 	}
-
-	username := string(token.Subject())
-	return username
+	return string(token.Subject())
 }
 
-func getLevel(r *http.Request) (model.AuthLevel, error) {
-	token, err := parsetoken(r)
-	if err != nil {
-		slog.Error("token parse/validate failed", "error", err.Error())
-		return model.AuthLevelView, err
-	}
-
-	claim, ok := token.Get("level")
-	if !ok {
-		err := fmt.Errorf("no level claim in token")
-		return model.AuthLevelView, err
-	}
-
-	ff, ok := claim.(float64) // why does this come across as float64?
-	if !ok {
-		err := fmt.Errorf("authlevel type assertion failed")
-		return model.AuthLevelView, err
-	}
-
-	return model.AuthLevel(ff), nil
+func jsonError(e error) string {
+	return fmt.Sprintf(`{"status":"error","error":"%s"}`, e.Error())
 }
 
 type serverErrorLogWriter struct{}

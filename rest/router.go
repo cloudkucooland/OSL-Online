@@ -3,100 +3,94 @@ package rest
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
-
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
-func getServeMux() *httprouter.Router {
-	m := httprouter.New()
-	m.HandleOPTIONS = true
-	m.GlobalOPTIONS = http.HandlerFunc(headers)
+func GetServeMux() http.Handler {
+	mux := http.NewServeMux()
 
-	m.NotFound = http.HandlerFunc(notFound)
+	// Public Routes
+	mux.HandleFunc("POST /api/v1/getJWT", login)
+	mux.HandleFunc("GET /api/vi/refreshJWT", refresh)
+	mux.HandleFunc("POST /api/v1/register", postRegister)
+	mux.HandleFunc("GET /api/v1/commemorations", getCommemorations)
+	mux.HandleFunc("GET /api/v1/chapter", getChapters)
+	mux.HandleFunc("GET /api/v1/localities", getLocalities)
 
-	// URL to login, returns the JWT to pass in to authenticated endpoints
-	m.POST("/api/v1/getJWT", login)
-	// gets a new JWT if the current one is about to expire
-	m.GET("/api/vi/refreshJWT", refresh)
-	// takes an email address, returns an "OK" after the password message is sent
-	m.POST("/api/v1/register", postRegister)
+	// Member Management
+	mux.HandleFunc("GET /api/v1/member/{id}", authMW(getMember, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/member/{id}/chapters", authMW(getMemberChapters, model.AuthLevelView))
+	mux.HandleFunc("PUT /api/v1/member/{id}", authMW(setMember, model.AuthLevelManager))
+	mux.HandleFunc("PUT /api/v1/member/{id}/chapters", authMW(setMemberChapters, model.AuthLevelManager))
+	mux.HandleFunc("POST /api/v1/member", authMW(createMember, model.AuthLevelAdmin))
+	mux.HandleFunc("GET /api/v1/member/{id}/vcard", authMW(getMemberVcard, model.AuthLevelView))
 
-	// public -- pulled by WADO
-	m.GET("/api/v1/commemorations", getCommemorations)
+	// Giving & Changelog
+	mux.HandleFunc("GET /api/v1/giving/{id}", authMW(getMemberGiving, model.AuthLevelAdmin))
+	mux.HandleFunc("POST /api/v1/giving/{id}", authMW(postMemberGiving, model.AuthLevelAdmin))
+	mux.HandleFunc("GET /api/v1/changelog/{id}", authMW(getMemberChangelog, model.AuthLevelFullView))
 
-	// manage individual members
-	m.GET("/api/v1/member/:id", authMW(getMember, model.AuthLevelView))
-	m.GET("/api/v1/member/:id/chapters", authMW(getMemberChapters, model.AuthLevelView))
-	m.PUT("/api/v1/member/:id", authMW(setMember, model.AuthLevelManager))
-	m.GET("/api/v1/member/:id/vcard", authMW(getMemberVcard, model.AuthLevelView))
-	m.POST("/api/v1/member", authMW(createMember, model.AuthLevelAdmin))
-	m.PUT("/api/v1/member/:id/chapters", authMW(setMemberChapters, model.AuthLevelManager))
+	// Notes
+	mux.HandleFunc("GET /api/v1/member/{id}/notes", authMW(getNotes, model.AuthLevelFullView))
+	mux.HandleFunc("POST /api/v1/member/{id}/notes", authMW(postNote, model.AuthLevelManager))
+	mux.HandleFunc("DELETE /api/v1/member/{id}/notes/{noteid}", authMW(deleteNote, model.AuthLevelManager))
 
-	// manage giving records
-	m.GET("/api/v1/giving/:id", authMW(getMemberGiving, model.AuthLevelAdmin))
-	m.POST("/api/v1/giving/:id", authMW(postMemberGiving, model.AuthLevelAdmin))
-	// m.DELETE("/api/v1/giving/:id", authMW(deleteMemberGiving, model.AuthLevelAdmin))
+	// Self-Service
+	mux.HandleFunc("GET /api/v1/me", authMW(getMe, model.AuthLevelView))
+	mux.HandleFunc("PUT /api/v1/me", authMW(setMe, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/me/chapters", authMW(getMeChapters, model.AuthLevelView))
+	mux.HandleFunc("PUT /api/v1/me/chapters", authMW(setMeChapters, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/me/giving", authMW(getMeGiving, model.AuthLevelView))
 
-	m.GET("/api/v1/changelog/:id", authMW(getMemberChangelog, model.AuthLevelFullView))
+	// Subscribers & Search
+	mux.HandleFunc("GET /api/v1/subscriber/{id}", authMW(getSubscriber, model.AuthLevelView))
+	mux.HandleFunc("POST /api/v1/subscriber/{id}", authMW(setSubscriber, model.AuthLevelAdmin))
+	mux.HandleFunc("POST /api/v1/search", authMW(postSearch, model.AuthLevelView))
+	mux.HandleFunc("POST /api/v1/searchemail", authMW(postEmailSearch, model.AuthLevelView))
+	mux.HandleFunc("POST /api/v1/subsearch", authMW(postSubSearch, model.AuthLevelView))
 
-	m.POST("/api/v1/member/:id/notes", authMW(postNote, model.AuthLevelManager))
-	m.GET("/api/v1/member/:id/notes", authMW(getNotes, model.AuthLevelFullView))
-	m.DELETE("/api/v1/member/:id/notes/:noteid", authMW(deleteNote, model.AuthLevelManager))
+	// Reports & Dashboard
+	mux.HandleFunc("GET /api/v1/report/{report}", authMW(reports, model.AuthLevelFullView))
+	mux.HandleFunc("GET /api/v1/dashboard", authMW(getDashboard, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/necrology", authMW(getNecrology, model.AuthLevelView))
+	mux.HandleFunc("POST /api/v1/email", authMW(postEmail, model.AuthLevelAdmin))
 
-	// self-service (not complete)
-	m.GET("/api/v1/me", authMW(getMe, model.AuthLevelView))
-	m.PUT("/api/v1/me", authMW(setMe, model.AuthLevelView))
-	m.GET("/api/v1/me/chapters", authMW(getMeChapters, model.AuthLevelView))
-	m.PUT("/api/v1/me/chapters", authMW(setMeChapters, model.AuthLevelView))
-	m.GET("/api/v1/me/giving", authMW(getMeGiving, model.AuthLevelView))
+	// Chapters & Localities
+	mux.HandleFunc("PUT /api/v1/chapter/{id}", authMW(putChapter, model.AuthLevelAdmin))
+	mux.HandleFunc("GET /api/v1/chapter/{id}", authMW(getChapterMembers, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/locality/{joint}", authMW(getLocalityMembers, model.AuthLevelView))
+	mux.HandleFunc("GET /api/v1/leaders/{category}", authMW(getLeadership, model.AuthLevelView))
 
-	// for instituions who subscribe to Doxology
-	m.GET("/api/v1/subscriber/:id", authMW(getSubscriber, model.AuthLevelView))
-	m.POST("/api/v1/subscriber/:id", authMW(setSubscriber, model.AuthLevelAdmin))
-	// m.DELETE("/api/v1/subscriber/:id", authMW(deleteSubscriber, model.AuthLevelAdmin))
-	// m.POST("/api/v1/subscriber", authMW(createSubscriber, model.AuthLevelAdmin))
-
-	// search lists
-	m.POST("/api/v1/search", authMW(postSearch, model.AuthLevelView))           // members
-	m.POST("/api/v1/searchemail", authMW(postEmailSearch, model.AuthLevelView)) // members by email address
-	m.POST("/api/v1/subsearch", authMW(postSubSearch, model.AuthLevelView))     // subscribers
-
-	// reports
-	m.GET("/api/v1/report/:report", authMW(reports, model.AuthLevelFullView))
-	m.GET("/api/v1/dashboard", authMW(getDashboard, model.AuthLevelView))
-	m.GET("/api/v1/necrology", authMW(getNecrology, model.AuthLevelView))
-
-	m.POST("/api/v1/email", authMW(postEmail, model.AuthLevelAdmin))
-
-	// manage chapters
-	m.GET("/api/v1/chapter", getChapters) // public
-	m.PUT("/api/v1/chapter/:id", authMW(putChapter, model.AuthLevelAdmin))
-	m.GET("/api/v1/chapter/:id", authMW(getChapterMembers, model.AuthLevelView))
-	// m.DELETE("/api/v1/chapter/:id", authMW(deleteChapter, model.AuthLevelAdmin))
-
-	m.GET("/api/v1/localities", getLocalities) // public
-	m.GET("/api/v1/locality/:joint", authMW(getLocalityMembers, model.AuthLevelView))
-
-	// leadership
-	m.GET("/api/v1/leaders/:category", authMW(getLeadership, model.AuthLevelView))
-
-	return m
+	// Wrap the entire mux in global middleware (Headers/CORS)
+	return globalMW(mux)
 }
 
-func headers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "OSL-Member-Manager")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	if origin := r.Header.Get("Origin"); origin != "" {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
-	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH")
-	w.Header().Add("Access-Control-Allow-Credentials", "true")
-	w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Accept, If-Modified-Since, If-Match, If-None-Match, Authorization")
-	w.Header().Set("Content-Type", jsonType)
+// globalMW handles headers and CORS for every single request
+func globalMW(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Server", "OSL-Member-Manager")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		// Handle Preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
+/*
 func notFound(w http.ResponseWriter, r *http.Request) {
-	headers(w, r)
 	http.Error(w, "Not Found", http.StatusNotFound)
-}
+} */
