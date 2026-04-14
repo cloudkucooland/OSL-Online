@@ -14,7 +14,21 @@ import (
 
 const URL = "https://apis.usps.com/addresses/v3/address"
 
-func getaddress(ctx context.Context, member *model.Member, bearer string) error {
+func getaddress(ctx context.Context, member *model.Member) error {
+	switch member.Country {
+	case "US":
+		return getaddressUS(ctx, member, usauth)
+	case "SG":
+		return getaddressSG(ctx, member, sgauth)
+	case "HK":
+		return getaddressHK(ctx, member)
+	default:
+		slog.Info("No automated fixer for country", "country", member.Country)
+		return nil
+	}
+}
+
+func getaddressUS(ctx context.Context, member *model.Member, bearer string) error {
 	if member.Address == "" || member.State == "" || member.City == "" {
 		slog.Info("getaddress", "not enough data", member.OSLName())
 		return nil
@@ -109,23 +123,26 @@ RETRY:
 	for i := range ar.Corrections {
 		switch ar.Corrections[i].Code { // need to get a list of codes...
 		case "":
-			slog.Info("correcting address format", "member", member.OSLName())
 			if member.Address != ar.Address.StreetAddress {
+				slog.Info("correcting address", "member", member.OSLName())
 				if err := member.ID.SetMemberField(ctx, "Address", ar.Address.StreetAddress); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.AddressLine2 != ar.Address.SecondaryAddress {
+				slog.Info("correcting address line 2", "member", member.OSLName())
 				if err := member.ID.SetMemberField(ctx, "AddressLine2", ar.Address.SecondaryAddress); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.City != ar.Address.City {
+				slog.Info("correcting city", "member", member.OSLName())
 				if err := member.ID.SetMemberField(ctx, "City", ar.Address.City); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
 			}
 			if member.State != ar.Address.State {
+				slog.Info("correcting state", "member", member.OSLName())
 				if err := member.ID.SetMemberField(ctx, "State", ar.Address.State); err != nil {
 					slog.Error("unable to store", "error", err.Error(), "member", member.OSLName())
 				}
