@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { getContext, onMount } from 'svelte';
 	import { Card, Button, Heading, Textarea, Label, Checkbox, Badge, Alert } from 'flowbite-svelte';
-	import { TrashBinOutline, HeartOutline, GlobeOutline, ShieldCheckOutline } from 'flowbite-svelte-icons';
+	import {
+		TrashBinOutline,
+		HeartOutline,
+		GlobeOutline,
+		ShieldCheckOutline
+	} from 'flowbite-svelte-icons';
 	import { getAllPrayers, addPrayer, deletePrayer } from '../oo';
+	import { toast } from '@zerodevx/svelte-toast';
 
 	const oo = getContext('oo');
-	
+
 	let prayers = $state([]);
 	let newConcern = $state('');
 	let isAnonymous = $state(false);
@@ -16,7 +22,7 @@
 		try {
 			prayers = await getAllPrayers();
 		} catch (e) {
-			// Silently fail or toast if the 404 is still active
+			toast.push(e.message);
 		} finally {
 			loading = false;
 		}
@@ -29,68 +35,82 @@
 			newConcern = '';
 			await refresh();
 		} catch (e: any) {
+			toast.push(e.message);
 			console.error(e);
 		}
 	}
 
 	async function remove(pid: number) {
-		if (confirm("Remove this request from the Office?")) {
-			await deletePrayer(pid);
-			await refresh();
+		if (confirm('Remove this request from the Office?')) {
+			try {
+				await deletePrayer(pid);
+			} catch (e: any) {
+				toast.push(e.message);
+			} finally {
+				await refresh();
+			}
 		}
 	}
 
 	onMount(refresh);
 </script>
 
-<div class="max-w-4xl mx-auto p-4 space-y-6">
-	<header class="text-center py-6">
-		<Heading tag="h1" class="font-serif text-4xl text-primary-900">Prayer Wall</Heading>
-		<p class="text-slate-500 mt-2">Requests shared here are included in the Web Amplified Daily Office.</p>
+<div class="mx-auto max-w-4xl space-y-6 p-4">
+	<header class="py-6 text-center">
+		<Heading tag="h1" class="font-serif text-4xl text-primary-900">Prayer Requests</Heading>
+		<p class="mt-2 text-slate-500">
+			Requests shared here are (will be, when Br. Scot finishes it) included in WADO.
+		</p>
 	</header>
 
-	<Card size="none" class="p-6 shadow-lg border-t-4 border-t-primary-600">
-		<div class="flex items-center gap-2 mb-4 text-primary-800">
+	<Card size="none" class="border-t-4 border-t-primary-600 p-6 shadow-lg">
+		<div class="mb-4 flex items-center gap-2 text-primary-800">
 			<GlobeOutline size="sm" />
-			<span class="text-xs font-bold uppercase tracking-widest">New WADO Request</span>
+			<span class="text-xs font-bold uppercase tracking-widest">New Prayer Request</span>
 		</div>
-		
-		<Textarea bind:value={newConcern} placeholder="What shall we pray for?" rows="4" class="mb-4" />
-		
-		<div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+
+		<Textarea
+			bind:value={newConcern}
+			placeholder="For whom or what shall we pray?"
+			rows="4"
+			class="mb-4"
+		/>
+
+		<div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
 			<Checkbox bind:checked={isAnonymous}>
-				<span class="text-sm">Post as "A Sibling of the Order"</span>
+				<span class="text-sm">Post anonymously</span>
 			</Checkbox>
-			<Button color="primary" onclick={submit} disabled={!newConcern}>
-				Submit to the Office
-			</Button>
+			<Button color="primary" onclick={submit} disabled={!newConcern}>Add</Button>
 		</div>
 	</Card>
 
 	<div class="space-y-4">
 		{#if loading}
-			<p class="text-center text-slate-400 animate-pulse">Gathering concerns...</p>
+			<p class="animate-pulse text-center text-slate-400">Gathering concerns...</p>
 		{:else}
 			{#each prayers as p}
-				<Card size="none" class="p-5 hover:bg-slate-50 transition-colors relative group">
+				<Card size="none" class="group relative p-5 transition-colors hover:bg-slate-50">
 					<div class="flex justify-between">
-						<div class="flex items-center gap-2 mb-2">
+						<div class="mb-2 flex items-center gap-2">
 							<HeartOutline size="xs" class="text-red-500" />
-							<span class="font-bold text-sm">
-								{p.anonymous ? 'A Sibling of the Order' : p.MemberName}
+							<span class="text-sm font-bold">
+								{p.Anonymous ? 'A Sibling of the Order' : p.OSLName}
 							</span>
 							<span class="text-[10px] text-slate-400">
-								{new Date(p.date).toLocaleDateString()}
+								{new Date(p.Date).toLocaleDateString()}
 							</span>
 						</div>
-						
-						{#if p.member == oo.me.id || oo.me.level > 2}
-							<button onclick={() => remove(p.id)} class="text-slate-300 hover:text-red-600 transition-colors">
+
+						{#if p.MemberID == oo.me.id || oo.me.level > 2}
+							<button
+								onclick={() => remove(p.PrayerID)}
+								class="text-slate-300 transition-colors hover:text-red-600"
+							>
 								<TrashBinOutline size="sm" />
 							</button>
 						{/if}
 					</div>
-					<p class="text-slate-700 whitespace-pre-wrap leading-relaxed">{p.content}</p>
+					<p class="whitespace-pre-wrap leading-relaxed text-slate-700">{p.Content}</p>
 				</Card>
 			{:else}
 				<div class="text-center py-20 border-2 border-dashed border-slate-200 rounded-xl">

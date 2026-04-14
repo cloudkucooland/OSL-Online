@@ -101,7 +101,7 @@
 			<NavHamburger />
 
 			<NavUl class="transition-all">
-				{#if oo.me && oo.me.level}
+				{#if oo.me}
 					<NavLi class="group flex cursor-pointer items-center gap-1">
 						Me <ChevronDownOutline size="sm" class="group-hover:text-primary-600" />
 					</NavLi>

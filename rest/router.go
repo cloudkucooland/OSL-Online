@@ -61,6 +61,12 @@ func GetServeMux() http.Handler {
 	mux.HandleFunc("GET /api/v1/locality/{joint}", authMW(getLocalityMembers, model.AuthLevelView))
 	mux.HandleFunc("GET /api/v1/leaders/{category}", authMW(getLeadership, model.AuthLevelView))
 
+	// Prayer Wall
+	mux.HandleFunc("GET /api/v1/prayers", getPublicPrayers);
+	mux.HandleFunc("GET /api/v1/member/{id}/prayers", authMW(getPrayers, model.AuthLevelView));
+	mux.HandleFunc("POST /api/v1/prayers", authMW(addPrayer, model.AuthLevelView));
+	mux.HandleFunc("DELETE /api/v1/prayers/{id}", authMW(deletePrayer, model.AuthLevelView));
+
 	// Wrap the entire mux in global middleware (Headers/CORS)
 	return globalMW(mux)
 }
