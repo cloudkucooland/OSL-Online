@@ -17,12 +17,19 @@ type SearchResult struct {
 	ListInDirectory bool
 }
 
-func Search(ctx context.Context, query string, unlisted bool) ([]*SearchResult, error) {
+func Search(ctx context.Context, query string) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
 	qq := fmt.Sprintf("%%%s%%", query)
 
 	var pn sql.NullString
+
+	// now that this is local instead of passed in, optimize the query
+	showUnlisted := false
+	level := LevelFromContext(ctx)
+	if level >= AuthLevelFullView {
+		showUnlisted = true
+	}
 
 	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
 	if err != nil {
@@ -46,7 +53,7 @@ func Search(ctx context.Context, query string, unlisted bool) ([]*SearchResult, 
 		if n.PreferredName == n.FirstName {
 			n.PreferredName = ""
 		}
-		if unlisted || n.ListInDirectory {
+		if showUnlisted || n.ListInDirectory {
 			res = append(res, &n)
 		}
 	}
@@ -54,10 +61,16 @@ func Search(ctx context.Context, query string, unlisted bool) ([]*SearchResult, 
 	return res, nil
 }
 
-func SearchEmail(ctx context.Context, query string, unlisted bool) ([]*SearchResult, error) {
+func SearchEmail(ctx context.Context, query string) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
 	var pn sql.NullString
+
+	showUnlisted := false
+	level := LevelFromContext(ctx)
+	if level >= AuthLevelFullView {
+		showUnlisted = true
+	}
 
 	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE PrimaryEmail = ? OR SecondaryEmail = ?", query, query)
 	if err != nil {
@@ -81,7 +94,7 @@ func SearchEmail(ctx context.Context, query string, unlisted bool) ([]*SearchRes
 		if n.PreferredName == n.FirstName {
 			n.PreferredName = ""
 		}
-		if unlisted || n.ListInDirectory {
+		if showUnlisted || n.ListInDirectory {
 			res = append(res, &n)
 		}
 	}

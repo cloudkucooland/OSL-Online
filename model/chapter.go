@@ -108,7 +108,6 @@ func (c *Chapter) Members(ctx context.Context) ([]*Member, error) {
 		if !m.ListInDirectory {
 			continue
 		}
-		m.CleanUnlisted()
 
 		members = append(members, m)
 	}

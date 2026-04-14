@@ -74,7 +74,8 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 }
 
 func checkChapter(ctx context.Context, email string, chapterid ChapterID) (bool, error) {
-	found, err := SearchEmail(ctx, email, true)
+	ctx = context.WithValue(ctx, CtxKeyLevel, AuthLevelInternal) // override here
+	found, err := SearchEmail(ctx, email)
 	if err != nil {
 		return false, err
 	}

@@ -103,7 +103,6 @@ func LocalityMembers(ctx context.Context, country string, locality string) ([]*M
 			slog.Error(err.Error())
 			continue
 		}
-		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil
@@ -134,7 +133,6 @@ func localityMembersSG(ctx context.Context) ([]*Member, error) {
 			slog.Error(err.Error())
 			continue
 		}
-		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil

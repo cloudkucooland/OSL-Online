@@ -12,6 +12,11 @@ import (
 func SetMeField(ctx context.Context, id MemberID, field string, value string) error {
 	slog.Info("self-updating", "id", id, "field", field, "value", value)
 
+	changer, ok := ctx.Value(CtxKeyID).(MemberID)
+	if !ok {
+		changer = id
+	}
+
 	if field == "id" {
 		err := fmt.Errorf("cannot change ID")
 		slog.Error(err.Error())
@@ -133,7 +138,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 	}
 
 	if err := id.ChangeLogStore(ChangeLogEntry{
-		Changer: id,
+		Changer: changer,
 		Field:   field,
 		Value:   value,
 	}); err != nil {

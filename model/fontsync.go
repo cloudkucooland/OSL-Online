@@ -12,7 +12,7 @@ const fontaddr = "font@saint-luke.net"
 
 func FontSync(ctx context.Context) error {
 	// assumes that GOOGLE_APPLICATION_CREDENTIALS enviornment is set
-
+	// assumes that ctx...Level == AuthLevelInternal
 	adminService, err := admin.NewService(ctx)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func FontSync(ctx context.Context) error {
 }
 
 func checkFont(ctx context.Context, email string) (bool, error) {
-	found, err := SearchEmail(ctx, email, true)
+	found, err := SearchEmail(ctx, email)
 	if err != nil {
 		return false, err
 	}

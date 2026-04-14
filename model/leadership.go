@@ -29,7 +29,6 @@ func Leadership(ctx context.Context, category string) ([]*Member, error) {
 		if err != nil {
 			continue
 		}
-		m.CleanUnlisted()
 		members = append(members, m)
 	}
 	return members, nil

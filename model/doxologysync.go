@@ -10,6 +10,7 @@ import (
 
 func DoxologySync(ctx context.Context) error {
 	// assumes GOOGLE_APPLICATION_CREDENTIALS enviornment is set.
+	// assumes ctx..Level = AuthLevelInternal
 	adminService, err := admin.NewService(ctx)
 	if err != nil {
 		return err
@@ -107,7 +108,7 @@ func (id MemberID) SubscribeDoxology(ctx context.Context) error {
 }
 
 func checkDoxology(ctx context.Context, email string) (bool, error) {
-	found, err := SearchEmail(ctx, email, true)
+	found, err := SearchEmail(ctx, email)
 	if err != nil {
 		return false, err
 	}

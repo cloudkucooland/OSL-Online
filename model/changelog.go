@@ -14,10 +14,10 @@ type ChangeLogEntry struct {
 	Date    time.Time
 }
 
-func (m *Member) Changelog() ([]*ChangeLogEntry, error) {
+func (m MemberID) Changelog() ([]*ChangeLogEntry, error) {
 	cr := make([]*ChangeLogEntry, 0)
 
-	rows, err := db.Query("SELECT `changee`, `changer`, `field`, `value`, `date` FROM `auditlog` WHERE `changee` = ? ORDER BY `date`", m.ID)
+	rows, err := db.Query("SELECT `changee`, `changer`, `field`, `value`, `date` FROM `auditlog` WHERE `changee` = ? ORDER BY `date`", m)
 	if err != nil && err == sql.ErrNoRows {
 		return cr, nil
 	}

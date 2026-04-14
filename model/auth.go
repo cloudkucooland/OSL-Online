@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -13,10 +14,11 @@ import (
 type AuthLevel uint8
 
 const (
-        AuthLevelView    AuthLevel = iota // view  members/subscribers
-        AuthLevelFullView                 // view full member data
-        AuthLevelManager                  // change/add members/subscribers
-        AuthLevelAdmin                    // add users
+	AuthLevelView     AuthLevel = iota // view  members/subscribers
+	AuthLevelFullView                  // view full member data
+	AuthLevelManager                   // change/add members/subscribers
+	AuthLevelAdmin                     // add users
+	AuthLevelInternal                  // for internal use only -- no users
 )
 
 type Authname string
@@ -24,6 +26,23 @@ type Authname string
 // String satisfies the stringer interface
 func (u Authname) String() string {
 	return string(u)
+}
+
+func LevelFromContext(ctx context.Context) AuthLevel {
+	level, ok := ctx.Value(CtxKeyLevel).(AuthLevel)
+	if !ok {
+		return AuthLevelView
+	}
+	return level
+}
+
+func IDFromContext(ctx context.Context) (MemberID, error) {
+	id, ok := ctx.Value(CtxKeyID).(MemberID)
+	if !ok {
+		slog.Error("no id found in context")
+		return 0, fmt.Errorf("no id found in context")
+	}
+	return id, nil
 }
 
 func (u Authname) getAuthData() (string, AuthLevel, error) {

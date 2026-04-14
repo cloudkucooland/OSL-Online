@@ -45,5 +45,11 @@ func Friendzone(ctx context.Context) error {
 
 // the logic for moving to friend is already in SetMemberField, use that
 func (id MemberID) makeFriend(ctx context.Context) error {
-	return id.SetMemberField(ctx, "MemberStatus", "Friend", MemberID(0))
+	_, ok := ctx.Value(CtxKeyID).(MemberID)
+	if !ok {
+		ctx = context.WithValue(ctx, CtxKeyID, MemberID(0))
+		ctx = context.WithValue(ctx, CtxKeyLevel, AuthLevelInternal)
+	}
+
+	return id.SetMemberField(ctx, "MemberStatus", "Friend")
 }

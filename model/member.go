@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+type contextKey string
+
+const CtxKeyID contextKey = "ID"
+const CtxKeyLevel contextKey = "level"
+
 type MemberID int
 
 // memberNulls is the format used by the import tool and in the main query since NULLs are possible
@@ -113,6 +118,13 @@ type Member struct {
 func (id MemberID) Get(ctx context.Context) (*Member, error) {
 	n := &memberNulls{}
 
+	// optimize the query now that this is local
+	showUnlisted := false
+	level := LevelFromContext(ctx)
+	if level >= AuthLevelFullView {
+		showUnlisted = true
+	}
+
 	err := db.QueryRowContext(ctx, "SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination, Benefactor FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination, &n.Benefactor)
 	if err != nil && err == sql.ErrNoRows {
 		err = fmt.Errorf("member not found")
@@ -125,6 +137,9 @@ func (id MemberID) Get(ctx context.Context) (*Member, error) {
 	}
 
 	m := n.toMember()
+	if !showUnlisted {
+		m.CleanUnlisted()
+	}
 	return m, nil
 }
 
@@ -226,8 +241,15 @@ func (n *Member) tomemberNulls() *memberNulls {
 	}
 }
 
-func (id MemberID) SetMemberField(ctx context.Context, field string, value string, changer MemberID) error {
-	slog.Info("updating", "id", id, "field", field, "value", value)
+func (id MemberID) SetMemberField(ctx context.Context, field string, value string) error {
+	changer, ok := ctx.Value(CtxKeyID).(MemberID)
+	if !ok {
+		err := fmt.Errorf("changer not set in context")
+		slog.Error(err.Error())
+		return err
+	}
+
+	slog.Info("updating", "id", id, "field", field, "value", value, "by", changer)
 
 	if field == "id" {
 		err := fmt.Errorf("cannot change ID")
