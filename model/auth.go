@@ -97,13 +97,18 @@ func (u Authname) Register() (string, error) {
 		return "", err
 	}
 
+	_, currentLevel, err := u.getAuthData()
+	if err != nil {
+		currentLevel = 0
+	}
+
 	password, err := password.Generate(10, 3, 0, false, true)
 	if err != nil {
 		slog.Error(err.Error())
 		return "", err
 	}
 
-	if err := u.SetAuthData(password, 0); err != nil {
+	if err := u.SetAuthData(password, int(currentLevel)); err != nil {
 		slog.Error(err.Error())
 		return password, err
 	}
