@@ -3,10 +3,10 @@ package rest
 import (
 	"context"
 	"encoding/json"
+	"github.com/cloudkucooland/OSL-Online/model"
 	"log/slog"
 	"net/http"
 	"strconv"
-	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func getPublicPrayers(w http.ResponseWriter, r *http.Request) {

@@ -26,7 +26,7 @@ func postRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password, err := username.Register()
+	password, err := username.Register(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

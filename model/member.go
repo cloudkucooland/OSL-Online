@@ -426,7 +426,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 	}
 
-	_ = id.ChangeLogStore(ChangeLogEntry{
+	_ = id.ChangeLogStore(ctx, ChangeLogEntry{
 		Changer: changer,
 		Field:   field,
 		Value:   value,
@@ -554,7 +554,7 @@ func (n *Member) OSLShortName() string {
 }
 
 func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
-	current, err := m.ID.GetChapters()
+	current, err := m.ID.GetChapters(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -583,8 +583,8 @@ func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
 	return nil
 }
 
-func (id MemberID) GetChapters() ([]int, error) {
-	rows, err := db.Query("SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", id)
+func (id MemberID) GetChapters(ctx context.Context) ([]int, error) {
+	rows, err := db.QueryContext(ctx, "SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", id)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err

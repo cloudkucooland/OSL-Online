@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -21,10 +22,10 @@ type Dashboard_t struct {
 	LifeVowsCheckin      int
 }
 
-func Dashboard() (Dashboard_t, error) {
+func Dashboard(ctx context.Context) (Dashboard_t, error) {
 	var d Dashboard_t
 
-	rows, err := db.Query("SELECT MemberStatus, COUNT(*) FROM member GROUP BY MemberStatus")
+	rows, err := db.QueryContext(ctx, "SELECT MemberStatus, COUNT(*) FROM member GROUP BY MemberStatus")
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
@@ -54,7 +55,7 @@ func Dashboard() (Dashboard_t, error) {
 
 	var ns sql.NullString
 
-	err = db.QueryRow("SELECT SUM(amount) FROM giving WHERE date > ? AND date < ?", lastyear, thisyear).Scan(&ns)
+	err = db.QueryRowContext(ctx, "SELECT SUM(amount) FROM giving WHERE date > ? AND date < ?", lastyear, thisyear).Scan(&ns)
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
@@ -63,7 +64,7 @@ func Dashboard() (Dashboard_t, error) {
 		d.LastYearGiving = ns.String
 	}
 
-	err = db.QueryRow("SELECT SUM(amount) FROM giving WHERE date > ? AND date < ?", thisyear, nextyear).Scan(&ns)
+	err = db.QueryRowContext(ctx, "SELECT SUM(amount) FROM giving WHERE date > ? AND date < ?", thisyear, nextyear).Scan(&ns)
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
@@ -72,13 +73,13 @@ func Dashboard() (Dashboard_t, error) {
 		d.ThisYearGiving = ns.String
 	}
 
-	err = db.QueryRow("SELECT COUNT(*) FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY)").Scan(&d.SubscriberCount)
+	err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM subscriber WHERE DatePaid > DATE_SUB(CURRENT_DATE(), INTERVAL 366 DAY)").Scan(&d.SubscriberCount)
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
 	}
 
-	countrows, err := db.Query("SELECT memberstatus, COUNT(*) FROM member WHERE id IN (SELECT DISTINCT id FROM giving WHERE date > ?) GROUP BY memberstatus", thisyear)
+	countrows, err := db.QueryContext(ctx, "SELECT memberstatus, COUNT(*) FROM member WHERE id IN (SELECT DISTINCT id FROM giving WHERE date > ?) GROUP BY memberstatus", thisyear)
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err
@@ -101,7 +102,7 @@ func Dashboard() (Dashboard_t, error) {
 		}
 	}
 
-	reaffirmed, err := db.Query("SELECT memberstatus, COUNT(*) FROM member WHERE DateReaffirmation > ? GROUP BY memberstatus", thisyear)
+	reaffirmed, err := db.QueryContext(ctx, "SELECT memberstatus, COUNT(*) FROM member WHERE DateReaffirmation > ? GROUP BY memberstatus", thisyear)
 	if err != nil {
 		slog.Error(err.Error())
 		return d, err

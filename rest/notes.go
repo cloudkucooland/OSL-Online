@@ -18,7 +18,7 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mid := model.MemberID(id)
-	notes, err := mid.GetNotes()
+	notes, err := mid.GetNotes(r.Context())
 	if err != nil {
 		slog.Error("failed to get notes", "member", id, "err", err)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func postNote(w http.ResponseWriter, r *http.Request) {
 		// Author: changer, // Add this if your model supports it
 	}
 
-	if err := note.Store(); err != nil {
+	if err := note.Store(r.Context()); err != nil {
 		slog.Error("failed to store note", "member", id, "changer", changer, "err", err)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return
@@ -76,7 +76,7 @@ func deleteNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	n := model.NoteID(noteID)
-	if err := n.Delete(); err != nil {
+	if err := n.Delete(r.Context()); err != nil {
 		slog.Error("failed to delete note", "noteid", noteID, "err", err)
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

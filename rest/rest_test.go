@@ -88,7 +88,7 @@ func TestMemberLifecycle(t *testing.T) {
 	if jwt == "" {
 		t.Fatalf("TEST_USER_JWT environment not set")
 	}
-	userClient := NewTestClient(jwt) 
+	userClient := NewTestClient(jwt)
 
 	t.Run("SelfUpdateSuccess", func(t *testing.T) {
 		form := url.Values{}
@@ -124,4 +124,3 @@ func TestMemberLifecycle(t *testing.T) {
 	// 4. Cleanup/Delete (if endpoint exists, or via direct DB if needed for test)
 	// Note: Your router currently has delete commented out for several items.
 }
-

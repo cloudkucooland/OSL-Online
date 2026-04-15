@@ -13,7 +13,7 @@ import (
 
 func getMe(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
-	id, err := username.GetID()
+	id, err := username.GetID(r.Context())
 
 	if err != nil {
 		slog.Error(err.Error())
@@ -40,7 +40,7 @@ func getMe(w http.ResponseWriter, r *http.Request) {
 
 func getMeChapters(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
-	id, err := username.GetID()
+	id, err := username.GetID(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func getMeChapters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chapters, err := m.ID.GetChapters()
+	chapters, err := m.ID.GetChapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -150,7 +150,7 @@ func setMeChapters(w http.ResponseWriter, r *http.Request) {
 
 func getMeGiving(w http.ResponseWriter, r *http.Request) {
 	username := model.Authname(getUser(r))
-	id, err := username.GetID()
+	id, err := username.GetID(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -158,7 +158,7 @@ func getMeGiving(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mid := model.MemberID(id)
-	gr, err := mid.GivingRecords()
+	gr, err := mid.GivingRecords(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

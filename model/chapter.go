@@ -26,10 +26,10 @@ func (c *Chapter) store() error {
 	return nil
 } */
 
-func (c *Chapter) Update() error {
+func (c *Chapter) Update(ctx context.Context) error {
 	var e sql.NullString
 
-	_, err := db.Exec("UPDATE `chapters` SET `name` = ?, `prior` = ?, `email` = ? WHERE `id` = ?", c.Name, c.Prior, c.ID, e)
+	_, err := db.ExecContext(ctx, "UPDATE `chapters` SET `name` = ?, `prior` = ?, `email` = ? WHERE `id` = ?", c.Name, c.Prior, c.ID, e)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -41,8 +41,8 @@ func (c *Chapter) Update() error {
 	return nil
 }
 
-func (c *Chapter) Remove() error {
-	_, err := db.Exec("DELETE FROM `chapters` WHERE `ID` = ?", c.ID)
+func (c *Chapter) Remove(ctx context.Context) error {
+	_, err := db.ExecContext(ctx, "DELETE FROM `chapters` WHERE `ID` = ?", c.ID)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -50,10 +50,10 @@ func (c *Chapter) Remove() error {
 	return nil
 }
 
-func Chapters() ([]*Chapter, error) {
+func Chapters(ctx context.Context) ([]*Chapter, error) {
 	ch := make([]*Chapter, 0)
 
-	rows, err := db.Query("SELECT `id`, `name`, `prior`, `email` FROM `chapters` ORDER BY `name`")
+	rows, err := db.QueryContext(ctx, "SELECT `id`, `name`, `prior`, `email` FROM `chapters` ORDER BY `name`")
 	if err != nil && err == sql.ErrNoRows {
 		return ch, nil
 	}
@@ -114,9 +114,9 @@ func (c *Chapter) Members(ctx context.Context) ([]*Member, error) {
 	return members, nil
 }
 
-func (id ChapterID) Load() (*Chapter, error) {
+func (id ChapterID) Load(ctx context.Context) (*Chapter, error) {
 	var c Chapter
-	err := db.QueryRow("SELECT `id`, `name`, `prior`, `email` FROM `chapters` WHERE `id` = ?", id).Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
+	err := db.QueryRowContext(ctx, "SELECT `id`, `name`, `prior`, `email` FROM `chapters` WHERE `id` = ?", id).Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, err

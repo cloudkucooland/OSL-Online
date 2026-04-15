@@ -44,13 +44,13 @@ func IDFromContext(ctx context.Context) (MemberID, error) {
 	return id, nil
 }
 
-func (u Authname) getAuthData() (string, AuthLevel, error) {
+func (u Authname) getAuthData(ctx context.Context) (string, AuthLevel, error) {
 	var pwhash string
 	var leadership string
 
 	query := `SELECT a.pwhash, m.Leadership FROM auth a JOIN member m ON a.user = m.PrimaryEmail WHERE a.user = ?`
 
-	err := db.QueryRow(query, u).Scan(&pwhash, &leadership)
+	err := db.QueryRowContext(ctx, query, u).Scan(&pwhash, &leadership)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return "", 0, fmt.Errorf("user %s not found", u)
@@ -74,8 +74,8 @@ func (u Authname) getAuthData() (string, AuthLevel, error) {
 	return pwhash, level, nil
 }
 
-func (u Authname) Authenticate(password string) (AuthLevel, error) {
-	pwhash, level, err := u.getAuthData()
+func (u Authname) Authenticate(ctx context.Context, password string) (AuthLevel, error) {
+	pwhash, level, err := u.getAuthData(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -103,11 +103,11 @@ func (u Authname) SetAuthData(pw string) error {
 	return nil
 }
 
-func (u Authname) Register() (string, error) {
+func (u Authname) Register(ctx context.Context) (string, error) {
 	slog.Info("registering user", "username", u)
 
 	// Ensure they exist in the member table first
-	if _, err := u.GetID(); err != nil {
+	if _, err := u.GetID(ctx); err != nil {
 		return "", err
 	}
 
@@ -125,9 +125,9 @@ func (u Authname) Register() (string, error) {
 	return newPassword, nil
 }
 
-func (u Authname) GetID() (MemberID, error) {
+func (u Authname) GetID(ctx context.Context) (MemberID, error) {
 	var id MemberID
-	err := db.QueryRow("SELECT id FROM member WHERE PrimaryEmail = ?", u).Scan(&id)
+	err := db.QueryRowContext(ctx, "SELECT id FROM member WHERE PrimaryEmail = ?", u).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return 0, fmt.Errorf("unknown primary email address")

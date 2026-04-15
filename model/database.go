@@ -43,10 +43,11 @@ func Connect(ctx context.Context, uri string) error {
 	db = result
 
 	var version string
-	if err := db.QueryRow("SELECT VERSION()").Scan(&version); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT VERSION()").Scan(&version); err != nil {
 		slog.Error(err.Error())
 		return err
 	}
+	db.SetConnMaxLifetime(time.Minute * 3) // silence some log noise
 	slog.Info("startup", "database", "connected", "version", version, "message", "connected to database")
 	return nil
 }

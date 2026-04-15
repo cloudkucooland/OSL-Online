@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"log/slog"
 	"time"
 )
@@ -14,10 +15,10 @@ type Note struct {
 	Note   string
 }
 
-func (m MemberID) GetNotes() ([]*Note, error) {
+func (m MemberID) GetNotes(ctx context.Context) ([]*Note, error) {
 	notes := make([]*Note, 0)
 
-	rows, err := db.Query("SELECT ID, member, date, note FROM notes WHERE member = ?", m)
+	rows, err := db.QueryContext(ctx, "SELECT ID, member, date, note FROM notes WHERE member = ?", m)
 	if err != nil {
 		slog.Error(err.Error())
 		return notes, err
@@ -35,10 +36,10 @@ func (m MemberID) GetNotes() ([]*Note, error) {
 	return notes, nil
 }
 
-func (n *Note) Store() error {
+func (n *Note) Store(ctx context.Context) error {
 	slog.Info("adding note", "member", n.Member, "value", n.Note)
 
-	_, err := db.Query("INSERT INTO notes VALUES (0, ?, CURDATE(), ?)", n.Member, n.Note)
+	_, err := db.QueryContext(ctx, "INSERT INTO notes VALUES (0, ?, CURDATE(), ?)", n.Member, n.Note)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -47,10 +48,10 @@ func (n *Note) Store() error {
 	return nil
 }
 
-func (n NoteID) Delete() error {
+func (n NoteID) Delete(ctx context.Context) error {
 	slog.Info("deleting note", "value", n)
 
-	_, err := db.Query("DELETE FROM notes WHERE ID = ?", n)
+	_, err := db.QueryContext(ctx, "DELETE FROM notes WHERE ID = ?", n)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

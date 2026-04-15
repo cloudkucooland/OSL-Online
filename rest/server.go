@@ -77,7 +77,7 @@ func authMW(next http.HandlerFunc, requiredlevel model.AuthLevel) http.HandlerFu
 		}
 
 		username := model.Authname(token.Subject())
-		uid, err := username.GetID()
+		uid, err := username.GetID(r.Context())
 		if err != nil {
 			slog.Error("failed to get UID from token subject", "sub", token.Subject())
 			http.Error(w, jsonError(err), http.StatusInternalServerError)

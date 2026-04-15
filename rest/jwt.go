@@ -81,7 +81,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	level, err := username.Authenticate(password)
+	level, err := username.Authenticate(r.Context(), password)
 	if err != nil {
 		slog.Error("login failed", "err", err)
 		http.Error(w, err.Error(), http.StatusNotAcceptable)

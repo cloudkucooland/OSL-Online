@@ -9,7 +9,7 @@ import (
 )
 
 func getDashboard(w http.ResponseWriter, r *http.Request) {
-	result, err := model.Dashboard()
+	result, err := model.Dashboard(r.Context())
 	if err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

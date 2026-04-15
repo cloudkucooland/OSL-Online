@@ -11,7 +11,7 @@ import (
 )
 
 func getChapters(w http.ResponseWriter, r *http.Request) {
-	ch, err := model.Chapters()
+	ch, err := model.Chapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
@@ -102,7 +102,7 @@ func putChapter(w http.ResponseWriter, r *http.Request) {
 		Name:  name,
 		Prior: model.MemberID(prior),
 	}
-	if err := c.Update(); err != nil {
+	if err := c.Update(r.Context()); err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)
 		return

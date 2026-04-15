@@ -46,7 +46,7 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mid := model.MemberID(id)
-	chapters, err := mid.GetChapters()
+	chapters, err := mid.GetChapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, jsonError(err), http.StatusInternalServerError)

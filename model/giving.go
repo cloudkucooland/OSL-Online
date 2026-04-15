@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 	"time"
@@ -29,10 +30,10 @@ func (n *GivingRecord) Store() error {
 	return nil
 }
 
-func (id MemberID) GivingRecords() ([]*GivingRecord, error) {
+func (id MemberID) GivingRecords(ctx context.Context) ([]*GivingRecord, error) {
 	gr := make([]*GivingRecord, 0)
 
-	rows, err := db.Query("SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", id)
+	rows, err := db.QueryContext(ctx, "SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", id)
 	if err != nil && err == sql.ErrNoRows {
 		return gr, nil
 	}

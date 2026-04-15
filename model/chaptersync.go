@@ -16,7 +16,7 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 		return err
 	}
 
-	addr, err := id.emailaddress()
+	addr, err := id.emailaddress(ctx)
 	if err != nil || addr == "" {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (id ChapterID) ChapterSync(ctx context.Context) error {
 		return nil
 	})
 
-	c, err := id.Load()
+	c, err := id.Load(ctx)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (id MemberID) UnsubscribeChapter(ctx context.Context, chapterid ChapterID) 
 		return nil
 	}
 
-	addr, err := chapterid.emailaddress()
+	addr, err := chapterid.emailaddress(ctx)
 	if err != nil || addr == "" {
 		return nil
 	}
@@ -135,7 +135,7 @@ func (id MemberID) SubscribeChapter(ctx context.Context, chapterid ChapterID) er
 		return nil
 	}
 
-	addr, err := chapterid.emailaddress()
+	addr, err := chapterid.emailaddress(ctx)
 	if err != nil || addr == "" {
 		return nil
 	}
@@ -148,9 +148,9 @@ func (id MemberID) SubscribeChapter(ctx context.Context, chapterid ChapterID) er
 	return nil
 }
 
-func (chapter ChapterID) emailaddress() (string, error) {
+func (chapter ChapterID) emailaddress(ctx context.Context) (string, error) {
 	var e string
-	err := db.QueryRow("SELECT email FROM chapters WHERE id = ?", chapter).Scan(&e)
+	err := db.QueryRowContext(ctx, "SELECT email FROM chapters WHERE id = ?", chapter).Scan(&e)
 	if err != nil {
 		slog.Error(err.Error())
 		return "", err
@@ -167,7 +167,7 @@ func (id MemberID) UnsubscribeAllChapters(ctx context.Context) error {
 }
 
 func (id MemberID) SubscribeAllChapters(ctx context.Context) error {
-	chapters, err := id.GetChapters()
+	chapters, err := id.GetChapters(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err

@@ -137,7 +137,7 @@ func SetMeField(ctx context.Context, id MemberID, field string, value string) er
 		return err
 	}
 
-	if err := id.ChangeLogStore(ChangeLogEntry{
+	if err := id.ChangeLogStore(ctx, ChangeLogEntry{
 		Changer: changer,
 		Field:   field,
 		Value:   value,
@@ -159,7 +159,7 @@ func (id MemberID) allowPrinted(ctx context.Context) bool {
 		return false
 	}
 
-	gr, err := id.GivingRecords()
+	gr, err := id.GivingRecords(ctx)
 	if err != nil {
 		return false
 	}

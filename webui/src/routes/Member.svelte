@@ -99,6 +99,7 @@
 				chaps = oo.chaptercache;
 			} else {
 				chaps = await getChapters();
+				oo.chaptercache = chaps;
 			}
 		} catch (err: any) {
 			toast.push(err.message);
