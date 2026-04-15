@@ -10,7 +10,7 @@
 
 	// if already logged in, go to home page
 	if (oo.me) {
-		push('#/');
+		push('/');
 	}
 
 	let username = $state('');
@@ -18,25 +18,15 @@
 
 	async function doLogin(event) {
 		event.preventDefault();
-
-		if (!username || !password) {
-			toast.push('Fill in both username and password');
-			return;
-		}
-
-		if (!emailRegex.test(username)) {
-			toast.push('Please use your email address as your username');
-			return;
-		}
-
 		try {
-			oo.me = await getJWT(username, password);
-			setTimeout(() => {
-				push('#/');
-			}, 300); // give the oo update time to propogate
+			const rawResult = await getJWT(username, password);
+			if (rawResult) {
+				oo.me = JSON.parse(window.atob(rawResult.split('.')[1]));
+				push('/');
+			}
 		} catch (e) {
 			console.error(e);
-			toast.push('Incorrect password for ' + username);
+			toast.push('Incorrect password or connection error');
 		}
 	}
 </script>

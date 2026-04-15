@@ -14,16 +14,15 @@ import (
 type AuthLevel uint8
 
 const (
-	AuthLevelView     AuthLevel = iota // view  members/subscribers
-	AuthLevelFullView                  // view full member data
-	AuthLevelManager                   // change/add members/subscribers
-	AuthLevelAdmin                     // add users
-	AuthLevelInternal                  // for internal use only -- no users
+	AuthLevelView     AuthLevel = iota // view public data (member/default)
+	AuthLevelFullView                  // read-only superuser (prior/canon)
+	AuthLevelManager                   // change/add members (council)
+	AuthLevelAdmin                     // full system control (elected)
+	AuthLevelInternal                  // internal system use
 )
 
 type Authname string
 
-// String satisfies the stringer interface
 func (u Authname) String() string {
 	return string(u)
 }
@@ -47,44 +46,57 @@ func IDFromContext(ctx context.Context) (MemberID, error) {
 
 func (u Authname) getAuthData() (string, AuthLevel, error) {
 	var pwhash string
-	var level AuthLevel
-	err := db.QueryRow("SELECT pwhash, level FROM auth WHERE user = ?", u).Scan(&pwhash, &level)
-	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("user %s not found", u)
-		slog.Error(err.Error(), "username", u)
-		return "", 0, err
-	}
+	var leadership string
+
+	query := `SELECT a.pwhash, m.Leadership FROM auth a JOIN member m ON a.user = m.PrimaryEmail WHERE a.user = ?`
+
+	err := db.QueryRow(query, u).Scan(&pwhash, &leadership)
 	if err != nil {
-		slog.Error(err.Error())
+		if err == sql.ErrNoRows {
+			return "", 0, fmt.Errorf("user %s not found", u)
+		}
+		slog.Error("database error in getAuthData", "err", err)
 		return "", 0, err
 	}
+
+	var level AuthLevel
+	switch leadership {
+	case "elected":
+		level = AuthLevelAdmin
+	case "council":
+		level = AuthLevelManager
+	case "prior", "canon":
+		level = AuthLevelFullView
+	default:
+		level = AuthLevelView
+	}
+
 	return pwhash, level, nil
 }
 
 func (u Authname) Authenticate(password string) (AuthLevel, error) {
 	pwhash, level, err := u.getAuthData()
-	if err != nil || pwhash == "" {
-		err := fmt.Errorf("the email address %s has not yet been registered", u)
-		slog.Error(err.Error())
+	if err != nil {
 		return 0, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(pwhash), []byte(password)); err != nil {
-		slog.Error("login failed", "err", err)
+		slog.Error("login failed", "username", u, "err", err)
 		return 0, err
 	}
 
 	return level, nil
 }
 
-func (u Authname) SetAuthData(pw string, level int) error {
+// SetAuthData no longer needs a level passed in; it only manages the credential
+func (u Authname) SetAuthData(pw string) error {
 	slog.Info("updating password", "username", u)
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pw), 14)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("REPLACE INTO auth VALUES (?,?,?)", u, bytes, level)
+	_, err = db.Exec("REPLACE INTO auth (user, pwhash) VALUES (?,?)", u, bytes)
 	if err != nil {
 		return err
 	}
@@ -93,40 +105,34 @@ func (u Authname) SetAuthData(pw string, level int) error {
 
 func (u Authname) Register() (string, error) {
 	slog.Info("registering user", "username", u)
+
+	// Ensure they exist in the member table first
 	if _, err := u.GetID(); err != nil {
 		return "", err
 	}
 
-	_, currentLevel, err := u.getAuthData()
+	newPassword, err := password.Generate(10, 3, 0, false, true)
 	if err != nil {
-		currentLevel = 0
-	}
-
-	password, err := password.Generate(10, 3, 0, false, true)
-	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("password generation failed", "err", err)
 		return "", err
 	}
 
-	if err := u.SetAuthData(password, int(currentLevel)); err != nil {
-		slog.Error(err.Error())
-		return password, err
+	if err := u.SetAuthData(newPassword); err != nil {
+		slog.Error("failed to set auth data", "err", err)
+		return "", err
 	}
 
-	// caller must send email
-	return password, nil
+	return newPassword, nil
 }
 
 func (u Authname) GetID() (MemberID, error) {
 	var id MemberID
 	err := db.QueryRow("SELECT id FROM member WHERE PrimaryEmail = ?", u).Scan(&id)
-	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("unknown primary email address")
-		slog.Error(err.Error(), "username", u)
-		return 0, err
-	}
 	if err != nil {
-		slog.Error(err.Error())
+		if err == sql.ErrNoRows {
+			return 0, fmt.Errorf("unknown primary email address")
+		}
+		slog.Error("database error in GetID", "err", err)
 		return 0, err
 	}
 	return id, nil

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"log/slog"
 	"os"
-	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
@@ -16,8 +15,7 @@ func main() {
 	flag.Parse()
 	username := model.Authname(flag.Arg(0))
 	password := flag.Arg(1)
-	level := flag.Arg(2)
-	if username == "" || password == "" || level == "" {
+	if username == "" || password == "" {
 		panic(usage)
 	}
 
@@ -33,12 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	ll, err := strconv.Atoi(level)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := username.SetAuthData(password, ll); err != nil {
+	if err := username.SetAuthData(password); err != nil {
 		panic(err.Error())
 	}
 }

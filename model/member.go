@@ -192,7 +192,7 @@ func (n *memberNulls) toMember() *Member {
 	}
 }
 
-func (n *Member) tomemberNulls() *memberNulls {
+/* func (n *Member) tomemberNulls() *memberNulls {
 	return &memberNulls{
 		ID:                 n.ID,
 		MemberStatus:       makeNullString(n.MemberStatus),
@@ -239,7 +239,7 @@ func (n *Member) tomemberNulls() *memberNulls {
 		Denomination:       makeNullString(n.Denomination),
 		Benefactor:         makeNullBool(n.Benefactor),
 	}
-}
+} */
 
 func (id MemberID) SetMemberField(ctx context.Context, field string, value string) error {
 	changer, ok := ctx.Value(CtxKeyID).(MemberID)

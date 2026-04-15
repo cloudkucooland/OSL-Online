@@ -116,19 +116,17 @@ export async function getJWT(username, password) {
 	const payload = await res.text();
 	localStorage.setItem('jwt', payload);
 	try {
-		const token = JSON.parse(window.atob(jwt.split('.')[1]));
+		const token = JSON.parse(window.atob(payload.split('.')[1]));
 		const exp = new Date(token.exp * 1000);
 
 		if (exp <= Date.now()) {
 			console.log('server sent expired token!');
-			// return undefined
 		}
 		if (token.aud[0] != 'OSL-Online') {
 			console.log('server sent weird token!');
-			// return undefined
 		}
 	} catch (e) {
-		console.log('unable to parse token');
+		console.log('unable to parse token', e); // useful to log the actual error 'e'
 		return undefined;
 	}
 	return payload;

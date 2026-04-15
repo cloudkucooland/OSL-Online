@@ -83,12 +83,13 @@ func makeNullString(in interface{}) sql.NullString {
 	}
 }
 
+/* unused now, was used in data import
 func makeNullBool(in bool) sql.NullBool {
 	return sql.NullBool{
 		Bool:  in,
 		Valid: true,
 	}
-}
+} */
 
 func makeNullTime(in time.Time) sql.NullTime {
 	zt, _ := time.Parse(timeformat, zerotime)
