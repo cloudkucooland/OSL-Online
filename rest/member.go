@@ -64,6 +64,7 @@ func setMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
@@ -88,6 +89,7 @@ func setMember(w http.ResponseWriter, r *http.Request) {
 }
 
 func createMember(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
@@ -119,7 +121,11 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(1024)
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
+	if err := r.ParseMultipartForm(1024); err != nil {
+		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		return
+	}
 	cs := r.PostFormValue("chapters")
 	var chapters []int
 

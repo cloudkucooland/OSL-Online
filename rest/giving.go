@@ -35,6 +35,7 @@ func getMemberGiving(w http.ResponseWriter, r *http.Request) {
 }
 
 func postMemberGiving(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)

@@ -35,6 +35,7 @@ func postNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		http.Error(w, jsonError(err), http.StatusNotAcceptable)
 		return
