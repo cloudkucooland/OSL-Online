@@ -11,8 +11,8 @@ func Leadership(ctx context.Context, category string) ([]*Member, error) {
 	members := make([]*Member, 0)
 
 	if category == "" {
-		slog.Warn("Leadership category is empty, defaulting to elected")
-		category = "elected"
+		slog.Warn("Leadership category is empty, defaulting to member")
+		category = "member"
 	}
 
 	rows, err := db.QueryContext(ctx, "SELECT ID FROM member WHERE Leadership = ? AND MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY LastName", category)
