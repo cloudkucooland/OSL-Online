@@ -145,11 +145,11 @@
 		<div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
 			<!-- Column 1: Identity -->
 			<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
-				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">My Identity</Heading>
+				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">Name</Heading>
 				<div class="space-y-4">
 					<div>
-						<Label class="mb-1 text-xs text-slate-400 italic">Legal Name (Office Use Only)</Label>
-						<Input value={`${member.FirstName} ${member.MiddleName || ''} ${member.LastName}`} disabled={cannotEdit} />
+						<Label class="mb-1 text-xs text-slate-400 italic">Name</Label>
+						{oslname(member)}
 					</div>
 					
 					<div class="mt-4 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
@@ -158,9 +158,9 @@
 							id="PreferredName"
 							value={member.PreferredName}
 							onchange={(e) => handleUpdate('PreferredName', e.target.value)}
-							placeholder="Name as you'd like it to appear"
+							placeholder="What should we call you?"
 						/>
-						<p class="mt-1 text-[10px] text-red-600 italic">This is how you will appear in the directory.</p>
+						<p class="mt-1 text-[10px] text-red-600 italic">If different than first/lifevow name (no need for Br/Sr/Sibling).</p>
 					</div>
 
 					<div>
@@ -222,7 +222,7 @@
 						</div>
 
 						<div class="mt-2 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
-							<Label class="mb-2 font-bold italic text-red-700">My Chapters</Label>
+							<Label class="mb-2 font-bold italic text-red-700">Chapters</Label>
 							<MultiSelect items={chaps} bind:value={selectedChapters} onchange={updateChapters} />
 						</div>
 
