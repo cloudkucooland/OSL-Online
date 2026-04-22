@@ -9,12 +9,6 @@ import (
 )
 
 func SendGiving(ctx context.Context, id model.MemberID, amount string, description string) error {
-	h, err := Setup()
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
 	member, err := id.Get(ctx)
 	if err != nil {
 		slog.Error(err.Error())
@@ -26,15 +20,16 @@ func SendGiving(ctx context.Context, id model.MemberID, amount string, descripti
 
 	e := hermes.Email{
 		Body: hermes.Body{
-			Name: member.OSLName(),
+			Title: "Donation Receipt",
+			Name:  member.OSLName(),
 			Intros: []string{
-				"Your donation has been recorded.",
+				"Your donation has been recorded. Thank you for your support of the Order.",
 			},
 			Table: hermes.Table{
 				Data: [][]hermes.Entry{
 					{
 						{Key: "Description", Value: description},
-						{Key: "Amount", Value: amount},
+						{Key: "Amount", Value: "$" + amount},
 					},
 				},
 			},
@@ -53,19 +48,7 @@ func SendGiving(ctx context.Context, id model.MemberID, amount string, descripti
 		},
 	}
 
-	body, err := h.GenerateHTML(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	text, err := h.GeneratePlainText(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if err := Send(member.PrimaryEmail, "OSL Donation Receipt", body, text); err != nil {
+	if err := GenerateAndSend(member.PrimaryEmail, "OSL Donation Receipt", e); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

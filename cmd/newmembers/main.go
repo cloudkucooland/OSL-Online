@@ -4,28 +4,17 @@
 package main
 
 import (
-	"context"
 	"encoding/csv"
-	"log/slog"
 	"os"
-	// "time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func main() {
-	dbpath := os.Getenv("OO_DB")
-	if dbpath == "" {
-		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
-	}
+	ctx, disconnect := model.ConnectCLI()
+	defer disconnect()
 
-	ctx := context.WithValue(context.Background(), model.CtxKeyLevel, model.AuthLevelInternal)
-	if err := model.Connect(ctx, dbpath); err != nil {
-		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
-		panic(err)
-	}
-
-	members, err := model.NewMemberIDs()
+	members, err := model.NewMemberIDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +23,7 @@ func main() {
 	_ = r.Write([]string{"DateFirstVows", "OSLName"})
 
 	for _, id := range members {
-		m, err := id.Get()
+		m, err := id.Get(ctx)
 		if err != nil {
 			continue
 		}
