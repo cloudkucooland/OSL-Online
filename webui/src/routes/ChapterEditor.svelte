@@ -5,6 +5,13 @@
 	import { push } from 'svelte-spa-router';
 	import { getChapters } from '../oo';
 
+	const oo = getContext('oo');
+
+	// Guard: Ensure admin access
+	if (!oo.me || oo.me.level < 3) {
+		push('/Login');
+	}
+
 	let { params = {} } = $props();
 	let selected = $state(0);
 	let chaps = $state([]);
@@ -88,7 +95,7 @@
 
 		{#if loading}
 			<div class="flex justify-center p-12">
-				<Spinner color="purple" />
+				<Spinner color="purple" size="12" />
 			</div>
 		{:else if selected > 0}
 			<Hr class="my-8" />
@@ -105,7 +112,7 @@
 			</div>
 
 			<div class="mt-8 flex justify-end">
-				<Button color="primary" on:click={updateChapter}>Save Chapter Changes</Button>
+				<Button color="primary" onclick={updateChapter}>Save Chapter Changes</Button>
 			</div>
 		{/if}
 	</Card>

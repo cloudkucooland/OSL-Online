@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -18,13 +17,9 @@ func getLeadership(w http.ResponseWriter, r *http.Request) {
 	leaders, err := model.Leadership(r.Context(), category)
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(leaders); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, leaders)
 }

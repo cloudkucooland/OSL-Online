@@ -1,10 +1,8 @@
 package rest
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/cloudkucooland/OSL-Online/model"
@@ -15,15 +13,11 @@ func getNecrology(w http.ResponseWriter, r *http.Request) {
 	isee, err := model.Necrology(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(isee); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, isee)
 }
 
 func getCommemorations(w http.ResponseWriter, r *http.Request) {
@@ -32,20 +26,20 @@ func getCommemorations(w http.ResponseWriter, r *http.Request) {
 	day := date.Day()
 
 	if m := r.FormValue("month"); m != "" {
-		mm, err := strconv.Atoi(m)
+		mm, err := parseIDFromString(m)
 		if err != nil {
 			slog.Error(err.Error())
-			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			sendError(w, err, http.StatusInternalServerError)
 			return
 		}
 		month = time.Month(mm)
 	}
 
 	if d := r.FormValue("day"); d != "" {
-		dd, err := strconv.Atoi(d)
+		dd, err := parseIDFromString(d)
 		if err != nil {
 			slog.Error(err.Error())
-			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			sendError(w, err, http.StatusInternalServerError)
 			return
 		}
 		day = dd
@@ -55,13 +49,9 @@ func getCommemorations(w http.ResponseWriter, r *http.Request) {
 	isee, err := model.Commemorations(r.Context(), month, day)
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(isee); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, isee)
 }

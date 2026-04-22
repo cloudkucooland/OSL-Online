@@ -67,7 +67,7 @@
 
 	{#if loading}
 		<div class="flex justify-center py-40">
-			<Spinner color="dark" size="16" />
+			<Spinner color="purple" size="12" />
 		</div>
 	{:else}
 		<div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-md">

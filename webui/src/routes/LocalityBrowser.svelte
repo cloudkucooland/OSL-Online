@@ -1,10 +1,17 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, getContext } from 'svelte';
 	import { Select, Card, Badge, Label, Heading, Alert } from 'flowbite-svelte';
 	import { InfoCircleOutline, MapPinAltOutline } from 'flowbite-svelte-icons';
 	import { toast } from '@zerodevx/svelte-toast';
 	import { push } from 'svelte-spa-router';
 	import { oslname, getLocalities, getLocalityMembers } from '../oo';
+
+	const oo = getContext('oo');
+
+	// Guard: Ensure user is logged in
+	if (!oo.me) {
+		push('/Login');
+	}
 
 	let { params = {} } = $props();
 	let locs = $state([]);

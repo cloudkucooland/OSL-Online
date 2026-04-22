@@ -58,14 +58,13 @@ func (id SubscriberID) Get(ctx context.Context) (*Subscriber, error) {
 	var n subNulls
 
 	err := db.QueryRowContext(ctx, "SELECT ID, Name, Attn, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, DateRecordCreated, DatePaid, Doxology, Newsletter, Communication FROM subscriber WHERE ID = ?", id).Scan(&n.ID, &n.Name, &n.Attn, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.DateRecordCreated, &n.DatePaid, &n.Doxology, &n.Newsletter, &n.Communication)
-	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("subscriber not found")
-		slog.Error(err.Error(), "id", id)
-		return nil, err
-	}
 	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
+		if err == sql.ErrNoRows {
+			slog.Warn("subscriber not found", "id", id)
+			return nil, fmt.Errorf("subscriber %d not found", id)
+		}
+		slog.Error("database error in Subscriber.Get", "err", err, "id", id)
+		return nil, fmt.Errorf("database error: %w", err)
 	}
 
 	s := (&n).toSubscriber()
@@ -116,17 +115,16 @@ func (n *subNulls) Store() error {
 } */
 
 func (id SubscriberID) SetField(ctx context.Context, field string, value string) error {
-	slog.Info("updating", "id", id, "field", field, "value", value)
+	changer, _ := ctx.Value(CtxKeyID).(MemberID)
+	slog.Info("updating subscriber field", "id", id, "field", field, "value", value, "by", changer)
 
 	if field == "id" {
-		err := fmt.Errorf("cannot change ID")
-		slog.Error(err.Error())
-		return err
+		slog.Warn("attempt to change subscriber ID", "id", id, "by", changer)
+		return fmt.Errorf("cannot change ID")
 	}
 	if strings.ContainsAny(field, "`;%") {
-		err := fmt.Errorf("sql injection attempt [%s]", field)
-		slog.Error(err.Error())
-		return err
+		slog.Warn("potential sql injection attempt in SetField", "field", field, "by", changer)
+		return fmt.Errorf("invalid field name [%s]", field)
 	}
 	q := fmt.Sprintf("UPDATE `subscriber` SET `%s` = ? WHERE `id` = ?", field)
 
@@ -138,12 +136,12 @@ func (id SubscriberID) SetField(ctx context.Context, field string, value string)
 		}
 		t, err := time.Parse(timeformat, value)
 		if err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Warn("invalid date format in SetField", "value", value, "id", id)
+			return fmt.Errorf("invalid date format: %w", err)
 		}
 		if _, err := db.ExecContext(ctx, q, t, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetField (DatePaid)", "err", err, "id", id)
+			return fmt.Errorf("database error: %w", err)
 		}
 	default:
 		value = strings.TrimSpace(value)
@@ -156,12 +154,10 @@ func (id SubscriberID) SetField(ctx context.Context, field string, value string)
 			ns.String = value
 		}
 		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	}
-
-	// log
 
 	return nil
 }

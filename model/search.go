@@ -20,6 +20,11 @@ type SearchResult struct {
 func Search(ctx context.Context, query string) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
+	if len(query) < 3 {
+		slog.Warn("Search query too short", "query", query)
+		return res, fmt.Errorf("query too short")
+	}
+
 	qq := fmt.Sprintf("%%%s%%", query)
 
 	var pn sql.NullString
@@ -33,15 +38,15 @@ func Search(ctx context.Context, query string) ([]*SearchResult, error) {
 
 	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE FirstName like ? OR LastName like ? OR PreferredName LIKE ? OR LifeVowName LIKE ? ORDER BY LastName, FirstName", qq, qq, qq, qq)
 	if err != nil {
-		slog.Error(err.Error())
-		return res, err
+		slog.Error("database error in Search", "err", err, "query", query)
+		return res, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var n SearchResult
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in Search", "err", err, "query", query)
 			continue
 		}
 		if pn.Valid {
@@ -64,6 +69,11 @@ func Search(ctx context.Context, query string) ([]*SearchResult, error) {
 func SearchEmail(ctx context.Context, query string) ([]*SearchResult, error) {
 	res := make([]*SearchResult, 0)
 
+	if query == "" {
+		slog.Warn("SearchEmail query is empty")
+		return res, fmt.Errorf("query cannot be empty")
+	}
+
 	var pn sql.NullString
 
 	showUnlisted := false
@@ -74,15 +84,15 @@ func SearchEmail(ctx context.Context, query string) ([]*SearchResult, error) {
 
 	rows, err := db.QueryContext(ctx, "SELECT ID, MemberStatus, FirstName, LastName, PreferredName, ListInDirectory FROM member WHERE PrimaryEmail = ? OR SecondaryEmail = ?", query, query)
 	if err != nil {
-		slog.Error(err.Error())
-		return res, err
+		slog.Error("database error in SearchEmail", "err", err, "query", query)
+		return res, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var n SearchResult
 		if err = rows.Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.LastName, &pn, &n.ListInDirectory); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in SearchEmail", "err", err, "query", query)
 			continue
 		}
 		if pn.Valid {

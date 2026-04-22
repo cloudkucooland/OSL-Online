@@ -2,10 +2,12 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -59,20 +61,20 @@ func authMW(next http.HandlerFunc, requiredlevel model.AuthLevel) http.HandlerFu
 		token, err := parsetoken(r)
 		if err != nil {
 			slog.Error("token parse/validate failed", "error", err.Error())
-			http.Error(w, jsonError(err), http.StatusUnauthorized)
+			sendError(w, err, http.StatusUnauthorized)
 			return
 		}
 
 		claim, ok := token.Get("level")
 		if !ok {
-			http.Error(w, `{"error":"no level claim"}`, http.StatusInternalServerError)
+			sendError(w, fmt.Errorf("no level claim"), http.StatusInternalServerError)
 			return
 		}
 
 		checklevel, ok := claim.(float64)
 		if !ok || model.AuthLevel(checklevel) < requiredlevel {
 			slog.Warn("access level too low", "user", token.Subject())
-			http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
+			sendError(w, fmt.Errorf("forbidden"), http.StatusForbidden)
 			return
 		}
 
@@ -80,7 +82,7 @@ func authMW(next http.HandlerFunc, requiredlevel model.AuthLevel) http.HandlerFu
 		uid, err := username.GetID(r.Context())
 		if err != nil {
 			slog.Error("failed to get UID from token subject", "sub", token.Subject())
-			http.Error(w, jsonError(err), http.StatusInternalServerError)
+			sendError(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -108,6 +110,45 @@ func getUser(r *http.Request) string {
 		return ""
 	}
 	return string(token.Subject())
+}
+
+func parseID(r *http.Request, key string) (int, error) {
+	val := r.PathValue(key)
+	id, err := strconv.Atoi(val)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s: %w", key, err)
+	}
+	return id, nil
+}
+
+func parseUintID(r *http.Request, key string) (uint64, error) {
+	val := r.PathValue(key)
+	id, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s: %w", key, err)
+	}
+	return id, nil
+}
+
+func parseIDFromString(s string) (int, error) {
+	id, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func sendJSON(w http.ResponseWriter, v any) {
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		slog.Error("json encode failed", "error", err)
+		sendError(w, err, http.StatusInternalServerError)
+	}
+}
+
+func sendError(w http.ResponseWriter, err error, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	fmt.Fprint(w, jsonError(err))
 }
 
 func jsonError(e error) string {

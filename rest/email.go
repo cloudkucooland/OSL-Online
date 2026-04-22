@@ -13,30 +13,24 @@ func postEmail(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024 * 4); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	message := r.PostFormValue("message")
 	if message == "" {
-		err := fmt.Errorf("message not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("message not set"), http.StatusNotAcceptable)
 		return
 	}
 
 	whom := r.PostFormValue("whom")
 	if whom == "" {
-		err := fmt.Errorf("whom not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("whom not set"), http.StatusNotAcceptable)
 		return
 	}
 	subject := r.PostFormValue("subject")
 	if subject == "" {
-		err := fmt.Errorf("subject not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("subject not set"), http.StatusNotAcceptable)
 		return
 	}
 
@@ -56,7 +50,7 @@ func postEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -64,7 +58,7 @@ func postEmail(w http.ResponseWriter, r *http.Request) {
 
 	if err := email.SendGeneric(r.Context(), ids, subject, message); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 

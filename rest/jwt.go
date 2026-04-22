@@ -21,8 +21,15 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
+var stateStore = "/var/oo"
+
+func init() {
+	if s := os.Getenv("OO_STATE_STORE"); s != "" {
+		stateStore = s
+	}
+}
+
 const jwtSignerFilename = "signer.jwk"
-const stateStore = "/var/oo"
 
 func mintjwt(username model.Authname, level model.AuthLevel) (string, error) {
 	hostname, err := os.Hostname()
@@ -61,7 +68,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -69,7 +76,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if username == "" {
 		err := fmt.Errorf("login: username not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -77,21 +84,21 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if password == "" {
 		err := fmt.Errorf("login: password not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	level, err := username.Authenticate(r.Context(), password)
 	if err != nil {
 		slog.Error("login failed", "err", err)
-		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	JWT, err := mintjwt(username, model.AuthLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -181,7 +188,7 @@ func refresh(w http.ResponseWriter, r *http.Request) {
 	token, err := parsetoken(r)
 	if err != nil {
 		slog.Error("refresh: token parse/validate failed", "error", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -189,21 +196,21 @@ func refresh(w http.ResponseWriter, r *http.Request) {
 	claim, ok := token.Get("level")
 	if !ok {
 		err := fmt.Errorf("no level claim in token")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	level, ok := claim.(float64)
 	if !ok {
 		err := fmt.Errorf("authlevel type assertion failed")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	JWT, err := mintjwt(model.Authname(username), model.AuthLevel(level))
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 

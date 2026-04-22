@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 )
 
@@ -31,8 +32,8 @@ func (c *Chapter) Update(ctx context.Context) error {
 
 	_, err := db.ExecContext(ctx, "UPDATE `chapters` SET `name` = ?, `prior` = ?, `email` = ? WHERE `id` = ?", c.Name, c.Prior, c.ID, e)
 	if err != nil {
-		slog.Error(err.Error())
-		return err
+		slog.Error("database error in Chapter.Update", "err", err, "id", c.ID)
+		return fmt.Errorf("database error: %w", err)
 	}
 	if e.Valid {
 		c.Email = e.String
@@ -44,8 +45,8 @@ func (c *Chapter) Update(ctx context.Context) error {
 func (c *Chapter) Remove(ctx context.Context) error {
 	_, err := db.ExecContext(ctx, "DELETE FROM `chapters` WHERE `ID` = ?", c.ID)
 	if err != nil {
-		slog.Error(err.Error())
-		return err
+		slog.Error("database error in Chapter.Remove", "err", err, "id", c.ID)
+		return fmt.Errorf("database error: %w", err)
 	}
 	return nil
 }
@@ -54,12 +55,12 @@ func Chapters(ctx context.Context) ([]*Chapter, error) {
 	ch := make([]*Chapter, 0)
 
 	rows, err := db.QueryContext(ctx, "SELECT `id`, `name`, `prior`, `email` FROM `chapters` ORDER BY `name`")
-	if err != nil && err == sql.ErrNoRows {
-		return ch, nil
-	}
 	if err != nil {
-		slog.Error(err.Error())
-		return ch, err
+		if err == sql.ErrNoRows {
+			return ch, nil
+		}
+		slog.Error("database error in Chapters", "err", err)
+		return ch, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
@@ -69,7 +70,7 @@ func Chapters(ctx context.Context) ([]*Chapter, error) {
 		var c Chapter
 		err := rows.Scan(&c.ID, &c.Name, &c.Prior, &e)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in Chapters", "err", err)
 			continue
 		}
 		if e.Valid {
@@ -85,12 +86,12 @@ func (c *Chapter) Members(ctx context.Context) ([]*Member, error) {
 	members := make([]*Member, 0)
 
 	rows, err := db.QueryContext(ctx, "SELECT m.ID FROM member=m, chaptermembers=x WHERE x.chapter = ? AND m.ID = x.member AND m.MemberStatus NOT IN ('Removed', 'Deceased') ORDER BY m.LastName", c.ID)
-	if err != nil && err == sql.ErrNoRows {
-		return members, nil
-	}
 	if err != nil {
-		slog.Error(err.Error())
-		return members, err
+		if err == sql.ErrNoRows {
+			return members, nil
+		}
+		slog.Error("database error in Chapter.Members", "err", err, "id", c.ID)
+		return members, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
@@ -98,7 +99,7 @@ func (c *Chapter) Members(ctx context.Context) ([]*Member, error) {
 		var id MemberID
 
 		if err := rows.Scan(&id); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in Chapter.Members", "err", err, "id", c.ID)
 			continue
 		}
 		m, err := id.Get(ctx)
@@ -118,8 +119,12 @@ func (id ChapterID) Load(ctx context.Context) (*Chapter, error) {
 	var c Chapter
 	err := db.QueryRowContext(ctx, "SELECT `id`, `name`, `prior`, `email` FROM `chapters` WHERE `id` = ?", id).Scan(&c.ID, &c.Name, &c.Prior, &c.Email)
 	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
+		if err == sql.ErrNoRows {
+			slog.Warn("chapter not found", "id", id)
+			return nil, fmt.Errorf("chapter %d not found", id)
+		}
+		slog.Error("database error in ChapterID.Load", "err", err, "id", id)
+		return nil, fmt.Errorf("database error: %w", err)
 	}
 	return &c, nil
 }

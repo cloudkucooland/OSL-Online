@@ -81,7 +81,7 @@
 					bind:value={query}
 				/>
 			</div>
-			<Button type="submit" color="blue" disabled={searching || !query.trim()}>
+			<Button type="submit" color="primary" disabled={searching || !query.trim()}>
 				{#if searching}<Spinner size="4" class="mr-2" />{/if}
 				Search
 			</Button>
@@ -114,7 +114,7 @@
 							<TableBodyCell>{r.Attn || '—'}</TableBodyCell>
 							<TableBodyCell class="text-right">
 								<Badge
-									color="blue"
+									color="primary"
 									outline
 									class="transition-colors group-hover:bg-blue-600 group-hover:text-white"
 								>

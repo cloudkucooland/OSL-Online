@@ -17,7 +17,7 @@ func reports(w http.ResponseWriter, r *http.Request) {
 	if report == "" {
 		err := fmt.Errorf("report request not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 	slog.Info("report", "requested", report, "requester", getUser(r))
@@ -60,7 +60,7 @@ func reports(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 }

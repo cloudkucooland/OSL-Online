@@ -9,11 +9,12 @@
 		MultiSelect,
 		Card,
 		Badge,
-		Helper,
 		Heading,
 		Hr,
-		Spinner
+		Spinner,
+		Button
 	} from 'flowbite-svelte';
+	import { ChartMixedDollarOutline, AddressBookOutline } from 'flowbite-svelte-icons';
 	import { toast } from '@zerodevx/svelte-toast';
 	import {
 		getMeFromServer,
@@ -21,8 +22,14 @@
 		getChapters,
 		updateMeChapters,
 		getMeChapters,
-		oslname
+		oslname,
+		vcard
 	} from '../oo';
+
+	// Shared Components
+	import AddressSection from '$lib/AddressSection.svelte';
+	import ContactSection from '$lib/ContactSection.svelte';
+	import FulfillmentSection from '$lib/FulfillmentSection.svelte';
 
 	const oo = getContext('oo');
 
@@ -33,26 +40,7 @@
 	let selectedChapters = $state([]);
 
 	// Constants
-	const cannotEdit = true;
-
-	const newsletterItems = [
-		{ value: 'none', name: 'None' },
-		{ value: 'electronic', name: 'Electronic' }
-	];
-
-	const commitems = [
-		{ value: 'none', name: 'None' },
-		{ value: 'mailed', name: 'Mailed' },
-		{ value: 'electronic', name: 'Electronic' }
-	];
-
-	const memberstatus = [
-		{ value: 'Annual Vows', name: 'Annual Vows' },
-		{ value: 'Life Vows', name: 'Life Vows' },
-		{ value: 'Removed', name: 'Removed' },
-		{ value: 'Friend', name: 'Friend' },
-		{ value: 'Benefactor', name: 'Benefactor' }
-	];
+	const cannotEdit = true; // Most core fields are managed by office
 
 	const titles = [
 		{ value: ' ', name: 'None' },
@@ -69,14 +57,6 @@
 		{ value: 'retired clergy', name: 'Retired (clergy)' }
 	];
 
-	const leadership = [
-		{ value: 'member', name: 'Member' },
-		{ value: 'prior', name: 'Prior' },
-		{ value: 'council', name: 'General Council Officer' },
-		{ value: 'canon', name: 'Canon' },
-		{ value: 'elected', name: 'Elected Officer' }
-	];
-
 	onMount(async () => {
 		if (!oo.me) {
 			push('/Login');
@@ -90,19 +70,20 @@
 				chaps = oo.chaptercache;
 			} else {
 				chaps = await getChapters();
+				oo.chaptercache = chaps;
 			}
-		} catch (err) {
+		} catch (err: any) {
 			toast.push(err.message);
 		} finally {
 			loading = false;
 		}
 	});
 
-	async function handleUpdate(id, value, isCheck = false) {
+	async function handleUpdate(id: string, value: any) {
 		try {
 			await updateMe(id, value);
 			toast.push(`Saved changes to ${id}`);
-		} catch (err) {
+		} catch (err: any) {
 			toast.push(`Error: ${err.message}`);
 		}
 	}
@@ -111,236 +92,144 @@
 		try {
 			await updateMeChapters(selectedChapters);
 			toast.push('Updated Chapter affiliations');
-		} catch (err) {
+		} catch (err: any) {
 			toast.push(err.message);
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>OSL Member Record</title>
+	<title>My Profile | OSL Directory</title>
 </svelte:head>
 
 <div class="mx-auto w-full space-y-8 px-4 py-8">
 	{#if loading}
-		<div class="flex justify-center p-20">
+		<div class="flex justify-center py-20">
 			<Spinner size="12" color="purple" />
 		</div>
 	{:else if member}
 		<header
-			class="flex flex-col items-center justify-between gap-6 rounded-xl border border-slate-200 bg-white p-8 shadow-sm md:flex-row"
+			class="flex flex-col items-center justify-between gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row"
 		>
-			<div>
-				<div class="mb-2 flex items-center gap-3">
+			<div class="flex items-center gap-4">
+				<div>
 					<Heading tag="h2" class="text-3xl font-bold text-slate-900">{oslname(member)}</Heading>
-					<Badge color="purple" class="px-3 text-sm">{member.MemberStatus}</Badge>
+					<div class="mt-1 flex items-center gap-2">
+						<Badge color="purple" class="text-[10px] uppercase">{member.MemberStatus}</Badge>
+						<span class="font-mono text-xs text-slate-400">ID: {member.ID}</span>
+					</div>
 				</div>
 			</div>
-
-			<div class="flex flex-col items-center rounded-lg border border-red-100 bg-red-50 p-4">
-				<Toggle
-					id="ListInDirectory"
-					checked={member.ListInDirectory}
-					onchange={(e) => handleUpdate('ListInDirectory', e.target.checked)}
-					color="red"
-				>
-					<span class="font-bold text-red-700">List in Directory</span>
-				</Toggle>
+			
+			<div class="flex flex-wrap items-center gap-4">
+				<div class="flex flex-col items-center rounded-lg border border-red-100 bg-red-50 px-4 py-2">
+					<Toggle
+						id="ListInDirectory"
+						checked={member.ListInDirectory}
+						onchange={(e) => handleUpdate('ListInDirectory', e.target.checked)}
+						color="red"
+						size="small"
+					>
+						<span class="text-xs font-bold text-red-700">List in Directory</span>
+					</Toggle>
+				</div>
+				<Button size="sm" color="alternative" href="#/mygiving">
+					<ChartMixedDollarOutline class="mr-2 h-4 w-4" />My Giving
+				</Button>
+				<Button size="sm" color="purple" onclick={() => vcard(member.ID)}>
+					<AddressBookOutline class="mr-2 h-4 w-4" />vCard
+				</Button>
 			</div>
 		</header>
 
 		<div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+			<!-- Column 1: Identity -->
 			<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
-				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-					>Personal Information</Heading
-				>
+				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">My Identity</Heading>
 				<div class="space-y-4">
 					<div>
-						<Label class="mb-1">First Name</Label><Input
-							value={member.FirstName}
-							disabled={cannotEdit}
-						/>
+						<Label class="mb-1 text-xs text-slate-400 italic">Legal Name (Office Use Only)</Label>
+						<Input value={`${member.FirstName} ${member.MiddleName || ''} ${member.LastName}`} disabled={cannotEdit} />
 					</div>
-					<div>
-						<Label class="mb-1">Middle Name</Label><Input
-							value={member.MiddleName}
-							disabled={cannotEdit}
-						/>
-					</div>
-					<div>
-						<Label class="mb-1">Last Name</Label><Input
-							value={member.LastName}
-							disabled={cannotEdit}
-						/>
-					</div>
-					<div>
-						<Label class="mb-1">Suffix</Label><Input value={member.Suffix} disabled={cannotEdit} />
-					</div>
-					<div>
-						<Label class="mb-1">Life Vow Name</Label><Input
-							value={member.LifeVowName}
-							disabled={cannotEdit}
-						/>
-					</div>
-
-					<div class="mt-4 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-3">
-						<Label class="mb-1 font-bold italic text-red-700">Preferred Name</Label>
+					
+					<div class="mt-4 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
+						<Label class="mb-1 font-bold text-red-700">Preferred Name</Label>
 						<Input
 							id="PreferredName"
 							value={member.PreferredName}
 							onchange={(e) => handleUpdate('PreferredName', e.target.value)}
+							placeholder="Name as you'd like it to appear"
 						/>
+						<p class="mt-1 text-[10px] text-red-600 italic">This is how you will appear in the directory.</p>
 					</div>
 
 					<div>
-						<Label class="mb-1 font-bold text-red-700">Title</Label><Select
+						<Label class="mb-1 font-bold text-red-700">Title</Label>
+						<Select
 							id="Title"
 							items={titles}
 							value={member.Title}
 							onchange={(e) => handleUpdate('Title', e.target.value)}
-							disabled={member.MemberStatus == 'Friend'}
+							disabled={member.MemberStatus === 'Friend'}
 						/>
 					</div>
+					
+					<Hr class="my-6" />
+					
 					<div>
-						<Label class="mb-1">Birth Date</Label><Input
-							value={member.BirthDate}
-							disabled={cannotEdit}
-						/>
+						<Label class="mb-1 text-xs text-slate-400 italic">Birth Date</Label>
+						<Input id="BirthDate" value={member.BirthDate} onchange={(e) => handleUpdate('BirthDate', e.target.value)} placeholder="YYYY-MM-DD" />
 					</div>
 				</div>
 			</Card>
 
+			<!-- Column 2: Contact & Mailing -->
 			<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
-				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-					>Contact & Mailing</Heading
-				>
-				<div class="space-y-4">
-					<div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-						<div class="mb-4 flex items-center justify-between">
-							<span class="text-xs font-bold uppercase text-slate-400">Mailing Address</span>
-							<Toggle
-								size="small"
-								checked={member.ListAddress}
-								onchange={(e) => handleUpdate('ListAddress', e.target.checked)}
-								color="red"
-							/>
-						</div>
-						<div class="space-y-2">
-							<Input value={member.Address} disabled={cannotEdit} placeholder="Line 1" />
-							<Input value={member.AddressLine2} disabled={cannotEdit} placeholder="Line 2" />
-							<div class="grid grid-cols-2 gap-2">
-								<Input value={member.City} disabled={cannotEdit} placeholder="City" />
-								<Input value={member.State} disabled={cannotEdit} placeholder="State" />
-							</div>
-							<div class="grid grid-cols-2 gap-2">
-								<Input value={member.Country} disabled={cannotEdit} placeholder="Country" />
-								<Input value={member.PostalCode} disabled={cannotEdit} placeholder="Postal Code" />
-							</div>
-						</div>
-					</div>
-
-					<div class="space-y-4">
-						<div class="flex items-center gap-2">
-							<div class="flex-grow">
-								<Label class="text-xs italic">Primary Email</Label><Input
-									value={member.PrimaryEmail}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<Toggle
-								class="mt-5"
-								checked={member.ListPrimaryEmail}
-								onchange={(e) => handleUpdate('ListPrimaryEmail', e.target.checked)}
-								color="red"
-							/>
-						</div>
-						<div class="flex items-center gap-2 border-b pb-4">
-							<div class="flex-grow">
-								<Label class="text-xs italic">Primary Phone</Label><Input
-									value={member.PrimaryPhone}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<Toggle
-								class="mt-5"
-								checked={member.ListPrimaryPhone}
-								onchange={(e) => handleUpdate('ListPrimaryPhone', e.target.checked)}
-								color="red"
-							/>
-						</div>
-						<div class="flex items-center gap-2">
-							<div class="flex-grow">
-								<Label class="text-xs italic text-slate-400">Secondary Email</Label><Input
-									value={member.SecondaryEmail}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<Toggle
-								class="mt-5"
-								checked={member.ListSecondaryEmail}
-								onchange={(e) => handleUpdate('ListSecondaryEmail', e.target.checked)}
-								color="red"
-							/>
-						</div>
-						<div class="flex items-center gap-2">
-							<div class="flex-grow">
-								<Label class="text-xs italic text-slate-400">Secondary Phone</Label><Input
-									value={member.SecondaryPhone}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<Toggle
-								class="mt-5"
-								checked={member.ListSecondaryPhone}
-								onchange={(e) => handleUpdate('ListSecondaryPhone', e.target.checked)}
-								color="red"
-							/>
-						</div>
-					</div>
-				</div>
+				<AddressSection
+					data={member}
+					onUpdate={handleUpdate}
+					showPrivacy={true}
+					disabled={true}
+					title="Mailing Address"
+				/>
+				
+				<Hr class="my-6" />
+				
+				<ContactSection
+					data={member}
+					onUpdate={handleUpdate}
+					showPrivacy={true}
+					disabled={true}
+					title="Contact Information"
+				/>
+				<p class="mt-4 text-[10px] italic text-slate-400">Contact the office to update your address or core email/phone.</p>
 			</Card>
 
+			<!-- Column 3: Vocation & Comms -->
 			<div class="space-y-8">
 				<Card size="none" class="border-slate-200 p-6 shadow-sm">
-					<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-						>Vocation & Status</Heading
-					>
+					<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">Vocation</Heading>
 					<div class="space-y-4">
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-								<Label class="text-xs">Novitiate</Label><Input
-									value={member.DateNovitiate}
-									disabled={cannotEdit}
-								/>
+								<Label class="text-[10px] uppercase text-slate-400">First Vows</Label>
+								<p class="font-semibold text-slate-700">{member.DateFirstVows || '—'}</p>
 							</div>
 							<div>
-								<Label class="text-xs">First Vows</Label><Input
-									value={member.DateFirstVows}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<div>
-								<Label class="text-xs">Life Vows</Label><Input
-									value={member.DateLifeVows}
-									disabled={cannotEdit}
-								/>
-							</div>
-							<div>
-								<Label class="text-xs font-bold">Reaffirmation</Label><Input
-									value={member.DateReaffirmation}
-									disabled={true}
-								/>
+								<Label class="text-[10px] uppercase text-slate-400 font-bold text-primary-700">Reaffirmation</Label>
+								<p class="font-bold text-primary-800">{member.DateReaffirmation || '—'}</p>
 							</div>
 						</div>
 
 						<div class="mt-2 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
-							<Label class="mb-2 font-bold italic text-red-700">Active Chapters</Label>
+							<Label class="mb-2 font-bold italic text-red-700">My Chapters</Label>
 							<MultiSelect items={chaps} bind:value={selectedChapters} onchange={updateChapters} />
 						</div>
 
 						<div class="space-y-4 pt-2">
 							<div>
-								<Label class="font-bold italic text-red-700">Status</Label><Select
+								<Label class="font-bold text-red-700">Ecclesial Status</Label>
+								<Select
 									id="Status"
 									items={stati}
 									value={member.Status}
@@ -348,58 +237,22 @@
 								/>
 							</div>
 							<div>
-								<Label class="text-xs">Occupation</Label><Input
-									value={member.Occupation}
-									onchange={(e) => handleUpdate('Occupation', e.target.value)}
-								/>
+								<Label class="text-xs">Occupation</Label>
+								<Input id="Occupation" value={member.Occupation} onchange={(e) => handleUpdate('Occupation', e.target.value)} />
 							</div>
 							<div>
-								<Label class="text-xs">Employer</Label><Input
-									value={member.Employer}
-									onchange={(e) => handleUpdate('Employer', e.target.value)}
-								/>
+								<Label class="text-xs">Employer</Label>
+								<Input id="Employer" value={member.Employer} onchange={(e) => handleUpdate('Employer', e.target.value)} />
 							</div>
 							<div>
-								<Label class="text-xs">Denomination</Label><Input
-									value={member.Denomination}
-									onchange={(e) => handleUpdate('Denomination', e.target.value)}
-								/>
+								<Label class="text-xs">Denomination</Label>
+								<Input id="Denomination" value={member.Denomination} onchange={(e) => handleUpdate('Denomination', e.target.value)} />
 							</div>
 						</div>
 					</div>
 				</Card>
 
-				<Card size="none" class="border-slate-200 bg-slate-50/50 p-6 shadow-sm">
-					<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-						>Communications</Heading
-					>
-					<div class="space-y-4">
-						<div>
-							<Label class="font-bold italic text-red-700">Newsletter</Label>
-							<Select
-								items={newsletterItems}
-								value={member.Newsletter}
-								onchange={(e) => handleUpdate('Newsletter', e.target.value)}
-							/>
-						</div>
-						<div>
-							<Label class="font-bold italic text-red-700">Doxology</Label>
-							<Select
-								items={commitems}
-								value={member.Doxology}
-								onchange={(e) => handleUpdate('Doxology', e.target.value)}
-							/>
-						</div>
-						<div>
-							<Label class="font-bold italic text-red-700">General Communication</Label>
-							<Select
-								items={commitems}
-								value={member.Communication}
-								onchange={(e) => handleUpdate('Communication', e.target.value)}
-							/>
-						</div>
-					</div>
-				</Card>
+				<FulfillmentSection data={member} onUpdate={handleUpdate} />
 			</div>
 		</div>
 	{/if}

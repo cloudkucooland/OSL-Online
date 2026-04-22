@@ -72,7 +72,7 @@
 
 			<div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
 				<Button color="alternative" onclick={() => push('/subsearch')}>Cancel</Button>
-				<Button type="submit" color="indigo" disabled={processing}>
+				<Button type="submit" color="primary" disabled={processing}>
 					{processing ? 'Creating...' : 'Add Subscriber'}
 				</Button>
 			</div>

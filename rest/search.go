@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -14,7 +13,7 @@ func postSearch(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -22,7 +21,7 @@ func postSearch(w http.ResponseWriter, r *http.Request) {
 	if query == "" || query == "undefined" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -30,7 +29,7 @@ func postSearch(w http.ResponseWriter, r *http.Request) {
 	if len(query) < 3 {
 		err := fmt.Errorf("query too short")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -38,22 +37,18 @@ func postSearch(w http.ResponseWriter, r *http.Request) {
 	result, err := model.Search(r.Context(), query)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, result)
 }
 
 func postEmailSearch(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -61,7 +56,7 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request) {
 	if query == "" || query == "undefined" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -69,13 +64,9 @@ func postEmailSearch(w http.ResponseWriter, r *http.Request) {
 	result, err := model.SearchEmail(r.Context(), query)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, result)
 }

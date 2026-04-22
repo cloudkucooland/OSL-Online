@@ -126,14 +126,13 @@ func (id MemberID) Get(ctx context.Context) (*Member, error) {
 	}
 
 	err := db.QueryRowContext(ctx, "SELECT ID, MemberStatus, FirstName, MiddleName, LastName, PreferredName, Title, LifevowName, Suffix, Address, AddressLine2, City, State, Country, PostalCode, PrimaryPhone, SecondaryPhone, PrimaryEmail, SecondaryEmail, BirthDate, DateRecordCreated, DateFirstVows, DateReaffirmation, DateRemoved, DateDeceased, DateNovitiate, DateLifeVows, Status, Leadership, HowJoined, HowRemoved, ListInDirectory, ListAddress, ListPrimaryPhone, ListSecondaryPhone, ListPrimaryEmail, ListSecondaryEmail, Doxology, Newsletter, Communication, Occupation, Employer, Denomination, Benefactor FROM member WHERE ID = ?", id).Scan(&n.ID, &n.MemberStatus, &n.FirstName, &n.MiddleName, &n.LastName, &n.PreferredName, &n.Title, &n.LifevowName, &n.Suffix, &n.Address, &n.AddressLine2, &n.City, &n.State, &n.Country, &n.PostalCode, &n.PrimaryPhone, &n.SecondaryPhone, &n.PrimaryEmail, &n.SecondaryEmail, &n.BirthDate, &n.DateRecordCreated, &n.DateFirstVows, &n.DateReaffirmation, &n.DateRemoved, &n.DateDeceased, &n.DateNovitiate, &n.DateLifeVows, &n.Status, &n.Leadership, &n.HowJoined, &n.HowRemoved, &n.ListInDirectory, &n.ListAddress, &n.ListPrimaryPhone, &n.ListSecondaryPhone, &n.ListPrimaryEmail, &n.ListSecondaryEmail, &n.Doxology, &n.Newsletter, &n.Communication, &n.Occupation, &n.Employer, &n.Denomination, &n.Benefactor)
-	if err != nil && err == sql.ErrNoRows {
-		err = fmt.Errorf("member not found")
-		slog.Error(err.Error(), "id", id)
-		return nil, err
-	}
 	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
+		if err == sql.ErrNoRows {
+			slog.Warn("member not found", "id", id)
+			return nil, fmt.Errorf("member %d not found", id)
+		}
+		slog.Error("database error in MemberID.Get", "err", err, "id", id)
+		return nil, fmt.Errorf("database error: %w", err)
 	}
 
 	m := n.toMember()
@@ -244,22 +243,19 @@ func (n *memberNulls) toMember() *Member {
 func (id MemberID) SetMemberField(ctx context.Context, field string, value string) error {
 	changer, ok := ctx.Value(CtxKeyID).(MemberID)
 	if !ok {
-		err := fmt.Errorf("changer not set in context")
-		slog.Error(err.Error())
-		return err
+		slog.Error("changer not set in context", "id", id, "field", field)
+		return fmt.Errorf("changer not set in context")
 	}
 
-	slog.Info("updating", "id", id, "field", field, "value", value, "by", changer)
+	slog.Info("updating member field", "id", id, "field", field, "value", value, "by", changer)
 
 	if field == "id" {
-		err := fmt.Errorf("cannot change ID")
-		slog.Error(err.Error())
-		return err
+		slog.Warn("attempt to change ID", "id", id, "by", changer)
+		return fmt.Errorf("cannot change ID")
 	}
 	if strings.ContainsAny(field, "`;%") {
-		err := fmt.Errorf("sql injection attempt [%s]", field)
-		slog.Error(err.Error())
-		return err
+		slog.Warn("potential sql injection attempt", "field", field, "by", changer)
+		return fmt.Errorf("invalid field name [%s]", field)
 	}
 	q := fmt.Sprintf("UPDATE `member` SET `%s` = ? WHERE `id` = ?", field)
 
@@ -269,8 +265,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		nb.Valid = true
 		nb.Bool = value == "true"
 		if _, err := db.ExecContext(ctx, q, nb, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	case "BirthDate", "DateRecordCreated", "DateFirstVows", "DateReaffirmation", "DateRemoved", "DateDeceased", "DateNovitiate", "DateLifeVows":
 		value = strings.TrimSpace(value)
@@ -279,38 +275,37 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 		t, err := time.Parse(timeformat, value)
 		if err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Warn("invalid date format", "value", value, "id", id, "field", field)
+			return fmt.Errorf("invalid date format: %w", err)
 		}
 		if _, err := db.ExecContext(ctx, q, t, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	case "MemberStatus":
 		switch value {
 		case REMOVED:
 			if _, err := db.ExecContext(ctx, "UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
-				slog.Error(err.Error())
-				return err
+				slog.Error("database error in SetMemberStatus", "err", err, "id", id, "status", value)
+				return fmt.Errorf("database error: %w", err)
 			}
 			_ = id.UnsubscribeDoxology(ctx)
 			_ = id.UnsubscribeFont(ctx)
 		case DECEASED:
 			if _, err := db.ExecContext(ctx, "UPDATE `member` SET `MemberStatus` = ?, `ListInDirectory` = 0, `ListAddress` = 0, `ListPrimaryPhone` = 0, `ListSecondaryPhone` = 0, `ListPrimaryEmail` = 0, `ListSecondaryEmail` = 0, `Doxology` = 'none', `Newsletter` = 'none', `Communication` = 'none' WHERE id = ?", value, id); err != nil {
-				slog.Error(err.Error())
-				return err
+				slog.Error("database error in SetMemberStatus", "err", err, "id", id, "status", value)
+				return fmt.Errorf("database error: %w", err)
 			}
 			_ = id.UnsubscribeDoxology(ctx)
 			_ = id.UnsubscribeFont(ctx)
 		case ANNUAL, LIFE, FRIEND:
 			if _, err := db.ExecContext(ctx, q, value, id); err != nil {
-				slog.Error(err.Error())
-				return err
+				slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+				return fmt.Errorf("database error: %w", err)
 			}
 		default:
-			err := fmt.Errorf("unknown MemberStatus")
-			slog.Error(err.Error())
-			return err
+			slog.Warn("unknown MemberStatus", "status", value, "id", id)
+			return fmt.Errorf("unknown MemberStatus: %s", value)
 		}
 	case "PrimaryPhone", "SecondaryPhone":
 		var ns sql.NullString
@@ -322,6 +317,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 
 		pn, err := FormatPhoneNumber(value, m.Country)
 		if err != nil {
+			slog.Warn("phone number format failed", "value", value, "country", m.Country, "err", err)
 			return err
 		}
 
@@ -334,8 +330,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 
 		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 		value = pn // for logging
 	case "Doxology":
@@ -343,20 +339,20 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		switch cp {
 		case ELECTRONIC, MAILED:
 			if err := id.SubscribeDoxology(ctx); err != nil {
-				slog.Error(err.Error())
+				slog.Error("failed to subscribe to doxology", "err", err, "id", id)
 				// continue
 			}
 		default:
 			cp = NONE
 			if err := id.UnsubscribeDoxology(ctx); err != nil {
-				slog.Error(err.Error())
+				slog.Error("failed to unsubscribe from doxology", "err", err, "id", id)
 				// continue
 			}
 		}
 
 		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	case "Newsletter":
 		cp := communicationPref(value)
@@ -365,13 +361,13 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			// XXX finish me
 			_ = id.SubscribeFont(ctx)
 		default:
-			value = "none"
+			cp = NONE
 			_ = id.UnsubscribeFont(ctx)
 		}
 
 		if _, err := db.ExecContext(ctx, q, cp, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	case "PrimaryEmail":
 		_ = id.UnsubscribeDoxology(ctx)
@@ -388,8 +384,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			ns.String = value
 		}
 		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 
 		if value == "" {
@@ -397,7 +393,7 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 		}
 		m, err := id.Get(ctx)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to get member for resubscription", "err", err, "id", id)
 			return err
 		}
 
@@ -421,8 +417,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 			ns.String = value
 		}
 		if _, err := db.ExecContext(ctx, q, ns, id); err != nil {
-			slog.Error(err.Error())
-			return err
+			slog.Error("database error in SetMemberField", "err", err, "id", id, "field", field)
+			return fmt.Errorf("database error: %w", err)
 		}
 	}
 
@@ -437,9 +433,8 @@ func (id MemberID) SetMemberField(ctx context.Context, field string, value strin
 
 func Create(firstname, lastname string) (MemberID, error) {
 	if firstname == "" || lastname == "" {
-		err := fmt.Errorf("name cannot be null")
-		slog.Error(err.Error())
-		return 0, err
+		slog.Warn("Create member failed: name components missing")
+		return 0, fmt.Errorf("name cannot be empty")
 	}
 
 	n := memberNulls{
@@ -452,13 +447,13 @@ func Create(firstname, lastname string) (MemberID, error) {
 
 	res, err := db.Exec("INSERT INTO member (MemberStatus, FirstName, LastName, DateRecordCreated) VALUES (?,?,?,?)", n.MemberStatus, n.FirstName, n.LastName, n.DateRecordCreated)
 	if err != nil {
-		slog.Error(err.Error())
-		return 0, err
+		slog.Error("database error in Create member", "err", err, "firstname", firstname, "lastname", lastname)
+		return 0, fmt.Errorf("database error: %w", err)
 	}
 	last, err := res.LastInsertId()
 	if err != nil {
-		slog.Error(err.Error())
-		return 0, err
+		slog.Error("failed to get last insert ID in Create member", "err", err)
+		return 0, fmt.Errorf("failed to get last insert ID: %w", err)
 	}
 	return MemberID(last), nil
 }
@@ -556,15 +551,14 @@ func (n *Member) OSLShortName() string {
 func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
 	current, err := m.ID.GetChapters(ctx)
 	if err != nil {
-		slog.Error(err.Error())
-		return err
+		return err // GetChapters already logs
 	}
 
 	for _, ch := range incoming {
 		if !slices.Contains(current, ch) {
 			if _, err := db.ExecContext(ctx, "INSERT INTO `chaptermembers` (`chapter`, `member`) VALUES (?, ?)", ch, m.ID); err != nil {
-				slog.Error(err.Error())
-				return err
+				slog.Error("database error in SetChapters (insert)", "err", err, "id", m.ID, "chapter", ch)
+				return fmt.Errorf("database error: %w", err)
 			}
 			m.ID.SubscribeChapter(ctx, ChapterID(ch))
 		}
@@ -573,8 +567,8 @@ func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
 	for _, ch := range current {
 		if !slices.Contains(incoming, ch) {
 			if _, err := db.ExecContext(ctx, "DELETE FROM `chaptermembers` WHERE `chapter` = ? AND `member` = ?", ch, m.ID); err != nil {
-				slog.Error(err.Error())
-				return err
+				slog.Error("database error in SetChapters (delete)", "err", err, "id", m.ID, "chapter", ch)
+				return fmt.Errorf("database error: %w", err)
 			}
 			m.ID.UnsubscribeChapter(ctx, ChapterID(ch))
 		}
@@ -586,8 +580,8 @@ func (m *Member) SetChapters(ctx context.Context, incoming ...int) error {
 func (id MemberID) GetChapters(ctx context.Context) ([]int, error) {
 	rows, err := db.QueryContext(ctx, "SELECT `chapter` FROM `chaptermembers` WHERE `member` = ?", id)
 	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
+		slog.Error("database error in GetChapters", "err", err, "id", id)
+		return nil, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
@@ -595,7 +589,7 @@ func (id MemberID) GetChapters(ctx context.Context) ([]int, error) {
 	var ch int
 	for rows.Next() {
 		if err = rows.Scan(&ch); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in GetChapters", "err", err, "id", id)
 			continue
 		}
 		chapters = append(chapters, ch)

@@ -1,19 +1,17 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func getNotes(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -21,35 +19,35 @@ func getNotes(w http.ResponseWriter, r *http.Request) {
 	notes, err := mid.GetNotes(r.Context())
 	if err != nil {
 		slog.Error("failed to get notes", "member", id, "err", err)
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(notes)
+	sendJSON(w, notes)
 }
 
 func postNote(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	noteContent := r.PostFormValue("note")
 	if noteContent == "" {
-		http.Error(w, jsonError(fmt.Errorf("note content empty")), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("note content empty"), http.StatusNotAcceptable)
 		return
 	}
 
 	changer, err := model.IDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusUnauthorized)
+		sendError(w, err, http.StatusUnauthorized)
 		return
 	}
 
@@ -61,7 +59,7 @@ func postNote(w http.ResponseWriter, r *http.Request) {
 
 	if err := note.Store(r.Context()); err != nil {
 		slog.Error("failed to store note", "member", id, "changer", changer, "err", err)
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -69,16 +67,16 @@ func postNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteNote(w http.ResponseWriter, r *http.Request) {
-	noteID, err := strconv.Atoi(r.PathValue("noteid"))
+	noteID, err := parseID(r, "noteid")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	n := model.NoteID(noteID)
 	if err := n.Delete(r.Context()); err != nil {
 		slog.Error("failed to delete note", "noteid", noteID, "err", err)
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
