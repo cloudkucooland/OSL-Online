@@ -45,7 +45,7 @@ func getCommemorations(w http.ResponseWriter, r *http.Request) {
 		day = dd
 	}
 
-	slog.Info("getCommemorations", "month", month, "day", day)
+	// slog.Info("getCommemorations", "month", month, "day", day)
 	isee, err := model.Commemorations(r.Context(), month, day)
 	if err != nil {
 		slog.Error(err.Error())
