@@ -11,7 +11,7 @@ func GetServeMux() http.Handler {
 
 	// Public Routes
 	mux.HandleFunc("POST /api/v1/getJWT", login)
-	mux.HandleFunc("GET /api/vi/refreshJWT", refresh)
+	mux.HandleFunc("GET /api/v1/refreshJWT", refresh)
 	mux.HandleFunc("POST /api/v1/register", postRegister)
 	mux.HandleFunc("GET /api/v1/commemorations", getCommemorations)
 	mux.HandleFunc("GET /api/v1/chapter", getChapters)

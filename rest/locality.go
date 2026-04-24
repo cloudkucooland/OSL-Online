@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -13,15 +12,11 @@ func getLocalities(w http.ResponseWriter, r *http.Request) {
 	l, err := model.Localities(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(l); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, l)
 }
 
 func getLocalityMembers(w http.ResponseWriter, r *http.Request) {
@@ -39,13 +34,9 @@ func getLocalityMembers(w http.ResponseWriter, r *http.Request) {
 	m, err := model.LocalityMembers(r.Context(), country, locality)
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(m); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, m)
 }

@@ -12,15 +12,13 @@
 		Badge,
 		Hr,
 		Spinner,
-		Heading,
-		Helper
+		Heading
 	} from 'flowbite-svelte';
 	import {
 		ChartMixedDollarOutline,
 		EditOutline,
 		ClockOutline,
-		AddressBookOutline,
-		InfoCircleOutline
+		AddressBookOutline
 	} from 'flowbite-svelte-icons';
 	import { toast } from '@zerodevx/svelte-toast';
 	import {
@@ -34,6 +32,11 @@
 		cleanDateFormat
 	} from '../oo';
 
+	// Shared Components
+	import AddressSection from '$lib/AddressSection.svelte';
+	import ContactSection from '$lib/ContactSection.svelte';
+	import FulfillmentSection from '$lib/FulfillmentSection.svelte';
+
 	let { params } = $props();
 	const oo = getContext('oo');
 
@@ -42,15 +45,6 @@
 	let chaps = $state([]);
 	let selectedChapters = $state([]);
 
-	const commItems = [
-		{ value: 'none', name: 'None' },
-		{ value: 'mailed', name: 'Mailed' },
-		{ value: 'electronic', name: 'Electronic' }
-	];
-	const newsletterItems = [
-		{ value: 'none', name: 'None' },
-		{ value: 'electronic', name: 'Electronic' }
-	];
 	const memberStatus = [
 		{ value: 'Annual Vows', name: 'Annual Vows' },
 		{ value: 'Life Vows', name: 'Life Vows' },
@@ -108,10 +102,8 @@
 		}
 	});
 
-	async function handleUpdate(event: any) {
-		const { id, value, type, checked } = event.target;
-		let finalValue = type === 'checkbox' ? checked : value;
-
+	async function handleUpdate(id: string, value: any) {
+		let finalValue = value;
 		if (id.startsWith('Date') || id === 'BirthDate') {
 			finalValue = cleanDateFormat(finalValue);
 		}
@@ -180,7 +172,7 @@
 						<Toggle
 							id="ListInDirectory"
 							checked={r.ListInDirectory}
-							onchange={handleUpdate}
+							onchange={(e) => handleUpdate('ListInDirectory', e.target.checked)}
 							color="red"
 							size="small"
 						/>
@@ -192,14 +184,14 @@
 									id="Title"
 									items={titles}
 									value={r.Title}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('Title', e.target.value)}
 								/>
 							</div>
 							<div class="col-span-3">
 								<Label class="mb-1">First Name</Label><Input
 									id="FirstName"
 									value={r.FirstName}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('FirstName', e.target.value)}
 								/>
 							</div>
 						</div>
@@ -207,35 +199,35 @@
 							<Label class="mb-1">Middle Name</Label><Input
 								id="MiddleName"
 								value={r.MiddleName}
-								onchange={handleUpdate}
+								onchange={(e) => handleUpdate('MiddleName', e.target.value)}
 							/>
 						</div>
 						<div>
 							<Label class="mb-1">Last Name</Label><Input
 								id="LastName"
 								value={r.LastName}
-								onchange={handleUpdate}
+								onchange={(e) => handleUpdate('LastName', e.target.value)}
 							/>
 						</div>
 						<div>
 							<Label class="mb-1">Suffix</Label><Input
 								id="Suffix"
 								value={r.Suffix}
-								onchange={handleUpdate}
+								onchange={(e) => handleUpdate('Suffix', e.target.value)}
 							/>
 						</div>
 						<div>
 							<Label class="mb-1">Life Vow Name</Label><Input
-								id="LifeVowName"
-								value={r.LifeVowName}
-								onchange={handleUpdate}
+								id="LifevowName"
+								value={r.LifevowName}
+								onchange={(e) => handleUpdate('LifevowName', e.target.value)}
 							/>
 						</div>
 						<div>
 							<Label class="mb-1 font-bold">Preferred Name</Label><Input
 								id="PreferredName"
 								value={r.PreferredName}
-								onchange={handleUpdate}
+								onchange={(e) => handleUpdate('PreferredName', e.target.value)}
 							/>
 						</div>
 
@@ -247,7 +239,7 @@
 									id="MemberStatus"
 									items={memberStatus}
 									value={r.MemberStatus}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('MemberStatus', e.target.value)}
 								/>
 							</div>
 							<div>
@@ -255,7 +247,7 @@
 									id="HowRemoved"
 									items={removeReasons}
 									value={r.HowRemoved}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('HowRemoved', e.target.value)}
 								/>
 							</div>
 							<div>
@@ -263,7 +255,7 @@
 									id="Status"
 									items={stati}
 									value={r.Status}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('Status', e.target.value)}
 								/>
 							</div>
 						</div>
@@ -271,125 +263,27 @@
 				</Card>
 
 				<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
-					<div class="mb-6 flex items-center justify-between border-b pb-2">
-						<Heading tag="h4" class="text-lg font-bold uppercase text-slate-800">Contact</Heading>
-						<Toggle
-							id="ListAddress"
-							checked={r.ListAddress}
-							onchange={handleUpdate}
-							color="red"
-							size="small"
-						/>
-					</div>
-					<div class="space-y-4">
-						<div class="space-y-2">
-							<Input
-								id="Address"
-								value={r.Address}
-								onchange={handleUpdate}
-								placeholder="Address Line 1"
-							/>
-							<Input
-								id="AddressLine2"
-								value={r.AddressLine2}
-								onchange={handleUpdate}
-								placeholder="Address Line 2"
-							/>
-							<div class="grid grid-cols-2 gap-2">
-								<Input id="City" value={r.City} onchange={handleUpdate} placeholder="City" />
-								<Input id="State" value={r.State} onchange={handleUpdate} placeholder="State" />
-							</div>
-							<div class="grid grid-cols-2 gap-2">
-								<Input
-									id="Country"
-									value={r.Country}
-									onchange={handleUpdate}
-									placeholder="Country"
-								/>
-								<Input
-									id="PostalCode"
-									value={r.PostalCode}
-									onchange={handleUpdate}
-									placeholder="Postal Code"
-								/>
-							</div>
-						</div>
-
-						<Hr class="my-6" />
-
-						<div class="space-y-6">
-							<div class="flex items-center gap-2">
-								<div class="flex-grow">
-									<Label class="text-xs">Primary Email</Label><Input
-										id="PrimaryEmail"
-										value={r.PrimaryEmail}
-										onchange={handleUpdate}
-									/>
-								</div>
-								<Toggle
-									id="ListPrimaryEmail"
-									checked={r.ListPrimaryEmail}
-									onchange={handleUpdate}
-									color="red"
-									class="mt-5"
-								/>
-							</div>
-							<div class="flex items-center gap-2">
-								<div class="flex-grow">
-									<Label class="text-xs">Primary Phone</Label><Input
-										id="PrimaryPhone"
-										value={r.PrimaryPhone}
-										onchange={handleUpdate}
-									/>
-								</div>
-								<Toggle
-									id="ListPrimaryPhone"
-									checked={r.ListPrimaryPhone}
-									onchange={handleUpdate}
-									color="red"
-									class="mt-5"
-								/>
-							</div>
-							<div class="flex items-center gap-2 pt-2">
-								<div class="flex-grow">
-									<Label class="text-xs text-slate-400">Secondary Email</Label><Input
-										id="SecondaryEmail"
-										value={r.SecondaryEmail}
-										onchange={handleUpdate}
-									/>
-								</div>
-								<Toggle
-									id="ListSecondaryEmail"
-									checked={r.ListSecondaryEmail}
-									onchange={handleUpdate}
-									color="red"
-									class="mt-5"
-								/>
-							</div>
-							<div class="flex items-center gap-2">
-								<div class="flex-grow">
-									<Label class="text-xs text-slate-400">Secondary Phone</Label><Input
-										id="SecondaryPhone"
-										value={r.SecondaryPhone}
-										onchange={handleUpdate}
-									/>
-								</div>
-								<Toggle
-									id="ListSecondaryPhone"
-									checked={r.ListSecondaryPhone}
-									onchange={handleUpdate}
-									color="red"
-									class="mt-5"
-								/>
-							</div>
-						</div>
-					</div>
+					<AddressSection
+						data={r}
+						onUpdate={handleUpdate}
+						showPrivacy={true}
+						title="Contact & Mailing"
+					/>
+					
+					<Hr class="my-6" />
+					
+					<ContactSection
+						data={r}
+						onUpdate={handleUpdate}
+						showPrivacy={true}
+						title="Digital & Phone"
+					/>
 				</Card>
 
 				<div class="space-y-8">
 					<Card size="none" class="border-slate-200 p-6 shadow-sm">
 						<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-							>Data</Heading
+							>Vocation Data</Heading
 						>
 						<div class="space-y-4">
 							<div class="grid grid-cols-2 gap-4">
@@ -397,7 +291,7 @@
 									<Label class="text-xs">Novitiate</Label><Input
 										id="DateNovitiate"
 										value={r.DateNovitiate}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('DateNovitiate', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -405,7 +299,7 @@
 									<Label class="text-xs">First Vows</Label><Input
 										id="DateFirstVows"
 										value={r.DateFirstVows}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('DateFirstVows', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -413,7 +307,7 @@
 									<Label class="text-xs">Life Vows</Label><Input
 										id="DateLifeVows"
 										value={r.DateLifeVows}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('DateLifeVows', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -421,7 +315,7 @@
 									<Label class="text-xs font-bold">Reaffirmation</Label><Input
 										id="DateReaffirmation"
 										value={r.DateReaffirmation}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('DateReaffirmation', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -432,7 +326,7 @@
 									<Label class="text-xs">Birth Date</Label><Input
 										id="BirthDate"
 										value={r.BirthDate}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('BirthDate', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -440,7 +334,7 @@
 									<Label class="text-xs">Date Removed</Label><Input
 										id="DateRemoved"
 										value={r.DateRemoved}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('DateRemoved', e.target.value)}
 										placeholder="YYYY-MM-DD"
 									/>
 								</div>
@@ -452,7 +346,7 @@
 									id="DateDeceased"
 									size="sm"
 									value={r.DateDeceased}
-									onchange={handleUpdate}
+									onchange={(e) => handleUpdate('DateDeceased', e.target.value)}
 									placeholder="YYYY-MM-DD"
 								/>
 							</div>
@@ -470,65 +364,35 @@
 										id="Leadership"
 										items={leadership}
 										value={r.Leadership}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('Leadership', e.target.value)}
 									/>
 								</div>
 								<div>
 									<Label class="mb-1">Occupation</Label><Input
 										id="Occupation"
 										value={r.Occupation}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('Occupation', e.target.value)}
 									/>
 								</div>
 								<div>
 									<Label class="mb-1">Employer</Label><Input
 										id="Employer"
 										value={r.Employer}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('Employer', e.target.value)}
 									/>
 								</div>
 								<div>
 									<Label class="mb-1">Denomination</Label><Input
 										id="Denomination"
 										value={r.Denomination}
-										onchange={handleUpdate}
+										onchange={(e) => handleUpdate('Denomination', e.target.value)}
 									/>
 								</div>
 							</div>
 						</div>
 					</Card>
 
-					<Card size="none" class="border-slate-200 bg-slate-50/50 p-6 shadow-sm">
-						<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
-							>Communications</Heading
-						>
-						<div class="space-y-4">
-							<div>
-								<Label class="text-xs font-bold italic">Newsletter</Label><Select
-									id="Newsletter"
-									items={newsletterItems}
-									value={r.Newsletter}
-									onchange={handleUpdate}
-								/>
-							</div>
-							<div>
-								<Label class="text-xs font-bold italic">Doxology</Label><Select
-									id="Doxology"
-									items={commItems}
-									value={r.Doxology}
-									onchange={handleUpdate}
-								/>
-							</div>
-							<div>
-								<Label class="text-xs font-bold italic">Communication</Label><Select
-									id="Communication"
-									items={commItems}
-									value={r.Communication}
-									onchange={handleUpdate}
-								/>
-							</div>
-						</div>
-					</Card>
+					<FulfillmentSection data={r} onUpdate={handleUpdate} />
 				</div>
 			</div>
 		{:else}

@@ -19,31 +19,31 @@ func SendBirthdayMail(members []*BirthdayEmailEntry, month time.Month, day int) 
 		return nil
 	}
 
-	h, err := Setup()
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	data := [][]hermes.Entry{
-		{},
-	}
+	data := make([][]hermes.Entry, 0, len(members))
 	for _, m := range members {
-		entry := hermes.Entry{
-			Key:   m.Name,
-			Value: fmt.Sprintf("https://saint-luke.net/oo/#/member/%d", m.ID),
-		}
-		data[0] = append(data[0], entry)
+		data = append(data, []hermes.Entry{
+			{Key: "Member", Value: m.Name},
+			{Key: "Directory Link", Value: fmt.Sprintf("https://saint-luke.net/oo/#/member/%d", m.ID)},
+		})
 	}
 
 	e := hermes.Email{
 		Body: hermes.Body{
 			Name: "Siblings",
 			Intros: []string{
-				"Today's OSL Birthdays",
+				fmt.Sprintf("Today's OSL Birthdays for %s %d", month.String(), day),
 			},
 			Table: hermes.Table{
 				Data: data,
+				Columns: hermes.Columns{
+					CustomWidth: map[string]string{
+						"Member":         "40%",
+						"Directory Link": "60%",
+					},
+					CustomAlignment: map[string]string{
+						"Directory Link": "left",
+					},
+				},
 			},
 			Actions: []hermes.Action{
 				{
@@ -60,19 +60,7 @@ func SendBirthdayMail(members []*BirthdayEmailEntry, month time.Month, day int) 
 		},
 	}
 
-	body, err := h.GenerateHTML(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	text, err := h.GeneratePlainText(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if err := Send("birthdays@saint-luke.net", "Today's OSL Birthdays", body, text); err != nil {
+	if err := GenerateAndSend("birthdays@saint-luke.net", "Today's OSL Birthdays", e); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

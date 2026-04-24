@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"time"
 )
@@ -17,15 +18,15 @@ type GivingRecord struct {
 	Date        time.Time
 }
 
-func (n *GivingRecord) Store() error {
+func (n *GivingRecord) Store(ctx context.Context) error {
 	zt, _ := time.Parse(timeformat, zerotime)
 	if n.Date == zt {
 		n.Date = time.Now()
 	}
-	_, err := db.Exec("INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,?)", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description, makeNullTime(n.Date))
+	_, err := db.ExecContext(ctx, "INSERT INTO `giving` (`entryID`, `id`, `amount`, `check`, `transaction`, `description`, `date`) VALUES (0,?,?,?,?,?,?)", n.ID, n.Amount, n.Check, makeNullString(n.Transaction), n.Description, makeNullTime(n.Date))
 	if err != nil {
-		slog.Error(err.Error())
-		return err
+		slog.Error("database error in GivingRecord.Store", "err", err, "id", n.ID)
+		return fmt.Errorf("database error: %w", err)
 	}
 	return nil
 }
@@ -34,12 +35,12 @@ func (id MemberID) GivingRecords(ctx context.Context) ([]*GivingRecord, error) {
 	gr := make([]*GivingRecord, 0)
 
 	rows, err := db.QueryContext(ctx, "SELECT `entryID`, `amount`, `check`, `transaction`, `description`, `date` FROM `giving` WHERE `id` = ? ORDER BY `date`", id)
-	if err != nil && err == sql.ErrNoRows {
-		return gr, nil
-	}
 	if err != nil {
-		slog.Error(err.Error())
-		return gr, err
+		if err == sql.ErrNoRows {
+			return gr, nil
+		}
+		slog.Error("database error in GivingRecords", "err", err, "id", id)
+		return gr, fmt.Errorf("database error: %w", err)
 	}
 	defer rows.Close()
 
@@ -47,7 +48,7 @@ func (id MemberID) GivingRecords(ctx context.Context) ([]*GivingRecord, error) {
 		var g GivingRecord
 		err := rows.Scan(&g.EntryID, &g.Amount, &g.Check, &g.Transaction, &g.Description, &g.Date)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to scan row in GivingRecords", "err", err, "id", id)
 			continue
 		}
 		gr = append(gr, &g)

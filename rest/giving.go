@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -13,70 +12,58 @@ import (
 )
 
 func getMemberGiving(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, err := parseID(r, "id")
 	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 	mid := model.MemberID(id)
 	gr, err := mid.GivingRecords(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(gr); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, gr)
 }
 
 func postMemberGiving(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024 * 2); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	s := r.PostFormValue("id")
 	if s == "" {
-		err := fmt.Errorf("id not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("id not set"), http.StatusNotAcceptable)
 		return
 	}
-	id, err := strconv.Atoi(s)
+	id, err := parseIDFromString(s)
 	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	s = r.PostFormValue("amount")
 	if s == "" {
-		err := fmt.Errorf("amount not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("amount not set"), http.StatusNotAcceptable)
 		return
 	}
 	amount, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	s = r.PostFormValue("check")
 	check := 0
 	if s != "" {
-		check, err = strconv.Atoi(s)
+		check, err = parseIDFromString(s)
 		if err != nil {
-			slog.Error(err.Error())
-			http.Error(w, jsonError(err), http.StatusNotAcceptable)
+			sendError(w, err, http.StatusNotAcceptable)
 			return
 		}
 	}
@@ -88,7 +75,7 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request) {
 	date, err := time.Parse("2006-01-02", d)
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -102,9 +89,9 @@ func postMemberGiving(w http.ResponseWriter, r *http.Request) {
 		Date:        date,
 	}
 
-	if err := gr.Store(); err != nil {
+	if err := gr.Store(r.Context()); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 

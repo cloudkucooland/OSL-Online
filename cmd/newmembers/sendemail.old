@@ -1,35 +1,26 @@
 package main
 
 import (
-	"context"
 	"log/slog"
-	"os"
+	"strings"
 	"time"
 
 	"github.com/cloudkucooland/OSL-Online/email"
 	"github.com/cloudkucooland/OSL-Online/model"
-	"strings"
 	"github.com/matcornic/hermes/v2"
 )
 
 func main() {
-	dbpath := os.Getenv("OO_DB")
-	if dbpath == "" {
-		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
-	}
+	ctx, disconnect := model.ConnectCLI()
+	defer disconnect()
 
-	if err := model.Connect(context.Background(), dbpath); err != nil {
-		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
-		panic(err)
-	}
-
-	members, err := model.NewMemberIDs()
+	members, err := model.NewMemberIDs(ctx)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, id := range members {
-		if err := SendMessage(id); err != nil {
+		if err := SendMessage(ctx, id); err != nil {
 			panic(err)
 		}
 	}
@@ -44,15 +35,8 @@ Please verifiy the data of your first vows and let me know if our records are no
 If your address is not correct in our database, please use the online reaffirmation form (even if you've already reaffirmed in the past 12 months) to update your address.
 `
 
-
-func SendMessage(id model.MemberID) error {
-	h, err := email.Setup()
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	member, err := id.Get(true)
+func SendMessage(ctx context.Context, id model.MemberID) error {
+	member, err := id.Get(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -65,10 +49,11 @@ func SendMessage(id model.MemberID) error {
 	intros := strings.Split(message, "\n")
 	addr, _ := model.FormatAddress(member)
 	intros = append(intros, addr)
-	intros = append(intros, "First Vows: " + member.DateFirstVows.Format(time.DateOnly))
+	intros = append(intros, "First Vows: "+member.DateFirstVows.Format(time.DateOnly))
 
 	e := hermes.Email{
 		Body: hermes.Body{
+			Title:  "OSL Membership Certificate Verification",
 			Name:   member.OSLShortName(),
 			Intros: intros,
 			Actions: []hermes.Action{
@@ -91,19 +76,7 @@ func SendMessage(id model.MemberID) error {
 		},
 	}
 
-	body, err := h.GenerateHTML(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	text, err := h.GeneratePlainText(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if err := email.Send(member.PrimaryEmail, "OSL Membership Certificate", body, text); err != nil {
+	if err := email.GenerateAndSend(member.PrimaryEmail, "OSL Membership Certificate", e); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -13,7 +12,7 @@ func postSubSearch(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -21,7 +20,7 @@ func postSubSearch(w http.ResponseWriter, r *http.Request) {
 	if query == "" {
 		err := fmt.Errorf("query not set")
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -30,13 +29,9 @@ func postSubSearch(w http.ResponseWriter, r *http.Request) {
 	result, err := model.SubscriberSearch(r.Context(), query)
 	if err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, result)
 }

@@ -7,15 +7,10 @@ import (
 )
 
 func SendRegister(addr string, password string) error {
-	h, err := Setup()
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
 	e := hermes.Email{
 		Body: hermes.Body{
-			Name: addr,
+			Title: "Registration & Password Reset",
+			Name:  addr,
 			Intros: []string{
 				"OSL Online Directory Registration. Your password is " + password,
 			},
@@ -34,19 +29,7 @@ func SendRegister(addr string, password string) error {
 		},
 	}
 
-	body, err := h.GenerateHTML(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	text, err := h.GeneratePlainText(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if err := Send(addr, "OSL Directory Register / Password Reset requested", body, text); err != nil {
+	if err := GenerateAndSend(addr, "OSL Directory Register / Password Reset requested", e); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

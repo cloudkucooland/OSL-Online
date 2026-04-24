@@ -1,22 +1,19 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func getMember(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := parseID(r, "id")
 	if err != nil {
-		slog.Error("invalid id", "val", idStr, "err", err)
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		slog.Error("invalid id", "err", err)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -24,7 +21,7 @@ func getMember(w http.ResponseWriter, r *http.Request) {
 	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -34,14 +31,13 @@ func getMember(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("user loaded", "user", m.OSLName(), "requester", getUser(r))
-	json.NewEncoder(w).Encode(m)
+	sendJSON(w, m)
 }
 
 func getMemberChapters(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -49,25 +45,24 @@ func getMemberChapters(w http.ResponseWriter, r *http.Request) {
 	chapters, err := mid.GetChapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(chapters)
+	sendJSON(w, chapters)
 }
 
 func setMember(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -75,13 +70,13 @@ func setMember(w http.ResponseWriter, r *http.Request) {
 	value := r.PostFormValue("value")
 
 	if field == "" {
-		http.Error(w, jsonError(fmt.Errorf("field not set")), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("field not set"), http.StatusNotAcceptable)
 		return
 	}
 
 	if err := model.MemberID(id).SetMemberField(r.Context(), field, value); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -91,7 +86,7 @@ func setMember(w http.ResponseWriter, r *http.Request) {
 func createMember(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -99,14 +94,14 @@ func createMember(w http.ResponseWriter, r *http.Request) {
 	lastname := r.PostFormValue("lastname")
 
 	if firstname == "" || lastname == "" {
-		http.Error(w, jsonError(fmt.Errorf("name components missing")), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("name components missing"), http.StatusNotAcceptable)
 		return
 	}
 
 	id, err := model.Create(firstname, lastname)
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -114,16 +109,16 @@ func createMember(w http.ResponseWriter, r *http.Request) {
 }
 
 func setMemberChapters(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusBadRequest)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		slog.Warn(err.Error())
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 	cs := r.PostFormValue("chapters")
@@ -132,7 +127,7 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request) {
 	if cs != "" {
 		ss := strings.Split(cs, ",")
 		for _, n := range ss {
-			if c, err := strconv.Atoi(strings.TrimSpace(n)); err == nil {
+			if c, err := parseIDFromString(strings.TrimSpace(n)); err == nil {
 				chapters = append(chapters, c)
 			}
 		}
@@ -141,13 +136,13 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request) {
 	mid := model.MemberID(id)
 	m, err := mid.Get(r.Context())
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err := m.SetChapters(r.Context(), chapters...); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -155,13 +150,16 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMemberVcard(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, _ := strconv.Atoi(idStr)
+	id, err := parseID(r, "id")
+	if err != nil {
+		sendError(w, err, http.StatusBadRequest)
+		return
+	}
 
 	mid := model.MemberID(id)
 	member, err := mid.Get(r.Context())
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusNotFound)
+		sendError(w, err, http.StatusNotFound)
 		return
 	}
 

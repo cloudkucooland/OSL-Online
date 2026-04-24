@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/email"
@@ -15,16 +14,8 @@ import (
 )
 
 func main() {
-	dbpath := os.Getenv("OO_DB")
-	if dbpath == "" {
-		panic("OO_DB enviornment var not set. e.g. oo:password@unix(/var/lib/mysql/mysql.sock)/oo")
-	}
-
-	ctx := context.WithValue(context.Background(), model.CtxKeyLevel, model.AuthLevelInternal)
-	if err := model.Connect(ctx, dbpath); err != nil {
-		slog.Error("startup", "message", "Error connecting to database", "error", err.Error())
-		panic(err)
-	}
+	ctx, disconnect := model.ConnectCLI()
+	defer disconnect()
 
 	members, err := model.ReminderAnnual(ctx)
 	if err != nil {
@@ -32,7 +23,7 @@ func main() {
 	}
 
 	for _, id := range members {
-		if err := sendReminder(id); err != nil {
+		if err := sendReminder(ctx, id); err != nil {
 			panic(err)
 		}
 	}
@@ -46,14 +37,8 @@ If you no longer wish to reaffirm the vows you can reply to this email and infor
 
 Membership in the order does not require financial donations. If you choose to donate you may opt to receive the periodicals in printed form. Those who do not donate will receive the periodicals via email.`
 
-func sendReminder(id model.MemberID) error {
-	h, err := email.Setup()
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	member, err := id.Get()
+func sendReminder(ctx context.Context, id model.MemberID) error {
+	member, err := id.Get(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return err
@@ -64,6 +49,7 @@ func sendReminder(id model.MemberID) error {
 
 	e := hermes.Email{
 		Body: hermes.Body{
+			Title:  "Reaffirmation Reminder",
 			Name:   member.OSLShortName(),
 			Intros: strings.Split(reminder, "\n"),
 			Actions: []hermes.Action{
@@ -87,19 +73,7 @@ func sendReminder(id model.MemberID) error {
 		},
 	}
 
-	body, err := h.GenerateHTML(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	text, err := h.GeneratePlainText(e)
-	if err != nil {
-		slog.Error(err.Error())
-		return err
-	}
-
-	if err := email.Send(member.PrimaryEmail, "OSL Reaffirmation Reminder", body, text); err != nil {
+	if err := email.GenerateAndSend(member.PrimaryEmail, "OSL Reaffirmation Reminder", e); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

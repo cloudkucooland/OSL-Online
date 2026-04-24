@@ -1,11 +1,9 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/cloudkucooland/OSL-Online/model"
@@ -17,7 +15,7 @@ func getMe(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -25,17 +23,12 @@ func getMe(w http.ResponseWriter, r *http.Request) {
 	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	slog.Info("loading self", "user", m.OSLName())
-
-	if err := json.NewEncoder(w).Encode(m); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, m)
 }
 
 func getMeChapters(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +36,7 @@ func getMeChapters(w http.ResponseWriter, r *http.Request) {
 	id, err := username.GetID(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -51,51 +44,44 @@ func getMeChapters(w http.ResponseWriter, r *http.Request) {
 	m, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	chapters, err := m.ID.GetChapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	// slog.Info("loading self chpaters", "user", m.OSLName())
-
-	if err := json.NewEncoder(w).Encode(chapters); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, chapters)
 }
 
 func setMe(w http.ResponseWriter, r *http.Request) {
 	id, err := model.IDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	field := r.PostFormValue("field")
 	if field == "" {
-		err := fmt.Errorf("field not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("field not set"), http.StatusNotAcceptable)
 		return
 	}
 
 	value := r.PostFormValue("value")
 	if err := model.SetMeField(r.Context(), id, field, value); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 	fmt.Fprint(w, jsonStatusOK)
@@ -104,14 +90,14 @@ func setMe(w http.ResponseWriter, r *http.Request) {
 func setMeChapters(w http.ResponseWriter, r *http.Request) {
 	id, err := model.IDFromContext(r.Context())
 	if err != nil {
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -123,7 +109,7 @@ func setMeChapters(w http.ResponseWriter, r *http.Request) {
 		if n == "" {
 			continue
 		}
-		c, err := strconv.Atoi(n)
+		c, err := parseIDFromString(n)
 		if err != nil {
 			slog.Error(err.Error())
 			continue
@@ -135,13 +121,13 @@ func setMeChapters(w http.ResponseWriter, r *http.Request) {
 	member, err := mid.Get(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	if err := member.SetChapters(r.Context(), chapters...); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -153,7 +139,7 @@ func getMeGiving(w http.ResponseWriter, r *http.Request) {
 	id, err := username.GetID(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -161,14 +147,10 @@ func getMeGiving(w http.ResponseWriter, r *http.Request) {
 	gr, err := mid.GivingRecords(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	slog.Info("loading self giving record", "user", username)
-	if err := json.NewEncoder(w).Encode(gr); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, gr)
 }

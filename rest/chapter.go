@@ -1,11 +1,9 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
@@ -14,24 +12,19 @@ func getChapters(w http.ResponseWriter, r *http.Request) {
 	ch, err := model.Chapters(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	slog.Info("getChapters", "requester", getUser(r))
-	if err := json.NewEncoder(w).Encode(ch); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, ch)
 }
 
 func getChapterMembers(w http.ResponseWriter, r *http.Request) {
-	s := r.PathValue("id")
-	id, err := strconv.Atoi(s)
+	id, err := parseID(r, "id")
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -42,69 +35,48 @@ func getChapterMembers(w http.ResponseWriter, r *http.Request) {
 	members, err := chapter.Members(r.Context())
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(members); err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
-		return
-	}
+	sendJSON(w, members)
 }
 
 func putChapter(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 	if err := r.ParseMultipartForm(1024); err != nil {
 		slog.Warn(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
-	s := r.PathValue("id")
-	if s == "" {
-		err := fmt.Errorf("id not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
-		return
-	}
-	id, err := strconv.Atoi(s)
+	id, err := parseID(r, "id")
 	if err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	name := r.PostFormValue("name")
 	if name == "" {
-		err := fmt.Errorf("name not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("name not set"), http.StatusNotAcceptable)
 		return
 	}
 
-	s = r.PostFormValue("prior")
-	if s == "" {
-		err := fmt.Errorf("prior id not set")
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
-		return
-	}
-	prior, err := strconv.Atoi(s)
+	priorID, err := parseIDFromString(r.PostFormValue("prior"))
 	if err != nil {
-		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusNotAcceptable)
+		sendError(w, fmt.Errorf("prior id not set or invalid: %w", err), http.StatusNotAcceptable)
 		return
 	}
 
 	c := model.Chapter{
 		ID:    model.ChapterID(id),
 		Name:  name,
-		Prior: model.MemberID(prior),
+		Prior: model.MemberID(priorID),
 	}
 	if err := c.Update(r.Context()); err != nil {
 		slog.Error(err.Error())
-		http.Error(w, jsonError(err), http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 

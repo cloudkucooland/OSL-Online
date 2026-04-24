@@ -3,10 +3,10 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"github.com/cloudkucooland/OSL-Online/model"
 	"log/slog"
 	"net/http"
-	"strconv"
+
+	"github.com/cloudkucooland/OSL-Online/model"
 )
 
 func getPublicPrayers(w http.ResponseWriter, r *http.Request) {
@@ -17,17 +17,16 @@ func getPublicPrayers(w http.ResponseWriter, r *http.Request) {
 	prayers, err := model.GetPrayers(ctx, nil, true)
 	if err != nil {
 		slog.Error("public prayers", "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(prayers)
+	sendJSON(w, prayers)
 }
 
 func getPrayers(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := parseID(r, "id")
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
@@ -35,35 +34,38 @@ func getPrayers(w http.ResponseWriter, r *http.Request) {
 	prayers, err := model.GetPrayers(r.Context(), &mid, false)
 	if err != nil {
 		slog.Error("member prayers", "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(prayers)
+	sendJSON(w, prayers)
 }
 
 func addPrayer(w http.ResponseWriter, r *http.Request) {
 	var p model.Prayer
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
 		slog.Error("add prayer", "error", err, "incoming", p)
-		http.Error(w, "bad request", http.StatusNotAcceptable)
+		sendError(w, err, http.StatusNotAcceptable)
 		return
 	}
 
 	if err := p.Insert(r.Context()); err != nil {
 		slog.Error("add prayer", "error", err)
-		http.Error(w, "could not save", http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
 }
 
 func deletePrayer(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, _ := strconv.ParseUint(idStr, 10, 32)
+	id, err := parseID(r, "id")
+	if err != nil {
+		sendError(w, err, http.StatusNotAcceptable)
+		return
+	}
 
 	if err := model.DeletePrayer(r.Context(), model.PrayerID(id)); err != nil {
 		slog.Error("delete prayer", "error", err, "id", id)
-		http.Error(w, "could not delete", http.StatusInternalServerError)
+		sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
