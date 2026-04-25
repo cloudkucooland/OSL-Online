@@ -70,7 +70,7 @@
 <div class="mx-auto max-w-4xl px-4 py-8">
 	<header class="mb-6">
 		<Heading tag="h2" class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-			<EnvelopeOutline class="h-8 w-8 text-primary-600" />
+			<EnvelopeOutline class="text-primary-600 h-8 w-8" />
 			Broadcast Email
 		</Heading>
 		<p class="mt-2 text-slate-500">Send a system-generated email to specific membership groups.</p>
@@ -101,7 +101,7 @@
 
 			<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:col-span-4">
 				<div class="mb-4 border-b border-slate-100 pb-4">
-					<span class="font-serif text-lg italic text-slate-400">Hi [sibling name],</span>
+					<span class="font-serif text-lg text-slate-400 italic">Hi [sibling name],</span>
 				</div>
 
 				<Textarea
@@ -112,7 +112,7 @@
 					class="border-none p-0 font-sans text-base focus:ring-0"
 				/>
 
-				<div class="mt-4 space-y-1 border-t border-slate-100 pt-4 font-serif italic text-slate-500">
+				<div class="mt-4 space-y-1 border-t border-slate-100 pt-4 font-serif text-slate-500 italic">
 					<p>Living the Sacramental Life,</p>
 					<p class="font-bold">The Order of Saint Luke</p>
 				</div>

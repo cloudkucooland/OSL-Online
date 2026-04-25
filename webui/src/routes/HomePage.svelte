@@ -144,9 +144,9 @@
 	</section>
 
 	{#if !result}
-		<Card size="xl" padding="lg" class="border-l-4 border-l-primary-600 shadow-sm">
+		<Card size="xl" padding="lg" class="border-l-primary-600 border-l-4 shadow-sm">
 			<div class="flex items-start gap-3">
-				<InfoCircleOutline class="mt-1 h-6 w-6 text-primary-600" />
+				<InfoCircleOutline class="text-primary-600 mt-1 h-6 w-6" />
 				<div class="space-y-2 text-slate-600">
 					<Heading tag="h4" class="text-lg font-semibold text-slate-800">Search Tips</Heading>
 					<ul class="list-inside list-disc space-y-1 text-sm">
@@ -181,7 +181,7 @@
 				<TableBody>
 					{#each result as r}
 						<TableBodyRow class="cursor-pointer" onclick={() => push(`/member/${r.ID}`)}>
-							<TableBodyCell class="font-medium text-primary-700">{r.FirstName}</TableBodyCell>
+							<TableBodyCell class="text-primary-700 font-medium">{r.FirstName}</TableBodyCell>
 							<TableBodyCell>{r.LifeVowedName || r.PreferredName || '-'}</TableBodyCell>
 							<TableBodyCell class="font-semibold text-slate-900">{r.LastName}</TableBodyCell>
 							<TableBodyCell>

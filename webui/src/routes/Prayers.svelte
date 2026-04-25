@@ -57,16 +57,16 @@
 
 <div class="mx-auto max-w-4xl space-y-6 p-4">
 	<header class="py-6 text-center">
-		<Heading tag="h1" class="font-serif text-4xl text-primary-900">Prayer Requests</Heading>
+		<Heading tag="h1" class="text-primary-900 font-serif text-4xl">Prayer Requests</Heading>
 		<p class="mt-2 text-slate-500">
 			Requests shared here are (will be, when Br. Scot finishes it) included in WADO.
 		</p>
 	</header>
 
-	<Card size="none" class="border-t-4 border-t-primary-600 p-6 shadow-lg">
-		<div class="mb-4 flex items-center gap-2 text-primary-800">
+	<Card size="none" class="border-t-primary-600 border-t-4 p-6 shadow-lg">
+		<div class="text-primary-800 mb-4 flex items-center gap-2">
 			<GlobeOutline size="sm" />
-			<span class="text-xs font-bold uppercase tracking-widest">New Prayer Request</span>
+			<span class="text-xs font-bold tracking-widest uppercase">New Prayer Request</span>
 		</div>
 
 		<Textarea
@@ -110,7 +110,7 @@
 							</button>
 						{/if}
 					</div>
-					<p class="whitespace-pre-wrap leading-relaxed text-slate-700">{p.Content}</p>
+					<p class="leading-relaxed whitespace-pre-wrap text-slate-700">{p.Content}</p>
 				</Card>
 			{:else}
 				<div class="text-center py-20 border-2 border-dashed border-slate-200 rounded-xl">

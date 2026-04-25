@@ -120,9 +120,11 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="flex flex-wrap items-center gap-4">
-				<div class="flex flex-col items-center rounded-lg border border-red-100 bg-red-50 px-4 py-2">
+				<div
+					class="flex flex-col items-center rounded-lg border border-red-100 bg-red-50 px-4 py-2"
+				>
 					<Toggle
 						id="ListInDirectory"
 						checked={member.ListInDirectory}
@@ -145,13 +147,15 @@
 		<div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
 			<!-- Column 1: Identity -->
 			<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
-				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">Name</Heading>
+				<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold text-slate-800 uppercase"
+					>Name</Heading
+				>
 				<div class="space-y-4">
 					<div>
 						<Label class="mb-1 text-xs text-slate-400 italic">Name</Label>
 						{oslname(member)}
 					</div>
-					
+
 					<div class="mt-4 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
 						<Label class="mb-1 font-bold text-red-700">Preferred Name</Label>
 						<Input
@@ -160,7 +164,9 @@
 							onchange={(e) => handleUpdate('PreferredName', e.target.value)}
 							placeholder="What should we call you?"
 						/>
-						<p class="mt-1 text-[10px] text-red-600 italic">If different than first/lifevow name (no need for Br/Sr/Sibling).</p>
+						<p class="mt-1 text-[10px] text-red-600 italic">
+							If different than first/lifevow name (no need for Br/Sr/Sibling).
+						</p>
 					</div>
 
 					<div>
@@ -173,12 +179,17 @@
 							disabled={member.MemberStatus === 'Friend'}
 						/>
 					</div>
-					
+
 					<Hr class="my-6" />
-					
+
 					<div>
 						<Label class="mb-1 text-xs text-slate-400 italic">Birth Date</Label>
-						<Input id="BirthDate" value={member.BirthDate} onchange={(e) => handleUpdate('BirthDate', e.target.value)} placeholder="YYYY-MM-DD" />
+						<Input
+							id="BirthDate"
+							value={member.BirthDate}
+							onchange={(e) => handleUpdate('BirthDate', e.target.value)}
+							placeholder="YYYY-MM-DD"
+						/>
 					</div>
 				</div>
 			</Card>
@@ -192,9 +203,9 @@
 					disabled={true}
 					title="Mailing Address"
 				/>
-				
+
 				<Hr class="my-6" />
-				
+
 				<ContactSection
 					data={member}
 					onUpdate={handleUpdate}
@@ -202,27 +213,33 @@
 					disabled={true}
 					title="Contact Information"
 				/>
-				<p class="mt-4 text-[10px] italic text-slate-400">Contact the office to update your address or core email/phone.</p>
+				<p class="mt-4 text-[10px] text-slate-400 italic">
+					Contact the office to update your address or core email/phone.
+				</p>
 			</Card>
 
 			<!-- Column 3: Vocation & Comms -->
 			<div class="space-y-8">
 				<Card size="none" class="border-slate-200 p-6 shadow-sm">
-					<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">Vocation</Heading>
+					<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold text-slate-800 uppercase"
+						>Vocation</Heading
+					>
 					<div class="space-y-4">
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-								<Label class="text-[10px] uppercase text-slate-400">First Vows</Label>
+								<Label class="text-[10px] text-slate-400 uppercase">First Vows</Label>
 								<p class="font-semibold text-slate-700">{member.DateFirstVows || '—'}</p>
 							</div>
 							<div>
-								<Label class="text-[10px] uppercase text-slate-400 font-bold text-primary-700">Reaffirmation</Label>
-								<p class="font-bold text-primary-800">{member.DateReaffirmation || '—'}</p>
+								<Label class="text-primary-700 text-[10px] font-bold text-slate-400 uppercase"
+									>Reaffirmation</Label
+								>
+								<p class="text-primary-800 font-bold">{member.DateReaffirmation || '—'}</p>
 							</div>
 						</div>
 
 						<div class="mt-2 rounded-lg border border-dashed border-red-200 bg-red-50/40 p-4">
-							<Label class="mb-2 font-bold italic text-red-700">Chapters</Label>
+							<Label class="mb-2 font-bold text-red-700 italic">Chapters</Label>
 							<MultiSelect items={chaps} bind:value={selectedChapters} onchange={updateChapters} />
 						</div>
 
@@ -238,15 +255,27 @@
 							</div>
 							<div>
 								<Label class="text-xs">Occupation</Label>
-								<Input id="Occupation" value={member.Occupation} onchange={(e) => handleUpdate('Occupation', e.target.value)} />
+								<Input
+									id="Occupation"
+									value={member.Occupation}
+									onchange={(e) => handleUpdate('Occupation', e.target.value)}
+								/>
 							</div>
 							<div>
 								<Label class="text-xs">Employer</Label>
-								<Input id="Employer" value={member.Employer} onchange={(e) => handleUpdate('Employer', e.target.value)} />
+								<Input
+									id="Employer"
+									value={member.Employer}
+									onchange={(e) => handleUpdate('Employer', e.target.value)}
+								/>
 							</div>
 							<div>
 								<Label class="text-xs">Denomination</Label>
-								<Input id="Denomination" value={member.Denomination} onchange={(e) => handleUpdate('Denomination', e.target.value)} />
+								<Input
+									id="Denomination"
+									value={member.Denomination}
+									onchange={(e) => handleUpdate('Denomination', e.target.value)}
+								/>
 							</div>
 						</div>
 					</div>

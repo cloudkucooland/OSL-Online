@@ -104,7 +104,7 @@
 				<Heading tag="h2" class="text-2xl font-bold text-slate-900">
 					Member Notes: {oslname(member)}
 				</Heading>
-				<p class="mt-1 text-sm italic text-slate-500">{member.MemberStatus} — ID: {member.ID}</p>
+				<p class="mt-1 text-sm text-slate-500 italic">{member.MemberStatus} — ID: {member.ID}</p>
 			</div>
 			<MessageCaptionOutline class="h-10 w-10 text-slate-200" />
 		</div>
@@ -130,7 +130,7 @@
 			{#each notes as n}
 				<Card
 					size="none"
-					class="border-slate-200 p-4 shadow-sm transition-colors hover:border-primary-300"
+					class="hover:border-primary-300 border-slate-200 p-4 shadow-sm transition-colors"
 				>
 					<div class="mb-2 flex items-start justify-between">
 						<Badge color="indigo" class="font-mono">{cleanDateFormat(n.Date)}</Badge>
@@ -143,7 +143,7 @@
 							<TrashBinOutline class="h-4 w-4" />
 						</Button>
 					</div>
-					<p class="whitespace-pre-wrap leading-relaxed text-slate-700">
+					<p class="leading-relaxed whitespace-pre-wrap text-slate-700">
 						{n.Note}
 					</p>
 				</Card>

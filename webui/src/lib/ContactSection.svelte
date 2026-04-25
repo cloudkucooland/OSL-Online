@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Label, Input, Toggle, Heading, Hr } from 'flowbite-svelte';
 
-	let { 
-		data, 
-		onUpdate, 
-		disabled = false, 
+	let {
+		data,
+		onUpdate,
+		disabled = false,
 		showPrivacy = false,
 		title = 'Contact Information'
 	} = $props();
@@ -17,7 +17,7 @@
 </script>
 
 <div class="mb-6 flex items-center justify-between border-b pb-2">
-	<Heading tag="h4" class="text-lg font-bold uppercase text-slate-800">{title}</Heading>
+	<Heading tag="h4" class="text-lg font-bold text-slate-800 uppercase">{title}</Heading>
 </div>
 
 <div class="space-y-6">
@@ -71,7 +71,7 @@
 	<div class="space-y-4">
 		<div class="flex items-center gap-2">
 			<div class="flex-grow">
-				<Label class="text-xs italic text-slate-400">Secondary Email</Label>
+				<Label class="text-xs text-slate-400 italic">Secondary Email</Label>
 				<Input
 					id="SecondaryEmail"
 					value={data.SecondaryEmail}
@@ -91,7 +91,7 @@
 		</div>
 		<div class="flex items-center gap-2">
 			<div class="flex-grow">
-				<Label class="text-xs italic text-slate-400">Secondary Phone</Label>
+				<Label class="text-xs text-slate-400 italic">Secondary Phone</Label>
 				<Input
 					id="SecondaryPhone"
 					value={data.SecondaryPhone}

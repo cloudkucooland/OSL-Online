@@ -56,7 +56,7 @@
 			</div>
 
 			<div class="flex items-center justify-between">
-				<a href="#/register" class="text-sm text-primary-700 hover:underline"
+				<a href="#/register" class="text-primary-700 text-sm hover:underline"
 					>Register/Lost Password</a
 				>
 				<Button type="submit" color="green">Login</Button>

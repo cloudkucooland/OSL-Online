@@ -41,7 +41,7 @@
 			push('/Login');
 			return;
 		}
-		
+
 		if (!oo.chaptercache) {
 			try {
 				oo.chaptercache = await getChapters();
@@ -64,13 +64,14 @@
 
 <div class="mx-auto max-w-6xl space-y-6 p-4">
 	<Card size="none" class="border-slate-200 bg-white p-6 shadow-sm">
-		<div class="mb-6 flex items-center gap-3 text-primary-900">
+		<div class="text-primary-900 mb-6 flex items-center gap-3">
 			<BookOpenOutline size="lg" />
 			<Heading tag="h2" class="text-2xl font-bold">Chapter Browser</Heading>
 		</div>
 
 		<div class="space-y-2">
-			<Label for="chapter-select" class="text-sm font-semibold text-slate-700">Select Chapter</Label>
+			<Label for="chapter-select" class="text-sm font-semibold text-slate-700">Select Chapter</Label
+			>
 			<Select
 				id="chapter-select"
 				items={chaps}
@@ -90,13 +91,13 @@
 			{#each members as m}
 				<Card
 					size="none"
-					class="group border-slate-100 p-5 shadow-sm transition-all hover:border-primary-200 hover:bg-slate-50"
+					class="group hover:border-primary-200 border-slate-100 p-5 shadow-sm transition-all hover:bg-slate-50"
 				>
 					<div class="flex h-full flex-col">
 						<div class="mb-3 flex items-start justify-between">
 							<a
 								href="#/member/{m.ID}"
-								class="text-lg font-bold text-slate-900 transition-colors group-hover:text-primary-700"
+								class="group-hover:text-primary-700 text-lg font-bold text-slate-900 transition-colors"
 							>
 								{oslname(m)}
 							</a>
@@ -113,7 +114,7 @@
 									<EnvelopeOutline size="xs" class="text-slate-400" />
 									<a
 										href="mailto:{m.PrimaryEmail}"
-										class="truncate hover:text-primary-600 hover:underline"
+										class="hover:text-primary-600 truncate hover:underline"
 									>
 										{m.PrimaryEmail}
 									</a>

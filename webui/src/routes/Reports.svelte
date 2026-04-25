@@ -40,7 +40,7 @@
 
 <div class="mx-auto max-w-4xl space-y-6 px-4 py-8">
 	<header class="flex items-center gap-4 border-b pb-6">
-		<div class="rounded-lg bg-primary-100 p-3 text-primary-600">
+		<div class="bg-primary-100 text-primary-600 rounded-lg p-3">
 			<FileChartBarOutline class="h-8 w-8" />
 		</div>
 		<div>

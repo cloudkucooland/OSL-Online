@@ -166,7 +166,7 @@
 			<div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
 				<Card size="none" class="h-full border-slate-200 p-6 shadow-sm">
 					<div class="mb-6 flex items-center justify-between border-b pb-2">
-						<Heading tag="h4" class="text-lg font-bold uppercase text-slate-800"
+						<Heading tag="h4" class="text-lg font-bold text-slate-800 uppercase"
 							>Identity & Status</Heading
 						>
 						<Toggle
@@ -269,9 +269,9 @@
 						showPrivacy={true}
 						title="Contact & Mailing"
 					/>
-					
+
 					<Hr class="my-6" />
-					
+
 					<ContactSection
 						data={r}
 						onUpdate={handleUpdate}
@@ -282,7 +282,7 @@
 
 				<div class="space-y-8">
 					<Card size="none" class="border-slate-200 p-6 shadow-sm">
-						<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800"
+						<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold text-slate-800 uppercase"
 							>Vocation Data</Heading
 						>
 						<div class="space-y-4">
@@ -341,7 +341,7 @@
 							</div>
 
 							<div class="rounded-lg border border-purple-100 bg-purple-50 p-3">
-								<Label class="mb-1 text-[10px] font-bold uppercase text-purple-700">Deceased</Label>
+								<Label class="mb-1 text-[10px] font-bold text-purple-700 uppercase">Deceased</Label>
 								<Input
 									id="DateDeceased"
 									size="sm"
@@ -404,8 +404,8 @@
 				<div class="mt-8 grid grid-cols-1 gap-8 border-t pt-8 md:grid-cols-2">
 					{#if r.ListAddress}
 						<div>
-							<Label class="mb-2 text-xs font-bold uppercase text-slate-400">Mailing Address</Label>
-							<p class="whitespace-pre-line font-medium leading-relaxed text-slate-700">
+							<Label class="mb-2 text-xs font-bold text-slate-400 uppercase">Mailing Address</Label>
+							<p class="leading-relaxed font-medium whitespace-pre-line text-slate-700">
 								{r.FormattedAddr}
 							</p>
 						</div>
@@ -413,16 +413,16 @@
 					<div class="space-y-6">
 						{#if r.ListPrimaryEmail && r.PrimaryEmail}
 							<div>
-								<Label class="mb-1 text-xs font-bold uppercase text-slate-400">Email</Label>
+								<Label class="mb-1 text-xs font-bold text-slate-400 uppercase">Email</Label>
 								<a
 									href="mailto:{r.PrimaryEmail}"
-									class="font-semibold text-primary-600 hover:underline">{r.PrimaryEmail}</a
+									class="text-primary-600 font-semibold hover:underline">{r.PrimaryEmail}</a
 								>
 							</div>
 						{/if}
 						{#if r.ListPrimaryPhone && r.PrimaryPhone}
 							<div>
-								<Label class="mb-1 text-xs font-bold uppercase text-slate-400">Phone</Label>
+								<Label class="mb-1 text-xs font-bold text-slate-400 uppercase">Phone</Label>
 								<p class="font-semibold text-slate-800">{r.PrimaryPhone}</p>
 							</div>
 						{/if}

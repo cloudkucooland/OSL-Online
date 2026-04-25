@@ -1,13 +1,10 @@
-/* @import 'tailwindcss'; */
-@plugin '@tailwindcss';
+@import 'tailwindcss';
+
+/* @plugin '@tailwindcss';
 @plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+@plugin '@tailwindcss/typography'; */
 @custom-variant dark (&:where(.dark, .dark *));
 @source '../node_modules/flowbite-svelte/dist';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 #app {
 	margin: 0 auto;

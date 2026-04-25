@@ -55,7 +55,7 @@
 		</div>
 	{:then}
 		<Card size="none" class="border-slate-200 bg-white p-6 shadow-sm">
-			<div class="mb-4 flex items-center gap-2 text-primary-900">
+			<div class="text-primary-900 mb-4 flex items-center gap-2">
 				<MapPinAltOutline size="lg" />
 				<Heading tag="h2" class="text-2xl font-bold">Locality Browser</Heading>
 			</div>
@@ -89,13 +89,13 @@
 			{#each members as m}
 				<Card
 					size="none"
-					class="group border-slate-100 p-5 shadow-sm transition-all hover:border-primary-200 hover:bg-slate-50"
+					class="group hover:border-primary-200 border-slate-100 p-5 shadow-sm transition-all hover:bg-slate-50"
 				>
 					<div class="flex h-full flex-col">
 						<div class="mb-3 flex items-start justify-between">
 							<a
 								href="#/member/{m.ID}"
-								class="text-lg font-bold text-slate-900 transition-colors group-hover:text-primary-700"
+								class="group-hover:text-primary-700 text-lg font-bold text-slate-900 transition-colors"
 							>
 								{oslname(m)}
 							</a>
@@ -109,7 +109,7 @@
 								<div class="flex items-center gap-2 text-slate-600">
 									<a
 										href="mailto:{m.PrimaryEmail}"
-										class="truncate hover:text-primary-600 hover:underline"
+										class="hover:text-primary-600 truncate hover:underline"
 									>
 										{m.PrimaryEmail}
 									</a>

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Label, Select, Card, Heading } from 'flowbite-svelte';
 
-	let { 
-		data, 
-		onUpdate, 
-		disabled = false, 
+	let {
+		data,
+		onUpdate,
+		disabled = false,
 		title = 'Fulfillment',
 		showFinancials = false,
 		financialsTitle = 'Financials',
@@ -30,7 +30,9 @@
 
 <div class="space-y-8">
 	<Card size="none" class="border-slate-200 p-6 shadow-sm">
-		<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">{title}</Heading>
+		<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold text-slate-800 uppercase"
+			>{title}</Heading
+		>
 		<div class="space-y-4">
 			<div>
 				<Label for="Newsletter" class="mb-1 font-bold text-red-700">Newsletter</Label>
@@ -67,7 +69,9 @@
 
 	{#if showFinancials}
 		<Card size="none" class="border-slate-200 bg-slate-50/50 p-6 shadow-sm">
-			<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold uppercase text-slate-800">{financialsTitle}</Heading>
+			<Heading tag="h4" class="mb-6 border-b pb-2 text-lg font-bold text-slate-800 uppercase"
+				>{financialsTitle}</Heading
+			>
 			{@render children?.()}
 		</Card>
 	{/if}

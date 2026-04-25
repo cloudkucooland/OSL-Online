@@ -57,8 +57,8 @@
 
 		{#if member}
 			<div class="text-right">
-				<p class="text-sm italic text-slate-500">Records for</p>
-				<p class="font-semibold text-primary-700">{oslname(member)}</p>
+				<p class="text-sm text-slate-500 italic">Records for</p>
+				<p class="text-primary-700 font-semibold">{oslname(member)}</p>
 			</div>
 		{/if}
 	</header>
@@ -88,14 +88,14 @@
 									<a
 										href="https://www.paypal.com/unifiedtransactions/details/payment/{row.Transaction}"
 										target="_blank"
-										class="flex items-center gap-1 text-xs text-primary-600 hover:underline"
+										class="text-primary-600 flex items-center gap-1 text-xs hover:underline"
 									>
 										<GlobeOutline class="h-3 w-3" /> PayPal: {row.Transaction.slice(0, 8)}...
 									</a>
 								{:else if row.Check && row.Check !== '0'}
 									<Badge color="indigo" class="font-mono">Check #{row.Check}</Badge>
 								{:else}
-									<span class="text-xs italic text-slate-400">Other</span>
+									<span class="text-xs text-slate-400 italic">Other</span>
 								{/if}
 							</TableBodyCell>
 							<TableBodyCell class="text-right font-bold text-slate-900">

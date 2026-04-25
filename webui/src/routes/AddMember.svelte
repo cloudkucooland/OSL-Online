@@ -44,8 +44,8 @@
 <div class="mx-auto max-w-2xl px-4 py-8">
 	<Card size="md" padding="xl" class="shadow-sm">
 		<div class="mb-6 flex items-center gap-3">
-			<div class="rounded-lg bg-primary-100 p-2">
-				<UserAddOutline class="h-6 w-6 text-primary-600" />
+			<div class="bg-primary-100 rounded-lg p-2">
+				<UserAddOutline class="text-primary-600 h-6 w-6" />
 			</div>
 			<div>
 				<Heading tag="h2" class="text-2xl font-bold text-slate-900">Add New Member</Heading>

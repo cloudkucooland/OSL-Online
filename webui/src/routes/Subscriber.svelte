@@ -66,7 +66,9 @@
 		>
 			<div class="flex items-center gap-4">
 				<div>
-					<Heading tag="h2" class="text-3xl font-bold text-slate-900">{subscriber.Name || 'Institutional Subscriber'}</Heading>
+					<Heading tag="h2" class="text-3xl font-bold text-slate-900"
+						>{subscriber.Name || 'Institutional Subscriber'}</Heading
+					>
 					<div class="mt-1 flex items-center gap-2">
 						<Badge color="indigo" class="text-[10px] uppercase">Institutional Subscriber</Badge>
 						<span class="font-mono text-xs text-slate-400">ID: {subscriber.ID}</span>
@@ -97,15 +99,19 @@
 			<FulfillmentSection data={subscriber} onUpdate={handleUpdate} showFinancials={true}>
 				<div class="space-y-4">
 					<div>
-						<label for="DatePaid" class="mb-1 block text-xs font-bold text-slate-700">Last Payment Date</label>
+						<label for="DatePaid" class="mb-1 block text-xs font-bold text-slate-700"
+							>Last Payment Date</label
+						>
 						<input
 							id="DatePaid"
-							class="w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm focus:border-primary-500 focus:ring-primary-500"
+							class="focus:border-primary-500 focus:ring-primary-500 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm"
 							value={subscriber.DatePaid}
 							onchange={(e) => handleUpdate('DatePaid', e.target.value)}
 							placeholder="YYYY-MM-DD"
 						/>
-						<p class="mt-1 text-[10px] italic text-slate-400">Subscription renewals are tracked by this date.</p>
+						<p class="mt-1 text-[10px] text-slate-400 italic">
+							Subscription renewals are tracked by this date.
+						</p>
 					</div>
 				</div>
 			</FulfillmentSection>

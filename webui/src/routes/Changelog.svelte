@@ -74,14 +74,14 @@
 						</Heading>
 						<p class="font-medium text-slate-500">
 							System records for {oslname(member)}
-							<Badge color="purple" class="ml-2 text-[10px] uppercase tracking-widest"
+							<Badge color="purple" class="ml-2 text-[10px] tracking-widest uppercase"
 								>{member.MemberStatus}</Badge
 							>
 						</p>
 					</div>
 				</div>
 				<div class="hidden text-right md:block">
-					<p class="text-xs font-bold uppercase tracking-widest text-slate-400">Total Logs</p>
+					<p class="text-xs font-bold tracking-widest text-slate-400 uppercase">Total Logs</p>
 					<p class="font-mono text-3xl font-black text-slate-700">{logs.length}</p>
 				</div>
 			</div>
@@ -89,7 +89,7 @@
 
 		<Card size="none" class="overflow-hidden border-slate-200 bg-white shadow-md">
 			<Table hoverable={true} striped={true}>
-				<TableHead class="border-b bg-slate-50 text-xs uppercase text-slate-500">
+				<TableHead class="border-b bg-slate-50 text-xs text-slate-500 uppercase">
 					<TableHeadCell class="py-4"
 						><div class="flex items-center gap-2">
 							<ClockOutline class="h-4 w-4" /> Timestamp
@@ -118,13 +118,13 @@
 									<ArrowRightOutline class="h-3 w-3 text-slate-300" />
 								</div>
 							</TableBodyCell>
-							<TableBodyCell class="break-all font-mono text-sm leading-relaxed text-slate-600">
+							<TableBodyCell class="font-mono text-sm leading-relaxed break-all text-slate-600">
 								{#if entry.Value}
 									<span class="rounded border border-slate-200 bg-slate-100 px-2 py-1"
 										>{entry.Value}</span
 									>
 								{:else}
-									<span class="italic text-slate-300">-- cleared --</span>
+									<span class="text-slate-300 italic">-- cleared --</span>
 								{/if}
 							</TableBodyCell>
 						</TableBodyRow>

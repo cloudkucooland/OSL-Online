@@ -119,7 +119,7 @@
 			<div
 				class="min-w-[240px] rounded-xl border-2 border-green-100 bg-white p-6 text-right shadow-sm"
 			>
-				<p class="mb-1 text-xs font-bold uppercase tracking-widest text-slate-500">
+				<p class="mb-1 text-xs font-bold tracking-widest text-slate-500 uppercase">
 					Total Contribution
 				</p>
 				<p class="text-5xl font-black text-green-600">
@@ -132,7 +132,7 @@
 			<!-- <Card size="none" class="border-slate-200 bg-slate-50/50 p-8 shadow-md"> -->
 			<Heading
 				tag="h5"
-				class="mb-6 flex items-center gap-2 text-sm font-bold uppercase text-slate-500"
+				class="mb-6 flex items-center gap-2 text-sm font-bold text-slate-500 uppercase"
 			>
 				<PlusOutline class="h-4 w-4" /> Record Gift
 			</Heading>
@@ -189,7 +189,7 @@
 									<a
 										href="https://www.paypal.com/unifiedtransactions/details/payment/{row.Transaction}"
 										target="_blank"
-										class="flex items-center gap-1 font-mono text-xs text-primary-600 hover:underline"
+										class="text-primary-600 flex items-center gap-1 font-mono text-xs hover:underline"
 									>
 										<GlobeOutline class="h-3 w-3" />
 										{row.Transaction}

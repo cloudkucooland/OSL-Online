@@ -41,7 +41,7 @@
 <div class="space-y-8">
 	<header>
 		<Heading tag="h2" class="text-3xl font-extrabold text-slate-900">System Dashboard</Heading>
-		<p class="italic text-slate-500">Membership and financial snapshots since July 1st.</p>
+		<p class="text-slate-500 italic">Membership and financial snapshots since July 1st.</p>
 	</header>
 
 	{#if loading}
@@ -50,11 +50,11 @@
 		</div>
 	{:else if data}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-			<Card padding="xl" class="border-primary-200 bg-gradient-to-br from-primary-50 to-white">
+			<Card padding="xl" class="border-primary-200 from-primary-50 bg-gradient-to-br to-white">
 				<div class="flex items-center gap-4">
-					<UsersGroupOutline class="h-10 w-10 text-primary-600" />
+					<UsersGroupOutline class="text-primary-600 h-10 w-10" />
 					<div>
-						<p class="text-sm font-medium uppercase tracking-wider text-slate-500">Total Vowed</p>
+						<p class="text-sm font-medium tracking-wider text-slate-500 uppercase">Total Vowed</p>
 						<p class="text-3xl font-bold text-slate-900">{data.LifevowCount + data.AnnualCount}</p>
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 				<div class="flex items-center gap-4">
 					<CashOutline class="h-10 w-10 text-green-600" />
 					<div>
-						<p class="text-sm font-medium uppercase tracking-wider text-slate-500">
+						<p class="text-sm font-medium tracking-wider text-slate-500 uppercase">
 							This Year Giving
 						</p>
 						<p class="text-3xl font-bold text-slate-900">${data.ThisYearGiving}</p>
@@ -76,7 +76,7 @@
 				<div class="flex items-center gap-4">
 					<ChartPieOutline class="h-10 w-10 text-purple-600" />
 					<div>
-						<p class="text-sm font-medium uppercase tracking-wider text-slate-500">Subscribers</p>
+						<p class="text-sm font-medium tracking-wider text-slate-500 uppercase">Subscribers</p>
 						<p class="text-3xl font-bold text-slate-900">{data.SubscriberCount}</p>
 					</div>
 				</div>
@@ -99,7 +99,7 @@
 						<TableBodyCell>{data.LifeVowsWhoGave}</TableBodyCell>
 					</TableBodyRow>
 					<TableBodyRow class="border-t-2 border-slate-100">
-						<TableBodyCell class="font-semibold text-primary-700">Annual Vow Members</TableBodyCell>
+						<TableBodyCell class="text-primary-700 font-semibold">Annual Vow Members</TableBodyCell>
 						<TableBodyCell class="font-semibold">{data.AnnualCount}</TableBodyCell>
 					</TableBodyRow>
 					<TableBodyRow>

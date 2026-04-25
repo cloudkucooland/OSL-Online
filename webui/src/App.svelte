@@ -93,7 +93,7 @@
 	>
 		<Navbar containerClass="mx-auto flex flex-wrap justify-between items-center px-4 py-2">
 			<NavBrand href="#/">
-				<span class="self-center text-2xl font-semibold tracking-tight text-primary-900">
+				<span class="text-primary-900 self-center text-2xl font-semibold tracking-tight">
 					OSL Directory
 				</span>
 			</NavBrand>

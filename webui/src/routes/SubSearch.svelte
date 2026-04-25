@@ -62,7 +62,7 @@
 		<div>
 			<Heading tag="h2" class="text-2xl font-bold text-slate-900">Institutional Subscribers</Heading
 			>
-			<p class="text-sm italic text-slate-500">
+			<p class="text-sm text-slate-500 italic">
 				Search Doxology subscriptions for libraries and institutions.
 			</p>
 		</div>
