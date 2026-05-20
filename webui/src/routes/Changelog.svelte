@@ -66,7 +66,7 @@
 			>
 				<div class="flex items-center gap-4">
 					<div class="rounded-full bg-purple-100 p-3 text-purple-600">
-						<ClockArrowOutline class="h-8 w-8" />
+						<ClockOutline class="h-8 w-8" />
 					</div>
 					<div>
 						<Heading tag="h2" class="text-3xl font-black tracking-tight text-slate-900">
