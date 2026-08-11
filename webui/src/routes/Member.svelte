@@ -95,6 +95,9 @@
 				chaps = await getChapters();
 				oo.chaptercache = chaps;
 			}
+			if (r.PrimaryEmail == oo.me.sub) {
+				return push('/me');
+			}
 		} catch (err: any) {
 			toast.push(err.message);
 		} finally {
