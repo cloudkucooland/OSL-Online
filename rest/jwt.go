@@ -15,10 +15,10 @@ import (
 
 	"github.com/cloudkucooland/OSL-Online/model"
 
-	"github.com/lestrrat-go/jwx/v2/jwa"
-	"github.com/lestrrat-go/jwx/v2/jwk"
-	"github.com/lestrrat-go/jwx/v2/jws"
-	"github.com/lestrrat-go/jwx/v2/jwt"
+	"github.com/lestrrat-go/jwx/v4/jwa"
+	"github.com/lestrrat-go/jwx/v4/jwk"
+	"github.com/lestrrat-go/jwx/v4/jws"
+	"github.com/lestrrat-go/jwx/v4/jwt"
 )
 
 var stateStore = "/var/oo"
@@ -56,7 +56,7 @@ func mintjwt(username model.Authname, level model.AuthLevel) (string, error) {
 	}
 
 	hdrs := jws.NewHeaders()
-	signed, err := jwt.Sign(jwts, jwt.WithKey(jwa.RS256, key, jws.WithProtectedHeaders(hdrs)))
+	signed, err := jwt.Sign(jwts, jwt.WithKey(jwa.RS256(), key, jws.WithProtectedHeaders(hdrs)))
 	if err != nil {
 		return "", err
 	}
@@ -138,7 +138,7 @@ func initkey() error {
 		panic(err.Error())
 	}
 
-	key, err := jwk.FromRaw(raw)
+	key, err := jwk.Import[jwk.RSAPrivateKey](raw)
 	if err != nil {
 		slog.Error("failed to create symmetric key", "error", err.Error())
 		panic(err.Error())
@@ -192,17 +192,11 @@ func refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := string(token.Subject())
-	claim, ok := token.Get("level")
-	if !ok {
-		err := fmt.Errorf("no level claim in token")
-		sendError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	level, ok := claim.(float64)
-	if !ok {
-		err := fmt.Errorf("authlevel type assertion failed")
+	sub, _ := token.Subject()
+	username := string(sub)
+	level, err := jwt.Get[float64](token, "level")
+	if err != nil {
+		err := fmt.Errorf("no level claim in token: %w", err)
 		sendError(w, err, http.StatusInternalServerError)
 		return
 	}

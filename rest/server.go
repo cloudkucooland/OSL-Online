@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
-	"github.com/lestrrat-go/jwx/v2/jws"
-	"github.com/lestrrat-go/jwx/v2/jwt"
+	"github.com/lestrrat-go/jwx/v4/jwk"
+	"github.com/lestrrat-go/jwx/v4/jws"
+	"github.com/lestrrat-go/jwx/v4/jwt"
 
 	"github.com/cloudkucooland/OSL-Online/model"
 )
@@ -65,23 +65,24 @@ func authMW(next http.HandlerFunc, requiredlevel model.AuthLevel) http.HandlerFu
 			return
 		}
 
-		claim, ok := token.Get("level")
-		if !ok {
-			sendError(w, fmt.Errorf("no level claim"), http.StatusInternalServerError)
+		checklevel, err := jwt.Get[float64](token, "level")
+		if err != nil {
+			sendError(w, fmt.Errorf("no level claim: %w", err), http.StatusInternalServerError)
 			return
 		}
 
-		checklevel, ok := claim.(float64)
-		if !ok || model.AuthLevel(checklevel) < requiredlevel {
-			slog.Warn("access level too low", "user", token.Subject())
+		if model.AuthLevel(checklevel) < requiredlevel {
+			sub, _ := token.Subject()
+			slog.Warn("access level too low", "user", sub)
 			sendError(w, fmt.Errorf("forbidden"), http.StatusForbidden)
 			return
 		}
 
-		username := model.Authname(token.Subject())
+		sub, _ := token.Subject()
+		username := model.Authname(sub)
 		uid, err := username.GetID(r.Context())
 		if err != nil {
-			slog.Error("failed to get UID from token subject", "sub", token.Subject())
+			slog.Error("failed to get UID from token subject", "sub", sub)
 			sendError(w, err, http.StatusInternalServerError)
 			return
 		}
@@ -109,7 +110,8 @@ func getUser(r *http.Request) string {
 	if err != nil {
 		return ""
 	}
-	return string(token.Subject())
+	sub, _ := token.Subject()
+	return string(sub)
 }
 
 func parseID(r *http.Request, key string) (int, error) {
