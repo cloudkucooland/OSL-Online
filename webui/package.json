@@ -13,26 +13,26 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@tailwindcss/postcss": "^4.2.4",
+		"@tailwindcss/vite": "^4.2.4",
+		"@zerodevx/svelte-toast": "^0.9.6",
 		"autoprefixer": "^10.4.20",
 		"flowbite": "^4.0.1",
 		"flowbite-svelte": "^2.0.0-next.14",
 		"flowbite-svelte-icons": "^3.1.0",
-		"postcss": "^8.4.49",
-		"svelte": "^5.16.0",
-		"svelte-check": "^4.1.1",
-		"tailwindcss": "^4.2.4",
-		"vite": "^8.0.10",
-		"@tailwindcss/postcss": "^4.2.4",
-		"@tailwindcss/vite": "^4.2.4",
-		"@zerodevx/svelte-toast": "^0.9.6",
 		"lucide": "^1.11.0",
 		"lucide-svelte": "^1.0.1",
+		"postcss": "^8.4.49",
 		"prettier": "^3.8.2",
 		"prettier-plugin-svelte": "^3.5.1",
+		"prettier-plugin-tailwindcss": "^0.7.2",
+		"svelte": "^5.16.0",
+		"svelte-check": "^4.1.1",
 		"svelte-spa-router": "^5.0.1",
-		"prettier-plugin-tailwindcss": "^0.7.2"
+		"tailwindcss": "^4.2.4",
+		"vite": "^8.0.10"
 	},
 	"dependencies": {
-		"typescript": "^6.0.2"
+		"typescript": "^7.0.2"
 	}
 }
