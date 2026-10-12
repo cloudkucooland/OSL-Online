@@ -62,7 +62,7 @@ func Disconnect() {
 }
 
 // makeNullString is used for values that may & might be inserted/updated as NULL in the database
-func makeNullString(in interface{}) sql.NullString {
+func makeNullString(in any) sql.NullString {
 	var s string
 
 	tmp, ok := in.(string)

@@ -120,7 +120,7 @@ func generateID(size int) string {
 	var characters = strings.Split("abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "")
 	var buf = make([]byte, size)
 
-	for i := 0; i < size; i++ {
+	for i := range size {
 		r, err := rand.Int(rand.Reader, big.NewInt(int64(len(characters))))
 		if err != nil {
 			slog.Error(err.Error())

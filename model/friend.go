@@ -6,7 +6,7 @@ import (
 	"log/slog"
 )
 
-const friendzoneMinDays = 365 * 3 // 3 years
+const friendzoneMinDays = 365 * 5 // 5 years
 
 // Friendzone moves all members who have not reaffirmed vows in the past friendzoneMinDays and converts
 // them to friends

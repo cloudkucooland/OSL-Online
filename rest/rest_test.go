@@ -63,7 +63,7 @@ func TestMemberLifecycle(t *testing.T) {
 			t.Fatalf("Failed to create member: %v", resp.Status)
 		}
 
-		var res map[string]interface{}
+		var res map[string]any
 		json.NewDecoder(resp.Body).Decode(&res)
 		memberID = int(res["id"].(float64))
 	})

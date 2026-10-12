@@ -125,8 +125,8 @@ func setMemberChapters(w http.ResponseWriter, r *http.Request) {
 	var chapters []int
 
 	if cs != "" {
-		ss := strings.Split(cs, ",")
-		for _, n := range ss {
+		ss := strings.SplitSeq(cs, ",")
+		for n := range ss {
 			if c, err := parseIDFromString(strings.TrimSpace(n)); err == nil {
 				chapters = append(chapters, c)
 			}
